@@ -1,9 +1,14 @@
 # excluded folders
 documents/
 meetings/
-dataset/
 data_zip/
 sandbox/
+
+dataset/archive/
+dataset/sessions/
+dataset/info/progress_report/
+dataset/info/*.docx
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
