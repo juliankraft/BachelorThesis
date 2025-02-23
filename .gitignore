@@ -1,0 +1,106 @@
+# excluded folders
+documents/
+meetings/
+dataset/
+data_zip/
+sandbox/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+.venv/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+wheelhouse/
+*.manifest
+*.spec
+
+# Logs and database files
+*.log
+*.sqlite3
+*.db
+
+# Unit test / coverage reports
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+pytest_cache/
+junit.xml
+htmlcov/
+*.cover
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Slurm job files and logs
+slurm-*.out
+slurm-*.err
+job-*.log
+*.batch
+*.sbatch
+
+# VS Code settings
+.vscode/
+
+# IDE/editor-specific files
+*.swp
+*.swo
+.idea/
+*.iml
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows system files
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Secrets & credentials
+.env
+.envrc
+*.pem
+*.key
+
+# Compiled C extensions
+*.so
+
+# MyPy type checker cache
+.mypy_cache/
+
+# Profiling data
+*.prof
+*.dat
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+~$*
+
+# Unix/Linux swap files
+.*.swp
+.*.swo
+
+# SSH files
+.ssh/
+known_hosts
+
+# System-specific files
+.nfs*
+.Trash*/
