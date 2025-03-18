@@ -126,13 +126,14 @@ summarizing their respective strengths and limitations.
 \section*{Proposed Workflow for this Project}
 
 \begin{enumerate}
-  \item In a first step the existing data should be analyzed to get an overview of the available data per label, sequences and their length and the distribution over camera and box types.
-  \item All the data will be processed using MD to get the bounding boxes for the animals in the images and exclude images without animals.
+  \item In a first step the existing data will be analyzed to get an overview of the available data per label, sequences and their length and the distribution over camera and box types.
+  \item All the images will be processed using MD to get the bounding boxes for the animals in the images and exclude images without animals or with more than one bounding box.
   \item This output will be assessed - a protocol to do this is needed.
   \item The data will be split into training and test data keeping complete sequences together.
   \item A small selection of models will be trained on the data -- this selection has to be determined -- to maximize my learning I want to train a model from scratch and I
   want to apply a transfer learning approach.
   \item The models will be evaluated on the test data and the results will be compared.
+  \item Depending ond the remaining time budget a separated approach could be explored where whole sequences are classified instead of single images.
 \end{enumerate}
 
 \section*{References}
