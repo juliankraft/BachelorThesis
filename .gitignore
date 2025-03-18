@@ -1,9 +1,14 @@
 # excluded folders
 documents/
 meetings/
-dataset/
 data_zip/
 sandbox/
+
+dataset/archive/
+dataset/sessions/
+dataset/info/progress_report/
+dataset/info/*.docx
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -11,12 +16,8 @@ __pycache__/
 *$py.class
 
 # Virtual environment
-venv/
+conda_env/
 .env/
-.venv/
-env/
-pip-log.txt
-pip-delete-this-directory.txt
 
 # Distribution / packaging
 build/
