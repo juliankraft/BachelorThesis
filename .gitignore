@@ -9,6 +9,18 @@ dataset/sessions/
 dataset/info/progress_report/
 dataset/info/*.docx
 
+# excluded for LaTeX
+*.pdf
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.bcf
+*.run.xml
+*.synctex.gz
+*.fls
+*.fdb_latexmk
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
