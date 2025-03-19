@@ -105,25 +105,70 @@
 
 %%%%%   %%%%%
 
-\section*{Related Research}
+\section*{Summary of my Findings}
 
 The challenge of handling large amounts of images utilizing camera traps for biodiversity seems to be a common problem in the field of ecology.
 Approaching the problem by simply working trough the images manually is not feasible due to the sheer amount of data.
 Therefore, researchers have developed various methods to automate the process of image classification and species identification.
-\textcite{velezChoosingAppropriatePlatform2022} provide an overview of several methods for wildlife image classification, 
-including Wildlife Insights (WI), Machine Learning for Wildlife Image Classification (MLWIC2), MegaDetector (MD), and Conservation AI, 
-summarizing their respective strengths and limitations.
+\textcite{velezChoosingAppropriatePlatform2022} provide an overview of several methods and tools that can be used to analyze camera trap data.
+
+Here an overview of this tools:
+
+\begin{itemize}
+  \item \textbf{Wildlife Insights (WI)} is a cloud-based platform for managing and analyzing camera trap data. 
+  It supports AI-powered image classification, species identification, and data sharing, 
+  making it valuable for large-scale ecological research. Users must share data publicly after an embargo period.
+  
+  \item \textbf{Machine Learning for Wildlife Image Classification (MLWIC2)} is an R package for classifying 
+  wildlife images, primarily trained on North American species. It allows local model execution and custom 
+  training but requires technical expertise and specific software dependencies.
+  
+  \item \textbf{MegaDetector (MD)} is a pre-trained deep learning model for detecting animals, humans, 
+  and vehicles in camera trap images. It excels at filtering images but does not classify species. 
+  MD can be integrated with other tools like Timelapse 2 or Camelot for semi-automated workflows.
+  
+  \item \textbf{Conservation AI} is a cloud-based AI platform for real-time species identification using camera traps, 
+  drones, and acoustic data. It supports model training but requires substantial data input and relies on internet connectivity for processing.
+\end{itemize}
+
+While the paper provides a good overview of this tools and a reasonable evaluation it lacks depth when it comes to how 
+this tools work, what models they are based on and how they are trained.\par
+\vspace{10pt}
+
+In "A semi-automatic workflow to process images from small mammal camera traps" \autocite{bohnerSemiautomaticWorkflowProcess2023} a Workflow
+to solve a very similar problem is presented. In a straight forward approach a ResNet50 model is trained on a dataset of small mammal images.
+A routine for retraining with additional data is implemented and and the improvements are documented and evaluated.
+Difficulties mentioned in the paper are the class imbalance which is expected to be one of the main challenges in this project as well.
+An other challenge is the limitations when it comes to the transformation of the model to different data -- an issue that
+might be less of a problem in this project since the Camera Trap boxes are somehow standardized to a certain extend.\par
+\vspace{10pt}
+
+The "CameraTrapDetectoR" \autocite{tabakCameraTrapDetectoRAutomaticallyDetect2022} is a potentially fully automated solution for the problem at hand.
+Still it offers the flexibility to be used in a semi-automated way. The model used in this project is a Faster R-CNN model with a ResNet50 backbone.
+This is the technology used in the MegaDetector before utilizing YOLO in version 5. The MegaDetector was incorporated in the project to
+assist creating the bounding boxes on the training data. In contrary to the MegaDetector, where the detection is a separated step generating
+bounding boxes and a classification in the categories "animal", "human" and "vehicle". The CameraTrapDetectoR is built in a way that 
+the detection and the classification of species are done in one step.\par
+\vspace{10pt}
+
+"Recognition of European mammals and birds in camera trap  images using deep neural networks" \autocite{schneiderRecognitionEuropeanMammals2024}
+is a paper that describes an other possible workflow potentially applicable to this project. While incorporating many species including birds,
+an interessting aspect is the incorporation of a taxonomic approach to the classification.
+This means it uses a hierarchical label system -- class, family, and species -- to classify the images. This has several advantages such as
+to use partially labeled data for training or usefull prediction outputs on not yet implemented species.
+The workflow incorporates the MegaDetector as part of the dataprocessing pipline as well. The output of MD detection is used to crop the images
+to theire relevant areas before the classification is done. In this paper a selection of different models is trained and evaluated on the same
+dataset. Even though in this project the number of species is very much limited and a taxonomic approach is not needed, the potential of
+the described workflow seems to be very promising.\par
+\vspace{10pt}
+
+"ANIMAL DETECTION USING A SERIES OF IMAGES UNDER COMPLEX SHOOTING CONDITIONS" \autocite{zotinANIMALDETECTIONUSING2019} is a paper
+that describes a workflow incorporating a series of images for detection.
 
 
 
 
-\section*{Offered Solutions and their Accuracy}
-
-
-\section*{Challenges}
-
-
-\section*{Proposed Workflow for this Project}
+\section*{Idea for a possible Workflow for this Project}
 
 \begin{enumerate}
   \item In a first step the existing data will be analyzed to get an overview of the available data per label, sequences and their length and the distribution over camera and box types.
@@ -133,7 +178,6 @@ summarizing their respective strengths and limitations.
   \item A small selection of models will be trained on the data -- this selection has to be determined -- to maximize my learning I want to train a model from scratch and I
   want to apply a transfer learning approach.
   \item The models will be evaluated on the test data and the results will be compared.
-  \item Depending ond the remaining time budget a separated approach could be explored where whole sequences are classified instead of single images.
 \end{enumerate}
 
 \section*{References}
