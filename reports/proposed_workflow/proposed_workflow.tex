@@ -111,7 +111,6 @@ The project Wildlife@Campus is a project of the ZHAW and aims to monitor small m
 One approach of the project is using camera traps to collect images of the animals. 
 The images are taken using a camera trap box called MammaliaBox especially adapted for this
 project \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
-
 The use of cameratraps for wildlifemonitoring is an well established method. Evaluating the large amount of data collected by cameratraps
 is providing a resource heavy task -- especially if approached manually. The use of machine learning algorithms 
 have proven to be a valuable tool for minimizing the workload. There are several approaches to classify and species and
@@ -120,14 +119,65 @@ to detect animals in images. In this project the focus will be to utilize a sequ
 \section*{Dataset}
 
 A quite extensive dataset of labeled images is available. The Dataset is divided into 7 sessions. The images are grouped into sequences
-of images taken of the same sighting of an animal. The sequences are not of a standardized length and can vary from 
+of images taken of the same sighting of an animal. The sequences are not of a standardized length and can vary from 1 to 915 files per sequence.
+There is to mention that in a later use case this sequence length will most likely be more standardized.
+The actual length will depend on the camera setting -- common settings are 1, 3, 5 or 10 images per trigger -- 
+can be extracted from the EXIF information of the images. The dataset provides two types of labels for the sequences while the second one is
+a simplified and standardized version. For this project the simplified version will be used.
+The distribution of the available sequences per label is shown in \autoref{fig:sequenceperlabel}.
+The category "other" represents sequences containing more than one species the category "NaN" represents sequences without a label -- both 
+will be excluded from the training data. The category is only represented in 4 sequences -- a challenge to be addressed.
+
+
+\begin{figure}[h]
+  \centering
+  \includegraphics{label2_session.pdf}
+  \caption{Available sequences per label colored by session.}
+  \label{fig:sequenceperlabel}
+\end{figure}
+
+\section*{General Idea for the Model}
+
+The general idea is to create a Model that can classify the species of a sequence of images utilizing all the relevant areas of all the images.
+So the model needs to be able to handle a sequence of input images that can vary in length. This will be achieved by processing all the relevant
+areas individually and extract a standardized feater vector from each area. This feature vector will be combined into one feature using average pooling.
+This combined feature will be feed into a fully connected layer to classify the species.
 
 \section*{Data Preparation}
 
+A well established and proven to work model -- the Microsoft Megadetector (MD) -- will be used to detect the animals within the images of a sequence. 
+The MD outputs a list of bounding boxes for detected animals, humans and vehicles and a corresponding confidence scores. 
+All bounding boxes for animals with a confidence score above a certain threshold -- possibly 0.5 -- will be extracted and used for classification.
+This areas will be resized to a fixed size -- 224 x 224 pixels. For the training the data will be augmented using random rotation and random flip.
 
+\section*{Model Architecture}
 
-\subsection*{Model Architecture}
+The proposed model architecture is shown in \autoref{fig:model}. The idea is to use a pretrained ResNET50 model to extract features from the images.
+This is a well established model that has proven to work well for image classification tasks. The model will be used to extract features from the
+selected areas of the images. The features will be embedded into an array of a fixed length. This n arrays will be combined into one using average pooling.
+This is a the simples possible way to combine this features while standardizing the shape for the input to the final fully connected layer
+predicting the species.
 
+\begin{figure}[h]
+  \centering
+  \includegraphics{model_proposal.pdf}
+  \caption{Visual representation of the proposed model architecture.}
+  \label{fig:model}
+\end{figure}
 
+\section*{Training}
+
+For the training the plan is to fixe the size of the input for optimal performance. To avoid the model getting used to fixed sequence length and to
+maximise input variety for a robust model a batch will be created by two parameters: The number of sequences and the mean number of images per sequence.
+The number of images will than be randomly distributed among the sequences. From each sequence the assigned number of images will be randomly sampled
+from the available images allowing for repetition to avoid issues with sequences with less images than the assigned number and to further increase
+the variety of the input. The pretrained ResNET50 model will be frozen and only the last layer will be trained.
+The model will be trained using a cross entropy loss function and the Adam optimizer.
+
+\section*{Prediction}
+
+After the model is trained the test set will be predicted. For the prediction the approach is slightly changed. All the relevant areas of the images will be feed into the model
+and the data augmentation will not be used. This is to ensure all available information is used for the prediction. Since some of the sequences in the available dataset some
+kind of limit might be needed to avoid memory issues.
 
 \end{document}
