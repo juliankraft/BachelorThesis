@@ -80,12 +80,13 @@
 \usepackage{listings}
 \usepackage{xcolor}
 
-%%%%% Title %%%%%
+%%%%% Title %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \title{Proposed Workflow for Sequential Based Species Classification of Camera Trap Images}
 
 \begin{document}
 
-%%%%% Header %%%%%
+%%%%% Header %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{textblock}{5}(2.5,1) % Position 1cm from left and 1cm from top
   \includegraphics[width=5cm]{resources/logo.jpg} % Add logo
 \end{textblock}
@@ -99,11 +100,9 @@
 
 \vspace*{1.5cm}
 
-%%%%% Document %%%%%
+%%%%% Document %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \maketitle
-
-%%%%%   %%%%%
 
 \section*{Situation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -111,7 +110,7 @@ The Wildlife@Campus project is an initiative by ZHAW aimed at monitoring small m
 One of the project's approaches involves using camera traps to collect images of the animals.
 The images are captured using a camera trap box called MammaliaBox, specifically adapted for this
 project \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
-The use of camera traps for wildlife monitoring is a well-established method \\autocite{cordierCameraTrapResearch2022, 
+The use of camera traps for wildlife monitoring is a well-established method \autocite{cordierCameraTrapResearch2022, 
 beaudrotStandardizedAssessmentBiodiversity2016}.
 Evaluating the large volume of data collected by camera traps
 is a resource-intensive task, especially when approached manually. The use of machine learning algorithms
@@ -126,11 +125,11 @@ The dataset is divided into seven sessions. The images are grouped into sequence
 of an animal. The sequences are not standardized in length and range from 1 to 915 images per sequence.
 It is worth noting that in future use cases, the sequence length will likely be more standardized.
 The actual length will depend on the camera settings -- common settings such as 1, 3, 5, or 10 images per trigger --
-which can be extracted from the EXIF information of the images. The dataset provides two types of labels for the sequences;
-the second type is a simplified and standardized version. For this project, only the simplified labels
+which can be extracted from the EXIF information of the images. The dataset provides two types of labels for the 
+sequences; the second type is a simplified and standardized version. For this project, only the simplified labels
 will be used. The distribution of available sequences per label is shown in \autoref{fig:sequenceperlabel}.
 The category \texttt{other} represents sequences containing more than one species, and the category \texttt{NaN}
-represents sequences without a label—both will be excluded from the training data.
+represents sequences without a label -- both will be excluded from the training data.
 The category \texttt{glis\_glis} is represented in only four sequences, which poses a challenge to be addressed.
 20\% of the sequences will be set aside for testing. A stratified split with a fixed seed will be used to ensure
 reproducibility.
@@ -144,8 +143,8 @@ reproducibility.
 
 \section*{General Approach} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The overall idea is to create a model capable of classifying the species in a sequence of images by utilizing all relevant 
-areas from each image. The model must therefore handle sequences of input images with varying lengths.
+The overall idea is to create a model capable of classifying the species in a sequence of images by utilizing all 
+relevant areas from each image. The model must therefore handle sequences of input images with varying lengths.
 This will be achieved by processing all relevant areas individually and extracting a standardized feature array from 
 each. These feature arrays will be combined using average pooling. The resulting combined feature array
 will be fed into a final fully connected layer to classify the species.
@@ -181,12 +180,12 @@ for the final fully connected layer that predicts the species.
 \section*{Training} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 For training, the plan is to fix the input size for optimal performance. To avoid the model adapting to
-a fixed sequence length and to maximize input variety for a more robust model, batches will be created based on two parameters:
-the number of sequences and the mean number of images per sequence. The number of images will then be randomly
+a fixed sequence length and to maximize input variety for a more robust model, batches will be created based on two 
+parameters: the number of sequences and the mean number of images per sequence. The number of images will then be randomly
 distributed among the sequences. From each sequence, the assigned number of images will be randomly sampled
 from the available images, allowing for repetition. This avoids issues with sequences that have fewer images than the
 assigned number and further increases input variety. The pretrained ResNet50 model will be frozen, and only
-the final customized layer will be trained. The model will be trained using a cross-entropy loss function and the
+the final, customized layer will be trained. The model will be trained using a cross-entropy loss function and the
 Adam optimizer.
 
 \section*{Hyperparameter Tuning and Cross Validation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -203,7 +202,7 @@ from each image in a sequence will be passed to the model, and data augmentation
 This ensures that all available information is used for prediction. Since some sequences in the dataset
 are quite long, a limit may be necessary to avoid memory issues.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \printbibliography
