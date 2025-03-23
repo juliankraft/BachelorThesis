@@ -23,7 +23,7 @@ eval "$("/cfs/earth/scratch/${USER}/bin/micromamba" shell hook -s posix)"
 
 
 # ## get name of environment as specified in environment.yml
-environment_file=environment.wild.yml
+environment_file=environment.mega.yml
 env_name=$(sed -ne 's/^name: \(.*\)$/\1/p' ${environment_file:?})
 echo "################## Load (and set up) environment ${env_name:?}"
 
