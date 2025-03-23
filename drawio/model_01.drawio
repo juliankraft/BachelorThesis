@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.1.1 Chrome/132.0.6834.210 Electron/34.3.3 Safari/537.36" version="26.1.1">
   <diagram name="Page-1" id="ggPybv12B__RJnhnyFPZ">
-    <mxGraphModel dx="786" dy="727" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="844" dy="727" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -265,7 +265,7 @@
         <mxCell id="1v6eLbBfpOs9rNxIjm6V-147" value="Average pooling" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;" parent="1" vertex="1">
           <mxGeometry x="210" y="540" width="240" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="1v6eLbBfpOs9rNxIjm6V-148" value="detection animals using MD, extracting relevant areas, resizing, simple augmentation" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;" parent="1" vertex="1">
+        <mxCell id="1v6eLbBfpOs9rNxIjm6V-148" value="detecting animals using MD, extracting relevant areas, resizing&lt;div&gt;&amp;nbsp;for training only: random sampling, simple augmentation&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;" parent="1" vertex="1">
           <mxGeometry x="60" y="150" width="550" height="30" as="geometry" />
         </mxCell>
         <mxCell id="1v6eLbBfpOs9rNxIjm6V-175" value="" style="whiteSpace=wrap;html=1;aspect=fixed;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;container=0;rotation=90;" parent="1" vertex="1">

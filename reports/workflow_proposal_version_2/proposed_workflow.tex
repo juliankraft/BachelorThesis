@@ -21,8 +21,8 @@
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
-    linkcolor=blue,
-    urlcolor=blue,
+    linkcolor=zhawblue,
+    urlcolor=zhawblue,
     citecolor=zhawblue,
     linkbordercolor={0 0 1}
 }
@@ -30,7 +30,7 @@
 % Set up references
 \usepackage[
     backend=biber,             % Use biber backend (an external tool)
-    sorting=none,              % Enumerates the reference in order of their appearance
+    sorting=nyt,              % Enumerates the reference in order of their appearance
     style=apa          % Choose here your preferred citation style
 ]{biblatex}
 \addbibresource{../../biblatex_ba.bib} % The filename of the bibliography
@@ -93,7 +93,7 @@
 \begin{textblock}{6}(13,1) % Position 14cm from left and 1cm from top
         \raggedleft
         Julian Kraft UI22\\
-        Proposed Workflow\\
+        Proposed Workflow V2\\
         \today
 \end{textblock}
 
@@ -202,5 +202,9 @@ For the prediction the approach is slightly changed. All the relevant areas of t
 instead of sampling a random number of them and the data augmentation will not be used. 
 This is to ensure all available information is used for the prediction. Since some of the sequences in the available 
 dataset are quite long some kind of limit might be needed to avoid memory issues.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\printbibliography
 
 \end{document}
