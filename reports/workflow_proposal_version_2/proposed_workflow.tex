@@ -107,32 +107,32 @@
 
 \section*{Situation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The project Wildlife@Campus is a project of the ZHAW and aims to monitor small mustelids in Switzerland.
-One approach of the project is using camera traps to collect images of the animals. 
-The images are taken using a camera trap box called MammaliaBox especially adapted for this
+The Wildlife@Campus project is an initiative by ZHAW aimed at monitoring small mustelids in Switzerland.
+One of the project's approaches involves using camera traps to collect images of the animals.
+The images are captured using a camera trap box called MammaliaBox, specifically adapted for this
 project \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
-The use of cameratraps for wildlifemonitoring is an well established method 
-\autocite{cordierCameraTrapResearch2022, beaudrotStandardizedAssessmentBiodiversity2016}. 
-Evaluating the large amount of data collected by cameratraps
-is providing a resource heavy task -- especially if approached manually. The use of machine learning algorithms 
-have proven to be a valuable tool for minimizing the workload. There are several approaches to classify and species and
-to detect animals in images \autocite{tabakMachineLearningClassify2019, bohnerSemiautomaticWorkflowProcess2023}. 
-While the most common approach is to classify single images, for this project a sequential based approach is tested.
+The use of camera traps for wildlife monitoring is a well-established method \\autocite{cordierCameraTrapResearch2022, 
+beaudrotStandardizedAssessmentBiodiversity2016}.
+Evaluating the large volume of data collected by camera traps
+is a resource-intensive task, especially when approached manually. The use of machine learning algorithms
+has proven to be a valuable tool for minimizing the workload. Several approaches exist to classify species and
+detect animals in images \autocite{tabakMachineLearningClassify2019, bohnerSemiautomaticWorkflowProcess2023}.
+While the most common approach is to classify single images, this project tests a sequence-based approach.
 
 \section*{Dataset} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-As part of the Wildlife@Campus project a labeled dataset was created to train a deep learning algorithm.
-The dataset is divided into 7 sessions. The images are grouped into sequences of images taken of the same sighting 
-of an animal. The sequences are not of a standardized length and can vary from 1 to 915 files per sequence.
-There is to mention that in a later use case this sequence length will most likely be more standardized.
-The actual length will depend on the camera setting -- common settings are 1, 3, 5 or 10 images per trigger -- 
-can be extracted from the EXIF information of the images. The dataset provides two types of labels for the sequences 
-the second one is a simplified and standardized version of the labels. For this project only the simplified version 
-will be used. The distribution of the available sequences per label is shown in \autoref{fig:sequenceperlabel}.
-The category \texttt{other} represents sequences containing more than one species the category \texttt{NaN} 
-represents sequences without a label -- both will be excluded from the training data. 
-The category \texttt{glis\_glis} is only represented in 4 sequences -- a challenge to be addressed.
-20\% of the sequences will be used for testing only a stratified split will be done with a fixed seed to ensure
+As part of the Wildlife@Campus project, a labeled dataset was created to train a deep learning algorithm.
+The dataset is divided into seven sessions. The images are grouped into sequences, each representing a sighting
+of an animal. The sequences are not standardized in length and range from 1 to 915 images per sequence.
+It is worth noting that in future use cases, the sequence length will likely be more standardized.
+The actual length will depend on the camera settings -- common settings such as 1, 3, 5, or 10 images per trigger --
+which can be extracted from the EXIF information of the images. The dataset provides two types of labels for the sequences;
+the second type is a simplified and standardized version. For this project, only the simplified labels
+will be used. The distribution of available sequences per label is shown in \autoref{fig:sequenceperlabel}.
+The category \texttt{other} represents sequences containing more than one species, and the category \texttt{NaN}
+represents sequences without a label—both will be excluded from the training data.
+The category \texttt{glis\_glis} is represented in only four sequences, which poses a challenge to be addressed.
+20\% of the sequences will be set aside for testing. A stratified split with a fixed seed will be used to ensure
 reproducibility.
 
 \begin{figure}[ht]
@@ -144,32 +144,32 @@ reproducibility.
 
 \section*{General Approach} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The general idea is to create a Model that can classify the species of a sequence of images utilizing all the relevant 
-areas of all the images. So the model needs to be able to handle a sequence of input images that can vary in length. 
-This will be achieved by processing all the relevant areas individually and extract a standardized feature array from 
-each area. This feature arrays will be combined into one using average pooling. This combined feature array
-will be feed into a final fully connected layer to classify the species.
+The overall idea is to create a model capable of classifying the species in a sequence of images by utilizing all relevant 
+areas from each image. The model must therefore handle sequences of input images with varying lengths.
+This will be achieved by processing all relevant areas individually and extracting a standardized feature array from 
+each. These feature arrays will be combined using average pooling. The resulting combined feature array
+will be fed into a final fully connected layer to classify the species.
 
 \section*{Data Preparation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The Microsoft MegaDetector (MD) is a well established model for detecting animals in camera trap images 
-\autocite{hernandezPytorchWildlifeCollaborativeDeep2024a, velezChoosingAppropriatePlatform2022, 
-schneiderRecognitionEuropeanMammals2024}. In this project the MD will be used to detect the animals in all the images
-of every sequence. The MD outputs a list of bounding boxes for detected animals, humans and vehicles 
-and a corresponding confidence scores. All bounding boxes for animals with a confidence score above a certain threshold 
--- possibly 0.5 -- of a sequence will be extracted and used for classification. This areas will be resized to a fixed 
-size -- 224 x 224 pixels -- as this is the size ResNet50 expects. For the training the data will be augmented 
-using random rotation and random flip -- arguably the most simple augmentation techniques for images.
+The Microsoft MegaDetector (MD) is a well-established model for detecting animals in camera trap images 
+\autocite{hernandezPytorchWildlifeCollaborativeDeep2024a, velezChoosingAppropriatePlatform2022,
+schneiderRecognitionEuropeanMammals2024}. In this project, MD will be used to detect animals in all images
+of each sequence. MD outputs a list of bounding boxes for detected animals, humans, and vehicles
+along with corresponding confidence scores. All animal bounding boxes with a confidence score above a certain threshold 
+-- possibly 0.5 -- will be extracted and used for classification. These areas will be resized to a fixed
+size of 224 x 224 pixels, which is the input size expected by ResNet50. For training, the data will be augmented
+using random rotation and random flipping -- arguably the simplest augmentation techniques for images.
 
 \section*{Model Architecture} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The proposed model architecture is shown in \autoref{fig:model}. The idea is to use a pretrained ResNet50 model to 
-extract features from the images. This is a well established model that has proven to work well for image classification 
-tasks. The model will be used to extract features from the selected areas of the images. The features will be embedded 
-into a feature array of a fixed length. To achieve this the last layer of the ResNet50 will be customized slightly. 
-A reasonable number of features to extract is still to be determined. This n arrays will be combined into one using 
-average pooling. This is a the simples possible way to combine this features while standardizing the shape for the input 
-to the final fully connected layer predicting the species.
+The proposed model architecture is shown in \autoref{fig:model}. The idea is to use a pretrained ResNet50 model to
+extract features from the images. This is a well-established model known to perform well in image classification
+tasks. It will be used to extract features from the selected areas of the images. The extracted features will be embedded
+into a feature array of fixed length. To achieve this, the last layer of ResNet50 will be slightly modified.
+A reasonable number of features to extract is still to be determined. These n arrays will be combined using
+average pooling. This is the simplest way to combine these features while standardizing the input shape
+for the final fully connected layer that predicts the species.
 
 \begin{figure}[ht]
   \centering
@@ -180,30 +180,31 @@ to the final fully connected layer predicting the species.
 
 \section*{Training} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-For the training the plan is to fixe the size of the input for optimal performance. To avoid the model getting used to 
-fixed sequence length and to maximise input variety for a robust model a batch will be created by two parameters: 
-The number of sequences and the mean number of images per sequence. The number of images will than be randomly 
-distributed among the sequences. From each sequence the assigned number of images will be randomly sampled
-from the available images allowing for repetition to avoid issues with sequences with less images than the 
-assigned number and to further increase the variety of the input. The pretrained ResNet50 model will be frozen and only 
-the last -- customized layer will be trained. The model will be trained using a cross entropy loss function and the 
+For training, the plan is to fix the input size for optimal performance. To avoid the model adapting to
+a fixed sequence length and to maximize input variety for a more robust model, batches will be created based on two parameters:
+the number of sequences and the mean number of images per sequence. The number of images will then be randomly
+distributed among the sequences. From each sequence, the assigned number of images will be randomly sampled
+from the available images, allowing for repetition. This avoids issues with sequences that have fewer images than the
+assigned number and further increases input variety. The pretrained ResNet50 model will be frozen, and only
+the final customized layer will be trained. The model will be trained using a cross-entropy loss function and the
 Adam optimizer.
 
-\section*{Hyperparemeter Tuning and Cross Validation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Hyperparameter Tuning and Cross Validation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-A first stratified 80/20 split will be done to perform a hyperparameter tuning with a grid search using the validation
-set for an early stopping routine. Using the best hyperparameters a 5 fold cross validation will be performed to
-evaluate the model performance.
+An initial stratified 80/20 split will be performed for hyperparameter tuning using grid search and early stopping
+on the validation set. With the best hyperparameters, a 5-fold cross-validation will be carried out to
+evaluate model performance.
 
-\section*{Prediction} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Prediction} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-On each training compleation, the best performing model will be loaded and the test set will be predicted. 
-For the prediction the approach is slightly changed. All the relevant areas of the images will be feed into the model 
-instead of sampling a random number of them and the data augmentation will not be used. 
-This is to ensure all available information is used for the prediction. Since some of the sequences in the available 
-dataset are quite long some kind of limit might be needed to avoid memory issues.
+Upon training completion, the best-performing model will be loaded to predict the test set.
+For prediction, the approach will be slightly modified. Instead of sampling a random number of inputs, all relevant areas
+from each image in a sequence will be passed to the model, and data augmentation will not be applied.
+This ensures that all available information is used for prediction. Since some sequences in the dataset
+are quite long, a limit may be necessary to avoid memory issues.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \printbibliography
 
