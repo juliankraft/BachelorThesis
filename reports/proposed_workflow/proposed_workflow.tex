@@ -1,0 +1,133 @@
+\documentclass{article}
+\usepackage[margin=2.5cm]{geometry} % Set margins
+\usepackage{graphicx}
+\usepackage[absolute]{textpos} % Enable absolute positioning
+\usepackage{titlesec} % Package for controlling section title appearance
+\usepackage[scaled]{helvet}
+\usepackage[T1]{fontenc}
+\usepackage{fancyhdr}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{url} % Load the url package
+
+% Set up colors
+\usepackage[dvipsnames]{xcolor} % Color management
+% ZHAW Blue: Pantone 2945 U / R0 G100 B166
+\definecolor{zhawblue}{rgb}{0.00, 0.39, 0.65}
+\definecolor{zhawlightblue}{rgb}{0.82, 0.88, 0.93}
+
+% Set up hyperref
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=zhawblue,
+    linkbordercolor={0 0 1}
+}
+
+% Set up references
+\usepackage[
+    backend=biber,             % Use biber backend (an external tool)
+    sorting=none,              % Enumerates the reference in order of their appearance
+    style=apa          % Choose here your preferred citation style
+]{biblatex}
+\addbibresource{../../biblatex_ba.bib} % The filename of the bibliography
+
+\usepackage[english]{babel} % Set the document language to English
+
+\usepackage[autostyle=true, english=american]{csquotes} 
+                               % Required to generate language-dependent quotes 
+                               % in the bibliography
+
+\setlength{\TPHorizModule}{1cm} % Set horizontal unit of measure
+\setlength{\TPVertModule}{1cm} % Set vertical unit of measure
+\setlength{\parindent}{0pt}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\makeatletter
+\renewcommand{\maketitle}{
+  \begin{flushleft} 
+    \Large\textmd{\@title} 
+    \par
+  \end{flushleft}
+}
+\makeatother
+
+% Define style of sectiontitles
+\titleformat{\section}
+  {\normalfont\large\mdseries}{\thesection}{1em}{}
+
+\titleformat{\subsection}
+  {\normalfont\normalsize\itshape} % Adjust style: smaller size, italic
+  {} % No label
+  {0pt} % Spacing between label and title
+  {} % Code to execute after the title
+\titlespacing*{\subsection}
+  {0pt} % Left margin
+  {0.8em} % Space above
+  {0.2em} % Space below
+
+% Set up fancyhdr
+\fancyhf{} % Clear all headers and footers
+\renewcommand{\headrulewidth}{0pt} % Remove the header rule
+\rfoot{\thepage} % Place the page number in the right footer
+\pagestyle{fancy}
+
+% Add listings package for code highlighting
+\usepackage{listings}
+\usepackage{xcolor}
+
+%%%%% Title %%%%%
+\title{Proposed Workflow for Sequential Based Species Classification of Camera Trap Images}
+
+\begin{document}
+
+%%%%% Header %%%%%
+\begin{textblock}{5}(2.5,1) % Position 1cm from left and 1cm from top
+  \includegraphics[width=5cm]{logo.jpg} % Add logo
+\end{textblock}
+
+\begin{textblock}{6}(13,1) % Position 14cm from left and 1cm from top
+        \raggedleft
+        Julian Kraft UI22\\
+        Proposed Workflow\\
+        \today
+\end{textblock}
+
+\vspace*{1.5cm}
+
+%%%%% Document %%%%%
+
+\maketitle
+
+%%%%%   %%%%%
+
+\section*{Situation}
+
+The project Wildlife@Campus is a project of the ZHAW and aims to monitor small mustelids in Switzerland.
+One approach of the project is using camera traps to collect images of the animals. 
+The images are taken using a camera trap box called MammaliaBox especially adapted for this
+project \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
+
+The use of cameratraps for wildlifemonitoring is an well established method. Evaluating the large amount of data collected by cameratraps
+is providing a resource heavy task -- especially if approached manually. The use of machine learning algorithms 
+have proven to be a valuable tool for minimizing the workload. There are several approaches to classify and species and
+to detect animals in images. In this project the focus will be to utilize a sequential based approach to classify the species.
+
+\section*{Dataset}
+
+A quite extensive dataset of labeled images is available. The Dataset is divided into 7 sessions. The images are grouped into sequences
+of images taken of the same sighting of an animal. The sequences are not of a standardized length and can vary from 
+
+\section*{Data Preparation}
+
+
+
+\subsection*{Model Architecture}
+
+
+
+\end{document}
