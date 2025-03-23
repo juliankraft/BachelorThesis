@@ -47,5 +47,14 @@ Not all sessions have values for all keys available. The following table shows w
 |         7 | no             | yes      | yes      | yes         | no               | no             | no                 | yes          | yes         | yes       | yes         | yes     | no                | yes      |
 
 
+## Labels
+
+From the annotation label to label 2 two groups where summarized:
+- soricidae: [sorex_sp, crocidura_sp, neomys_sp]
+- cricetidae: [microtus_sp, myodes_glareolus, chionomys_nivalis]
+
+Furthermore there is a label "other" for sequences containing multiple labels.
+
 ## Archive
+
 In the 'archive' folder there are old versions of mutated data stored. They might not be relevant any longer - just in case.
