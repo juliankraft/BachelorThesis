@@ -10,6 +10,7 @@
 \usepackage{lmodern}
 \usepackage{amsmath}
 \usepackage{url} % Load the url package
+\usepackage{todonotes}
 
 % Set up colors
 \usepackage[dvipsnames]{xcolor} % Color management
@@ -132,7 +133,8 @@ with some visually not distinguishable species grouped together. For this projec
 will be used. The distribution of available sequences per label is shown in \autoref{fig:sequenceperlabel}.
 The category \texttt{other} represents sequences containing more than one species, and the category \texttt{NaN}
 represents sequences without a label -- both will be excluded from the from the dataset.
-The category \texttt{glis\_glis} is represented in only four sequences, which poses a challenge to be addressed.
+The category \texttt{glis\_glis} is represented in only four sequences
+\todo{Is it an option to exclude this category?}, which poses a challenge to be addressed.
 20\% of the sequences will be set aside for testing. A stratified split with a fixed seed will be used to ensure
 reproducibility.
 
@@ -144,6 +146,9 @@ reproducibility.
 \end{figure}
 
 \section*{Problem Statement} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\todo{Some of this challanges are allready addressed. I would like to discuss some of them. And is it valid to run
+a first experiment and asses the results to check if the challenges are really that big of an issue?}
 
 The problem at hand is a species classification of cameratrap images taken as sequences. The full available
 information of the sequences must be used for classification. The following challenges must be addressed:
@@ -187,17 +192,19 @@ The proposed model architecture is shown in \autoref{fig:model}. The idea is to 
 -- as of now ResNet50 is planned -- to extract features from the selected n images.
 Pretrained versions of ResNet50 have been shown to be effective in image classification tasks
 \autocite{bintaislamAnimalSpeciesRecognition2023}.
-In ResNet the last layer is a fully connected layer mapping the features to the output classes 
+In ResNet, the last layer is a fully connected layer mapping the features to the output classes 
 \autocite{heDeepResidualLearning2015}, the approach to repurpose a CNN for feature extraction by removing the last
 layer was demonstrated by \textcite{razavianCNNFeaturesOfftheshelf2014}.
-This n extracted feature embeddings will than be combined using average pooling. 
+This n extracted feature embeddings will then be combined using average pooling. \todo{I have read up on different
+approaches to combine features from multiple images -- I am not sure if this is valid or if there are better
+options. This might be a point to discuss.} 
 This approach seems to be the most simple way to combine the
 n feature embeddings into one, while solving the problem of varying sequence lengths.
-To test the most simple, reasonable approach is logical in itself.
 The resulting feature array will be fed into a final fully connected
 layer to predict the species. Since the features where extracted using ResNet50 without its final layer
 mapping the features to the output classes, it is reasonable to use this layer architecture to classify the species
-from the combined feature array.
+from the combined feature array. \todo{On this step I have not jet found a lot of information.
+This might be a point to discuss.}
 
 \begin{figure}[ht]
   \centering
@@ -213,16 +220,19 @@ to a fixed sequence length and to increase the variety of the samples, a random 
 sampled with replacement and fed jointly into the model. In order to optimize training performance, a possible
 solution could be to standardize total number of samples per batch while keeping the number of samples per sequence
 variable. A part of the pretrained ResNet model will be frozen and only later layers will be subjected
-to training in order for the model to be fine-tuned for the task at hand.
+to training in order for the model to be fine-tuned for the task at hand. \todo{I have read about this concept
+for transfer learning. I have a feeling this is something that might need some experience to make a good decision --
+I might need some help with this.}
 The model will be trained using cross-entropy loss and Adam optimizer -- both standard approaches 
 in image classification. The loss function will be weighted to account for the imbalanced distribution of sequences
 per label.
 
 \section*{Hyperparameter Tuning and Cross Validation} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-An initial stratified 80/20 split will be performed for hyperparameter tuning using grid search and early stopping
-on the validation set. With the best hyperparameters, a 5-fold cross-validation will be carried out to
-evaluate model performance.
+For the hyperparameter tuning and cross-validation, 80\% of the dataset will be, while the remaining 20\% will be
+held back for testing. From the former subset an initial stratified 80/20 split will be performed for hyperparameter 
+tuning using grid search and early stopping on the validation set. With the best hyperparameters, 
+a 5-fold cross-validation will be carried out to evaluate model performance.
 
 \section*{Prediction} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -234,7 +244,6 @@ This ensures that all available information is used for prediction. Since some s
 are quite long, a limit may be necessary to avoid memory issues.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 \printbibliography
 
