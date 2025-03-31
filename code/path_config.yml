@@ -1,0 +1,3 @@
+dataset: /cfs/earth/scratch/iunr/shared/iunr-mammaliabox/dataset/
+labels: /cfs/earth/scratch/iunr/shared/iunr-mammaliabox/dataset/info/labels
+output: /cfs/earth/scratch/kraftjul/BA/output
