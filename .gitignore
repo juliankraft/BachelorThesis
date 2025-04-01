@@ -4,6 +4,7 @@ meetings/
 data_zip/
 sandbox/
 output/
+test_set/
 
 dataset/archive/
 dataset/sessions/
