@@ -4,72 +4,16 @@ import csv
 import json
 import torch
 import pandas as pd
-import numpy as np
 from pathlib import Path
 from typing import Any, TypedDict
 
-from megadetector.detection.run_detector import load_detector, model_string_to_model_version
-from megadetector.detection.run_detector_batch import process_images, write_results_to_file
+from megadetector.detection.run_detector import model_string_to_model_version
 
 from os import PathLike
 from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split
 
-
-class MegaDetectorRunner:
-    """
-    A class to run the MegaDetector model on images. Designed to be used on a set of image sequences,
-    only loading the model once and running it on all sequences.
-
-    Parameters
-    ----------
-    model_path : str | PathLike
-        Path to the MegaDetector model file. Or a string representing the model version available online.
-    confidence : float
-        Confidence threshold for the model. Default is 0.25.
-    """
-    def __init__(
-            self, 
-            model_path: str | PathLike, 
-            confidence: float = 0.25
-            ):
-        
-        self.model = load_detector(str(model_path))
-        self.confidence = confidence
-
-    def run_on_images(
-            self,
-            images: list[PathLike],
-            output_file_path: PathLike = None,
-            ):
-
-        results = process_images(
-            im_files=images,
-            detector=self.model,
-            confidence_threshold=self.confidence,
-            quiet=True
-        )
-
-        all_confidences = []
-
-        for r in results:
-            r["file"] = r["file"].name
-
-            r["detections"] = [
-                det for det in r.get("detections", [])
-                if det["category"] == "1"
-            ]
-        
-            all_confidences.extend(det["conf"] for det in r["detections"])
-
-        all_confidences.sort(reverse=True)
-        
-        if output_file_path is not None:
-            with open(output_file_path, "w") as f:
-                json.dump(results, f, indent=2)
-
-        return all_confidences      
-
+from src.runner import MegaDetectorRunner
 
 class MammaliaData(Dataset):
     """
@@ -113,11 +57,11 @@ class MammaliaData(Dataset):
             path_labelfiles: str | PathLike,
             path_to_dataset: str | PathLike,
             path_to_detector_output: str | PathLike,
-            categories_to_drop: list[str] = None,
-            detector_model: str = None,
+            categories_to_drop: list[str] | None = None,
+            detector_model: str | None = None,
             detection_confidence: float = 0.25,
             sample_length: int = 10,
-            sample_img_size: [int, int] = [224, 224],
+            sample_img_size: list[int] = [224, 224],
             mode: str = 'train',
             ):
         super().__init__()
@@ -140,7 +84,7 @@ class MammaliaData(Dataset):
             raise ValueError("The path to the label files does not exist.")
         
         self.path_to_dataset = Path(path_to_dataset)
-        if not path_to_dataset.exists():
+        if not self.path_to_dataset.exists():
             raise ValueError("The path to the dataset does not exist.")
 
         self.path_to_detector_output = Path(path_to_detector_output)
@@ -190,9 +134,9 @@ class MammaliaData(Dataset):
     def getting_all_files_of_type(
             self, 
             path: str | PathLike, 
-            file_type: str = None, 
+            file_type: str | None = None, 
             get_full_path: bool = True
-            ) -> list[str]:
+            ) -> list[str | PathLike]:
         
         path = Path(path)
         files = []
@@ -206,7 +150,7 @@ class MammaliaData(Dataset):
     
     def reading_all_metadata(
             self,
-            list_of_files: list[PathLike],
+            list_of_files: list[PathLike | str],
             categories_to_drop: list[str] = []
             ) -> pd.DataFrame:
         
@@ -245,7 +189,7 @@ class MammaliaData(Dataset):
 
     def get_detection_summary(
             self,
-            usecols: list[str] = None,
+            usecols: list[str] | None = None,
             ) -> pd.DataFrame:
         
         return pd.read_csv(
@@ -260,14 +204,14 @@ class MammaliaData(Dataset):
         if self.mode == 'test':
             raise ValueError("Class weights are not available in test mode.")
         
-        class_weights = 5
+        class_weights = torch.Tensor([1.0] * len(self.ds_full['label2'].unique()))
         
         return class_weights
     
     def get_all_images_of_sequence(
             self, 
             seq_id: int,
-            dataframe: pd.DataFrame = None,
+            dataframe: pd.DataFrame | None = None,
             )-> dict[str, PathLike]:
         
         if dataframe is None:
@@ -335,7 +279,7 @@ class MammaliaData(Dataset):
     def getting_bb_list_for_seq(
             self,
             seq_id: int,
-            confidence: float = None,
+            confidence: float | None = None,
             ) -> list[dict]:
         
         if self.mode != 'detect':
@@ -356,7 +300,7 @@ class MammaliaData(Dataset):
 
             for det in detections:
                 if det['category'] == "1" and det['conf'] >= confidence:
-                    bb_list({
+                    bb_list.append({
                         'file': file_name,
                         'conf': det['conf'],
                         'bbox': det['bbox']
@@ -370,7 +314,10 @@ class MammaliaData(Dataset):
         return len(self.ds)
 
     def __getitem__(self, index: int) -> Any:               # still to be implemented
-        seq_id = self.seq_ids[index]
+        # seq_id = self.seq_ids[index]
 
-        images = self.get_all_images_of_sequence(seq_id)
-        bounding_boxes = self.getting_bb_list_for_seq(seq_id)
+        # images = self.get_all_images_of_sequence(seq_id)
+        # bounding_boxes = self.getting_bb_list_for_seq(seq_id)
+
+        print("Methode changed")
+        return None
