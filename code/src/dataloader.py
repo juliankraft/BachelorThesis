@@ -319,7 +319,7 @@ class MammaliaData(Dataset):
     def __len__(self) -> int:
         return len(self.ds)
 
-    def __getitem__(self, index: int) -> Any:               # still to be implemented soon
+    def __getitem__(self, index: int) -> Any:              # still to be implemented soon
         # seq_id = self.seq_ids[index]
 
         # images = self.get_all_images_of_sequence(seq_id)
