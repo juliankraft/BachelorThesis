@@ -18,7 +18,7 @@ from src.runner import MegaDetectorRunner
 
 class MammaliaData(Dataset):
     """
-    A class to load and process the Mammalia dataset. It can be uset for the initial detection of the images
+    A class to load and process the Mammalia dataset. It can be used for the initial detection of the images
     utilizing the MegaDetector model, or for training a custom model for classification on the detected images.
     The dataset is divided into training and testing sets based on the sequence IDs.
 
@@ -43,7 +43,7 @@ class MammaliaData(Dataset):
         with the training. The confidence can be set to a higher value to reduce the number of detections used from
         the output. The default is 0.25.
     sample_length : int
-        For trainig this parameter specifies the range (1 - sample_length) of randomly seletded samples per sequence.
+        For training this parameter specifies the range (1 - sample_length) of randomly selected samples per sequence.
         For testing this parameter specifies the maximum number of samples per sequence.
         The default is 10.
     sample_img_size : [int, int]
@@ -200,7 +200,7 @@ class MammaliaData(Dataset):
                 usecols=usecols
                 )
 
-    def get_clss_weight(                                        # still to be implemented
+    def get_class_weight(                                        # still to be implemented
             self
             ) -> torch.Tensor:
 
