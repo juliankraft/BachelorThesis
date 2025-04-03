@@ -19,11 +19,11 @@ class MegaDetectorRunner:
         Confidence threshold for the model. Default is 0.25.
     """
     def __init__(
-            self, 
-            model_path: str | PathLike, 
+            self,
+            model_path: str | PathLike,
             confidence: float = 0.25
             ):
-        
+
         self.model = load_detector(str(model_path))
         self.confidence = confidence
 
@@ -42,9 +42,9 @@ class MegaDetectorRunner:
 
         all_confidences = []
 
-        if type (results) is not list:
+        if type(results) is not list:
             raise ValueError("The results should be a list of dictionaries.")
-        
+
         for r in results:
             r["file"] = r["file"].name
 
@@ -52,13 +52,13 @@ class MegaDetectorRunner:
                 det for det in r.get("detections", [])
                 if det["category"] == "1"
             ]
-        
+
             all_confidences.extend(det["conf"] for det in r["detections"])
 
         all_confidences.sort(reverse=True)
-        
+
         if output_file_path is not None:
             with open(output_file_path, "w") as f:
                 json.dump(results, f, indent=2)
 
-        return all_confidences      
+        return all_confidences
