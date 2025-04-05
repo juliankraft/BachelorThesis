@@ -327,4 +327,3 @@ class MammaliaData(Dataset):
 
         print("Methode changed")
         return None
-
