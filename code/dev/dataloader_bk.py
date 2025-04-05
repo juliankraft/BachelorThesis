@@ -32,19 +32,16 @@ class MammaliaData(Dataset):
         Path to the directory where the detector output is available for training or where the output will be saved
         if detection is applied.
     categories_to_drop : list[str], optional
-        All empty labels are excluded anyways. Per default the categories 'other' and 'glis_glis' are excluded
-        as well. This argument could change this behavior.
+        By default all non-empty labels are used. To drop certain labels from the dataset, provide a list of labels
+        to drop. In detect mode, this parameter is ignored.
     detector_model : str
         If a detector model is provided, the detection will be applied to the whole dataset and stored for training.
         The model must be one of the available models in the MegaDetector repository.
         The default is None. A valid detection output must be available at the path_to_detector_output.
-    applied_detection_confidence : float
+    detection_confidence : float
         The detection is done with a confidence of 0.25 by default to provide some flexibility
         with the training. The confidence can be set to a higher value to reduce the number of detections used from
         the output. The default is 0.25.
-    available_detection_confidence : float
-        If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
-        must be set to the value used for the detection. The default is 0.25.
     sample_length : int
         For training this parameter specifies the range (1 - sample_length) of randomly selected samples per sequence.
         For testing this parameter specifies the maximum number of samples per sequence.
@@ -54,9 +51,6 @@ class MammaliaData(Dataset):
     mode : str
         The mode in which the dataset is used. Can be either 'train', 'test' or 'init' defining which data will be
         sampled and adjusting how it is sampled. The default is 'train'.
-    scope : list[str]
-        The scope of the dataset. Can be either 'seq' or 'img'. If 'seq', the dataset is sampled on sequence level,
-        if 'img', the dataset is sampled on image level. The default is 'seq'.
     """
 
     def __init__(
@@ -64,28 +58,25 @@ class MammaliaData(Dataset):
             path_labelfiles: str | PathLike,
             path_to_dataset: str | PathLike,
             path_to_detector_output: str | PathLike,
-            categories_to_drop: list[str] | None = ['other', 'glis_glis'],
+            categories_to_drop: list[str] | None = None,
             detector_model: str | None = None,
-            applied_detection_confidence: float = 0.25,
-            available_detection_confidence: float = 0.25,
+            detection_confidence: float = 0.25,
             sample_length: int = 10,
             sample_img_size: list[int] = [224, 224],
             mode: str = 'train',
             ):
         super().__init__()
 
-        mode_available = ['train', 'test', 'init']
-        if mode in mode_available:
+        if mode in ['train', 'test', 'init']:
             self.mode = mode
         else:
-            raise ValueError(f'Please choose a mode from {mode_available}.')
+            raise ValueError("Please choose a mode from ['train', 'test'].")
 
-        if applied_detection_confidence < available_detection_confidence:
-            raise ValueError("The applied detection confidence can not be lower than the available one.")
-        self.applied_detection_confidence = applied_detection_confidence
-        self.available_detection_confidence = available_detection_confidence
+        if detection_confidence < 0.25:
+            raise ValueError("Detection confidence must be at least 0.25.")
 
         self.categories_to_drop = categories_to_drop if categories_to_drop is not None else []
+        self.detection_confidence = detection_confidence
         self.sample_length = sample_length
         self.sample_img_size = sample_img_size
 
@@ -116,31 +107,21 @@ class MammaliaData(Dataset):
             duplicates = self.ds_full['seq_id'][self.ds_full['seq_id'].duplicated()].unique()
             raise ValueError(f"Duplicate seq_id(s) found in metadata: {duplicates[:5]} ...")
 
-        self.usable_seq_ids = self.exclude_ids_with_no_detections(
-            set_type='full',
-            sequences_to_filter=self.ds_full['seq_id'].tolist(),
-            detection_confidence=self.available_detection_confidence
-        )
-
-        self.usable_set = self.ds_full[self.ds_full['seq_id'].isin(self.usable_seq_ids)]
-
         train_seq_ids, test_seq_ids = train_test_split(
-                                            self.usable_set['seq_id'],
+                                            self.ds_full['seq_id'],
                                             test_size=0.2,
                                             random_state=55,
-                                            stratify=self.usable_set['label2']
+                                            stratify=self.ds_full['label2']
                                             )
 
         filtered_train_seq_ids = self.exclude_ids_with_no_detections(
             set_type='train',
-            sequences_to_filter=train_seq_ids,
-            detection_confidence=self.applied_detection_confidence
+            sequences_to_filter=train_seq_ids
         )
 
         filtered_test_seq_ids = self.exclude_ids_with_no_detections(
             set_type='test',
-            sequences_to_filter=test_seq_ids,
-            detection_confidence=self.applied_detection_confidence
+            sequences_to_filter=test_seq_ids
         )
 
         if self.mode in ['train', 'init']:
@@ -171,11 +152,8 @@ class MammaliaData(Dataset):
     def reading_all_metadata(
             self,
             list_of_files: list[PathLike | str],
-            categories_to_drop: list[str] | None = None,
+            categories_to_drop: list[str] = []
             ) -> pd.DataFrame:
-
-        if categories_to_drop is None:
-            categories_to_drop = []
 
         metadata = pd.DataFrame()
         for file in list_of_files:
@@ -184,23 +162,10 @@ class MammaliaData(Dataset):
             metadata = metadata[~metadata['label2'].isin(categories_to_drop)]
         return metadata
 
-    def explode_df_images(
-            self,
-            dataframe: pd.DataFrame,
-            ) -> pd.DataFrame:
-
-        df = dataframe.copy()
-        df["all_files"] = df["all_files"].str.split(",")
-        df_exploded = df.explode("all_files").reset_index(drop=True)
-        df_exploded = df_exploded.rename(columns={"all_files": "image_file"})
-
-        return df_exploded
-
     def exclude_ids_with_no_detections(
             self,
             set_type: str,
             sequences_to_filter: list[int],
-            detection_confidence: float,
             ) -> list[int]:
 
         detection_summary = self.get_detection_summary(
@@ -208,7 +173,7 @@ class MammaliaData(Dataset):
             )
 
         seq_ids_to_exclude_set = set(
-            detection_summary[detection_summary["max_conf"] < detection_confidence]["seq_id"].tolist()
+            detection_summary[detection_summary["max_conf"] < self.detection_confidence]["seq_id"].tolist()
             )
         seq_ids_to_filter_set = set(sequences_to_filter)
 
@@ -217,7 +182,7 @@ class MammaliaData(Dataset):
         if excluded_seq_ids:
             suffix = "" if len(excluded_seq_ids) <= 10 else " ..."
             warnings.warn(
-                f"With the detection confidence of {detection_confidence},\n"
+                f"With the current detection confidence of {self.detection_confidence},\n"
                 f"{len(excluded_seq_ids)} sequences of the {set_type} set had no detections and will be excluded.\n"
                 f"Excluded sequences: {excluded_seq_ids[:10]}{suffix}",
                 UserWarning
@@ -286,7 +251,6 @@ class MammaliaData(Dataset):
 
         metadata = self.reading_all_metadata(
                     list_of_files=self.getting_all_files_of_type(self.path_labelfiles, file_type='.csv'),
-                    categories_to_drop=None
                     )
 
         sequences = metadata['seq_id'].unique().tolist()
@@ -328,7 +292,7 @@ class MammaliaData(Dataset):
             raise ValueError("Only available if dataset is in detect mode.")
 
         if confidence is None:
-            confidence = self.applied_detection_confidence
+            confidence = self.detection_confidence
 
         path_to_detection_results = self.path_to_detector_output / f"{seq_id}.json"
         with open(path_to_detection_results, 'r') as f:
@@ -355,6 +319,11 @@ class MammaliaData(Dataset):
     def __len__(self) -> int:
         return len(self.ds)
 
-    def __getitem__(self, index: int) -> Any:
+    def __getitem__(self, index: int) -> Any:             # still to be implemented soon
+        # seq_id = self.seq_ids[index]
+
+        # images = self.get_all_images_of_sequence(seq_id)
+        # bounding_boxes = self.getting_bb_list_for_seq(seq_id)
+
         print("Methode changed")
         return None
