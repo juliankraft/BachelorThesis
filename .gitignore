@@ -5,12 +5,11 @@ data_zip/
 sandbox/
 output/
 data/
+dataset/
 
-dataset/archive/
-dataset/sessions/
-dataset/info/progress_report/*
-!dataset/info/progress_report/2025.02.17_Wildlife@Campus_ProgressReport_reorganizing_dataset.md
-dataset/info/*.docx
+# exclude files
+
+path_config.yml
 
 # excluded for LaTeX
 *.pdf
