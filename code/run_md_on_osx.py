@@ -1,21 +1,32 @@
-import yaml
-from pathlib import Path
-from ba_dev.dataloader import MammaliaData
+# run this script using:
+# caffeinate -is conda run -n BA python run_md_on_osx.py 2>&1 | tee run_md.log
 
+import datetime
+from ba_stable.dataloader import MammaliaData
+from ba_stable.utils import load_config_yaml
 
-def load_path_config(path_to_config):
-    with open(path_to_config, 'r') as f:
-        path_config = yaml.safe_load(f)
-    return {k: Path(v) for k, v in path_config.items()}
+# Print log header
+print("=" * 60)
+print("📦 Running MegaDetector Initialization Script")
+print(f"🕒 Started at: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+print("=" * 60)
 
-
-paths = load_path_config('../path_config.yml')
+paths = load_config_yaml('../path_config.yml')
 
 path_to_dataset = paths['dataset']
-path_labelfiles = paths['testset']
-path_to_detector_output = path_labelfiles / 'md_out'
+path_labelfiles = paths['labels']
+path_to_detector_output = paths['md_output']
 detector_model = 'mdv5a'
 mode = 'init'
+
+print("=" * 60)
+print("Configurations:")
+print(f"Dataset: {path_to_dataset}")
+print(f"Labels: {path_labelfiles}")
+print(f"Detector output: {path_to_detector_output}")
+print(f"Detector model: {detector_model}")
+print(f"Mode: {mode}")
+print("=" * 60)
 
 dataset = MammaliaData(
     path_to_dataset=path_to_dataset,
