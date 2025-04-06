@@ -324,9 +324,6 @@ class MammaliaData(Dataset):
             confidence: float | None = None,
             ) -> list[dict]:
 
-        if self.mode != 'detect':
-            raise ValueError("Only available if dataset is in detect mode.")
-
         if confidence is None:
             confidence = self.applied_detection_confidence
 
