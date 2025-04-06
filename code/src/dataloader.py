@@ -239,10 +239,7 @@ class MammaliaData(Dataset):
             self
             ) -> torch.Tensor:
 
-        if self.mode == 'test':
-            raise ValueError("Class weights are not available in test mode.")
-
-        class_weights = torch.Tensor([1.0] * len(self.ds_full['label2'].unique()))
+        class_weights = torch.Tensor()
 
         return class_weights
 
@@ -324,9 +321,6 @@ class MammaliaData(Dataset):
             confidence: float | None = None,
             ) -> list[dict]:
 
-        if self.mode != 'detect':
-            raise ValueError("Only available if dataset is in detect mode.")
-
         if confidence is None:
             confidence = self.applied_detection_confidence
 
@@ -358,3 +352,72 @@ class MammaliaData(Dataset):
     def __getitem__(self, index: int) -> Any:
         print("Methode changed")
         return None
+
+
+class MammaliaDataImage(MammaliaData):
+    def __init__(
+            self,
+            path_labelfiles: str | PathLike,
+            path_to_dataset: str | PathLike,
+            path_to_detector_output: str | PathLike,
+            applied_detection_confidence: float = 0.25,
+            available_detection_confidence: float = 0.25,
+            ):
+        super().__init__(
+            path_labelfiles=path_labelfiles,
+            path_to_dataset=path_to_dataset,
+            path_to_detector_output=path_to_detector_output,
+            applied_detection_confidence=applied_detection_confidence,
+            available_detection_confidence=available_detection_confidence
+            )
+
+        self.ds_image = self.explode_df(
+                in_df=self.ds,
+                only_one_bb_per_image=True,
+                )
+
+    def explode_df(
+            self,
+            in_df: pd.DataFrame,
+            only_one_bb_per_image: bool = True,
+            ) -> pd.DataFrame:
+
+        original_keys_to_keep = ['seq_id', 'label2', 'SerialNumber']
+
+        out_rows = []
+
+        for i, row in in_df.iterrows():
+
+            used_files = set()
+
+            bb_list = self.getting_bb_list_for_seq(
+                        seq_id=row['seq_id'],
+                        confidence=self.applied_detection_confidence,
+                        )
+
+            row_info_to_add = {key: row[key] for key in original_keys_to_keep}
+
+            for item in bb_list:
+
+                file_name = item['file']
+
+                if only_one_bb_per_image and file_name in used_files:
+                    continue
+
+                used_files.add(file_name)
+
+                new_row = row_info_to_add.copy()
+
+                new_row['file_path'] = Path(row['Directory']) / file_name
+                new_row['bbox'] = item['bbox']
+                new_row['conf'] = item['conf']
+
+                out_rows.append(new_row)
+
+        return pd.DataFrame(out_rows)
+
+    def __len__(self):
+        pass
+
+    def __getitem__(self, idx):
+        pass
