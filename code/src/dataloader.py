@@ -154,14 +154,14 @@ class MammaliaData(Dataset):
     def getting_all_files_of_type(
             self,
             path: str | PathLike,
-            file_type: str | None = None,
+            file_type: str,
             get_full_path: bool = True
             ) -> list[str | PathLike]:
 
         path = Path(path)
         files = []
         for file in os.listdir(path):
-            if file_type is None or file.endswith(file_type):
+            if file.endswith(file_type):
                 if get_full_path:
                     files.append(path / file)
                 else:
