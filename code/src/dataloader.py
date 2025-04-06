@@ -4,8 +4,9 @@ import csv
 import json
 import torch
 import pandas as pd
+from PIL import Image
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 from megadetector.detection.run_detector import model_string_to_model_version
 
@@ -346,6 +347,21 @@ class MammaliaData(Dataset):
 
         return bb_list
 
+    def crop_by_bbox(
+            self,
+            image: Image.Image,
+            bbox: list[float] | tuple[float, float, float, float]
+            ) -> Image.Image:
+
+        width, height = image.size
+
+        x1 = int(bbox[0] * width)
+        y1 = int(bbox[1] * height)
+        x2 = int((bbox[0] + bbox[2]) * width)
+        y2 = int((bbox[1] + bbox[3]) * height)
+
+        return image.crop((x1, y1, x2, y2))
+
     def __len__(self) -> int:
         return len(self.ds)
 
@@ -415,6 +431,35 @@ class MammaliaDataImage(MammaliaData):
                 out_rows.append(new_row)
 
         return pd.DataFrame(out_rows)
+
+    def crop_center_sample(
+            self,
+            image: Image.Image,
+            bbox: list[float] | tuple[float, float, float, float],
+            sample_size: int | Sequence[int] = (50, 50)
+            ) -> Image.Image:
+
+        if isinstance(sample_size, int):
+            target_width = target_height = sample_size
+        elif isinstance(sample_size, Sequence):
+            if len(sample_size) == 1:
+                target_width = target_height = sample_size[0]
+            elif len(sample_size) == 2:
+                target_width, target_height = sample_size
+            else:
+                raise ValueError("sample_size must be an int or a sequence of maximum two integers.")
+
+        width, height = image.size
+
+        center_x = int(bbox[0] * width) + int(bbox[2] * width / 2)
+        center_y = int(bbox[1] * height) + int(bbox[3] * height / 2)
+
+        x1 = center_x - (target_width // 2)
+        y1 = center_y - (target_height // 2)
+        x2 = x1 + target_width
+        y2 = y1 + target_height
+
+        return image.crop((x1, y1, x2, y2))
 
     def __len__(self):
         pass
