@@ -198,13 +198,15 @@ class MammaliaData(Dataset):
                 if not any(self.path_to_detector_output.glob("*.json")):
                     raise ValueError('A valid detection output must be available at the path_to_detector_output.')
 
+        self.ds_full = self.get_ds_full()
+        self.ds_filtered = self.get_ds_filtered()
+
         self.trainval_ids, self.test_ids = self.split_dataset(
                                             seed=self.random_seed,
                                             test_size=self.test_size,
                                             )
 
-        dataset = self.get_ds_filtered()
-
+        dataset = self.ds_filtered
         if self.mode == 'test':
             self.ds = dataset[dataset['seq_id'].isin(self.test_ids)]
         elif self.mode == 'train':
@@ -244,7 +246,7 @@ class MammaliaData(Dataset):
         if categories_to_drop is None:
             categories_to_drop = self.categories_to_drop
 
-        ds_filtered = self.get_ds_full()
+        ds_filtered = self.ds_full.copy()
 
         if drop_label2_nan:
             ds_filtered = ds_filtered.dropna(subset=['label2'])
