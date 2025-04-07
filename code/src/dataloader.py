@@ -254,12 +254,22 @@ class MammaliaData(Dataset):
         ds_filtered = ds_filtered[~ds_filtered['label2'].isin(categories_to_drop)]
 
         if exclude_no_detections_sequences:
-            seq_ids_with_detections = self.get_ids_with_detections(
+            detect_seq_ids, no_detect_seq_ids = self.check_seq_for_detections(
                 set_type='full',
                 sequences_to_filter=ds_filtered['seq_id'].tolist(),
                 detection_confidence=self.applied_detection_confidence
                 )
-            ds_filtered = ds_filtered[ds_filtered['seq_id'].isin(seq_ids_with_detections)]
+
+            if len(no_detect_seq_ids) > 0:
+                suffix = "" if len(no_detect_seq_ids) <= 10 else " ..."
+                warnings.warn(
+                    f"With the detection confidence of {self.applied_detection_confidence},\n"
+                    f"{len(no_detect_seq_ids)} sequences had no detections and will be excluded.\n"
+                    f"Excluded sequences: {no_detect_seq_ids[:10]}{suffix}",
+                    UserWarning
+                )
+
+            ds_filtered = ds_filtered[ds_filtered['seq_id'].isin(detect_seq_ids)]
 
         return ds_filtered
 
@@ -344,12 +354,12 @@ class MammaliaData(Dataset):
             metadata = metadata[~metadata['label2'].isin(categories_to_drop)]
         return metadata
 
-    def get_ids_with_detections(
+    def check_seq_for_detections(
             self,
             set_type: str,
             sequences_to_filter: list[int],
             detection_confidence: float,
-            ) -> list[int]:
+            ) -> Tuple[List[int], List[int]]:
 
         detection_summary = self.get_detection_summary(
             usecols=["seq_id", "max_conf"]
@@ -360,18 +370,11 @@ class MammaliaData(Dataset):
             )
         seq_ids_to_filter_set = set(sequences_to_filter)
 
-        excluded_seq_ids = list(seq_ids_to_filter_set & seq_ids_to_exclude_set)
+        no_detect_seq_ids = list(seq_ids_to_filter_set & seq_ids_to_exclude_set)
 
-        if excluded_seq_ids:
-            suffix = "" if len(excluded_seq_ids) <= 10 else " ..."
-            warnings.warn(
-                f"With the detection confidence of {detection_confidence},\n"
-                f"{len(excluded_seq_ids)} sequences of the {set_type} set had no detections and will be excluded.\n"
-                f"Excluded sequences: {excluded_seq_ids[:10]}{suffix}",
-                UserWarning
-            )
+        detect_seq_ids = list(seq_ids_to_filter_set - seq_ids_to_exclude_set)
 
-        return list(seq_ids_to_filter_set - seq_ids_to_exclude_set)
+        return detect_seq_ids, no_detect_seq_ids
 
     def get_detection_summary(
             self,
