@@ -565,7 +565,7 @@ class MammaliaDataImage(MammaliaData):
             )
 
         self.ds_exploded = self.explode_df(
-                in_df=self.ds,
+                in_df=self.ds_filtered,
                 only_one_bb_per_image=True,
                 )
 
