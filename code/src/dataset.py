@@ -67,7 +67,7 @@ mode : str
 
 class MammaliaData(Dataset):
 
-    __doc__ = MAMMALIA_DATA_DOCSTRING
+    f'{MAMMALIA_DATA_DOCSTRING}'
 
     def __init__(
             self,
