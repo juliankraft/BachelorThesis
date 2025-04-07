@@ -126,6 +126,14 @@ class MammaliaData(Dataset):
         The detection is done with a confidence of 0.25 by default to provide some flexibility
         with the training. The confidence can be set to a higher value to reduce the number of detections used from
         the output. The default is 0.25.
+    random_seed : int
+        The seed used for the random number generator. The default is 55.
+    test_size : float
+        The proportion of the dataset to include in the test split. The default is 0.2.
+    n_folds : int
+        The number of folds to use for cross-validation. The default is 5.
+    val_fold : int
+        The fold index to use for validation. The default is 0.
     available_detection_confidence : float
         If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
         must be set to the value used for the detection. The default is 0.25.
@@ -136,11 +144,8 @@ class MammaliaData(Dataset):
     sample_img_size : [int, int]
         The size to which the detected areas are resized. The default is [224, 224].
     mode : str
-        The mode in which the dataset is used. Can be either 'train', 'test' or 'init' defining which data will be
-        sampled and adjusting how it is sampled. The default is 'train'.
-    scope : list[str]
-        The scope of the dataset. Can be either 'seq' or 'img'. If 'seq', the dataset is sampled on sequence level,
-        if 'img', the dataset is sampled on image level. The default is 'seq'.
+        The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
+        be sampled and adjusting how it is sampled. The default is 'train'.
     """
 
     def __init__(
@@ -155,6 +160,7 @@ class MammaliaData(Dataset):
             random_seed: int = 55,
             test_size: float = 0.2,
             n_folds: int = 5,
+            val_fold: int = 0,
             sample_length: int = 10,
             sample_img_size: list[int] = [224, 224],
             mode: str = 'train',
@@ -163,9 +169,12 @@ class MammaliaData(Dataset):
 
         self.random_seed = random_seed
         self.test_size = test_size
+        if n_folds <= val_fold:
+            raise ValueError("The val_fold must be smaller than n_folds.")
         self.n_folds = n_folds
+        self.val_fold = val_fold
 
-        mode_available = ['train', 'test', 'init']
+        mode_available = ['train', 'test', 'val', 'init']
         if mode in mode_available:
             self.mode = mode
         else:
@@ -201,23 +210,38 @@ class MammaliaData(Dataset):
         self.ds_full = self.get_ds_full()
         self.ds_filtered = self.get_ds_filtered()
 
-        self.trainval_ids, self.test_ids = self.split_dataset(
+        self.trainval_seq_ids, self.test_seq_ids = self.split_dataset(
                                             seed=self.random_seed,
                                             test_size=self.test_size,
                                             )
 
-        dataset = self.ds_filtered
-        if self.mode == 'test':
-            self.ds = dataset[dataset['seq_id'].isin(self.test_ids)]
-        elif self.mode == 'train':
-            self.ds = dataset[dataset['seq_id'].isin(self.trainval_ids)]
-        else:
-            self.ds = dataset
+        if self.__class__ == MammaliaData:
 
-        self.trainval_folds = self.create_folds(
-                                            seed=self.random_seed,
-                                            n_folds=self.n_folds,
-                                            )
+            self.trainval_folds = self.create_folds(
+                                                seed=self.random_seed,
+                                                n_folds=self.n_folds,
+                                                )
+
+            self.val_seq_ids = self.trainval_folds[self.val_fold]
+            self.train_seq_ids = [
+                    seq_id
+                    for i, fold in enumerate(self.trainval_folds)
+                    if i != self.val_fold
+                    for seq_id in fold
+                ]
+
+            dataset = self.ds_filtered
+
+            if self.mode == 'test':
+                self.ds = dataset[dataset['seq_id'].isin(self.test_seq_ids)]
+            elif self.mode == 'train':
+                self.ds = dataset[dataset['seq_id'].isin(self.train_seq_ids)]
+            elif self.mode == 'val':
+                self.ds = dataset[dataset['seq_id'].isin(self.val_seq_ids)]
+            elif self.mode == 'init':
+                self.ds = dataset[dataset['seq_id'].isin(self.trainval_seq_ids)]
+
+            self.seq_id_map = self.ds['seq_id'].tolist()
 
     def get_ds_full(
             self,
@@ -255,7 +279,6 @@ class MammaliaData(Dataset):
 
         if exclude_no_detections_sequences:
             detect_seq_ids, no_detect_seq_ids = self.check_seq_for_detections(
-                set_type='full',
                 sequences_to_filter=ds_filtered['seq_id'].tolist(),
                 detection_confidence=self.applied_detection_confidence
                 )
@@ -300,9 +323,8 @@ class MammaliaData(Dataset):
         if ds is None:
             ds = self.ds_filtered
 
-        ds_trainval = ds[ds['seq_id'].isin(self.trainval_ids)]
+        ds_trainval = ds[ds['seq_id'].isin(self.trainval_seq_ids)]
 
-        # Group by seq_id to avoid duplicates if needed
         seq_label_df = (
             ds_trainval.groupby('seq_id')
             .first()[['label2']]
@@ -356,7 +378,6 @@ class MammaliaData(Dataset):
 
     def check_seq_for_detections(
             self,
-            set_type: str,
             sequences_to_filter: list[int],
             detection_confidence: float,
             ) -> Tuple[List[int], List[int]]:
@@ -503,8 +524,11 @@ class MammaliaData(Dataset):
         return len(self.ds)
 
     def __getitem__(self, index: int) -> Any:
-        print("Methode changed")
-        return None
+
+        seq_id = self.seq_id_map[index]
+        row = self.ds[self.ds['seq_id'] == seq_id].squeeze()
+
+        return row
 
 
 class MammaliaDataImage(MammaliaData):
@@ -515,19 +539,41 @@ class MammaliaDataImage(MammaliaData):
             path_to_detector_output: str | PathLike,
             applied_detection_confidence: float = 0.25,
             available_detection_confidence: float = 0.25,
+            random_seed: int = 55,
+            test_size: float = 0.2,
+            n_folds: int = 5,
+            val_fold: int = 0,
+            mode: str = 'train',
             ):
         super().__init__(
             path_labelfiles=path_labelfiles,
             path_to_dataset=path_to_dataset,
             path_to_detector_output=path_to_detector_output,
             applied_detection_confidence=applied_detection_confidence,
-            available_detection_confidence=available_detection_confidence
+            available_detection_confidence=available_detection_confidence,
+            random_seed=random_seed,
+            test_size=test_size,
+            n_folds=n_folds,
+            val_fold=val_fold,
+            mode=mode,
             )
 
-        self.ds_image = self.explode_df(
+        self.ds_exploded = self.explode_df(
                 in_df=self.ds,
                 only_one_bb_per_image=True,
                 )
+
+    def create_folds(
+            self,
+            seed: int,
+            n_folds: int,
+            ds: pd.DataFrame | None = None
+            ) -> List[List[int]]:
+
+        if ds is None:
+            ds = self.ds_exploded
+
+
 
     def explode_df(
             self,
