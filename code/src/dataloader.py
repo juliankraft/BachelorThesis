@@ -375,7 +375,7 @@ class MammaliaData(Dataset):
                     categories_to_drop=None
                     )
 
-        sequences = metadata['seq_id'].unique().tolist()
+        sequences = metadata['seq_id'].tolist()
 
         detection_rows = []
 
