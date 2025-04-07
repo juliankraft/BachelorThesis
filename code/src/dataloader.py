@@ -269,7 +269,7 @@ class MammaliaData(Dataset):
             test_size: float
                 ) -> Tuple[List[int], List[int]]:
 
-        ds = self.get_ds_filtered()
+        ds = self.ds_filtered
 
         trainval_seq_ids, test_seq_ids = train_test_split(
                                             ds['seq_id'].tolist(),
@@ -284,9 +284,12 @@ class MammaliaData(Dataset):
             self,
             seed: int,
             n_folds: int,
+            ds: pd.DataFrame | None = None
             ) -> List[List[int]]:
 
-        ds = self.get_ds_filtered()
+        if ds is None:
+            ds = self.ds_filtered
+
         ds_trainval = ds[ds['seq_id'].isin(self.trainval_ids)]
 
         # Group by seq_id to avoid duplicates if needed
