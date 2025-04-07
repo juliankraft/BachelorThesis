@@ -185,7 +185,7 @@ class MammaliaData(Dataset):
         self.detector_model = detector_model
 
         self.ds_full = self.reading_all_metadata(
-                    list_of_files=self.getting_all_files_of_type(self.path_labelfiles, file_type='.csv'),
+                    list_of_files=self.get_all_files_of_type(self.path_labelfiles, file_type='.csv'),
                     categories_to_drop=self.categories_to_drop
                     )
 
@@ -235,7 +235,7 @@ class MammaliaData(Dataset):
         self.ds = self.ds_full[self.ds_full['seq_id'].isin(active_seq_ids)]
         self.seq_ids = self.ds['seq_id'].tolist()
 
-    def getting_all_files_of_type(
+    def get_all_files_of_type(
             self,
             path: str | PathLike,
             file_type: str,
@@ -366,7 +366,7 @@ class MammaliaData(Dataset):
             )
 
         metadata = self.reading_all_metadata(
-                    list_of_files=self.getting_all_files_of_type(self.path_labelfiles, file_type='.csv'),
+                    list_of_files=self.get_all_files_of_type(self.path_labelfiles, file_type='.csv'),
                     categories_to_drop=None
                     )
 

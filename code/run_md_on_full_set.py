@@ -1,5 +1,5 @@
 # run this script using:
-# caffeinate -is conda run -n BA python run_md_on_osx.py 2>&1 | tee -a run_md.log
+# caffeinate -is conda run -n BA python run_md_on_full_set.py 2>&1 | tee -a run_md.log
 
 import datetime
 from ba_stable.dataloader import MammaliaData
