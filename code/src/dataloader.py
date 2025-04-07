@@ -380,7 +380,7 @@ class MammaliaData(Dataset):
         detection_rows = []
 
         for seq_id in sequences:
-            seq_images = list(self.get_all_images_of_sequence(seq_id).values())
+            seq_images = list(self.get_all_images_of_sequence(seq_id, dataframe=metadata).values())
             output_file_path = self.path_to_detector_output / f"{seq_id}.json"
             detections = runner.run_on_images(
                 images=seq_images,
