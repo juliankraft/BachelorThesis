@@ -6,13 +6,13 @@ import torch
 import pandas as pd
 from PIL import Image
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Sequence, List, Tuple
 
 from megadetector.detection.run_detector import model_string_to_model_version
 
 from os import PathLike
 from torch.utils.data import Dataset
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold
 
 from ba_dev.runner import MegaDetectorRunner
 
@@ -152,11 +152,18 @@ class MammaliaData(Dataset):
             detector_model: str | None = None,
             applied_detection_confidence: float = 0.25,
             available_detection_confidence: float = 0.25,
+            random_seed: int = 55,
+            test_size: float = 0.2,
+            n_folds: int = 5,
             sample_length: int = 10,
             sample_img_size: list[int] = [224, 224],
             mode: str = 'train',
             ):
         super().__init__()
+
+        self.random_seed = random_seed
+        self.test_size = test_size
+        self.n_folds = n_folds
 
         mode_available = ['train', 'test', 'init']
         if mode in mode_available:
@@ -184,11 +191,6 @@ class MammaliaData(Dataset):
         self.path_to_detector_output = Path(path_to_detector_output)
         self.detector_model = detector_model
 
-        self.ds_full = self.reading_all_metadata(
-                    list_of_files=self.get_all_files_of_type(self.path_labelfiles, file_type='.csv'),
-                    categories_to_drop=self.categories_to_drop
-                    )
-
         if self.mode == 'init':
             if self.detector_model is not None:
                 self.run_detector()
@@ -196,44 +198,113 @@ class MammaliaData(Dataset):
                 if not any(self.path_to_detector_output.glob("*.json")):
                     raise ValueError('A valid detection output must be available at the path_to_detector_output.')
 
-        if self.ds_full['seq_id'].duplicated().any():
-            duplicates = self.ds_full['seq_id'][self.ds_full['seq_id'].duplicated()].unique()
-            raise ValueError(f"Duplicate seq_id(s) found in metadata: {duplicates[:5]} ...")
-
-        self.usable_seq_ids = self.exclude_ids_with_no_detections(
-            set_type='full',
-            sequences_to_filter=self.ds_full['seq_id'].tolist(),
-            detection_confidence=self.available_detection_confidence
-        )
-
-        self.usable_set = self.ds_full[self.ds_full['seq_id'].isin(self.usable_seq_ids)]
-
-        train_seq_ids, test_seq_ids = train_test_split(
-                                            self.usable_set['seq_id'],
-                                            test_size=0.2,
-                                            random_state=55,
-                                            stratify=self.usable_set['label2']
+        self.trainval_ids, self.test_ids = self.split_dataset(
+                                            seed=self.random_seed,
+                                            test_size=self.test_size,
                                             )
 
-        filtered_train_seq_ids = self.exclude_ids_with_no_detections(
-            set_type='train',
-            sequences_to_filter=train_seq_ids,
-            detection_confidence=self.applied_detection_confidence
+        dataset = self.get_ds_filtered()
+
+        if self.mode == 'test':
+            self.ds = dataset[dataset['seq_id'].isin(self.test_ids)]
+        elif self.mode == 'train':
+            self.ds = dataset[dataset['seq_id'].isin(self.trainval_ids)]
+        else:
+            self.ds = dataset
+
+        self.trainval_folds = self.create_folds(
+                                            seed=self.random_seed,
+                                            n_folds=self.n_folds,
+                                            )
+
+    def get_ds_full(
+            self,
+            ) -> pd.DataFrame:
+
+        label_files = self.path_labelfiles.glob("*.csv")
+
+        ds_full = pd.DataFrame()
+
+        for file in label_files:
+            ds_full = pd.concat([ds_full, pd.read_csv(file)], ignore_index=True)
+
+        if ds_full['seq_id'].duplicated().any():
+            duplicates = ds_full['seq_id'][ds_full['seq_id'].duplicated()].unique()
+            raise ValueError(f"Duplicate seq_id(s) found in metadata: {duplicates[:5]} ...")
+
+        return ds_full
+
+    def get_ds_filtered(
+            self,
+            categories_to_drop: list[str] | None = None,  # if not provided it will use self.categories_to_drop
+            drop_label2_nan: bool = True,
+            exclude_no_detections_sequences: bool = True
+            ) -> pd.DataFrame:
+
+        if categories_to_drop is None:
+            categories_to_drop = self.categories_to_drop
+
+        ds_filtered = self.get_ds_full()
+
+        if drop_label2_nan:
+            ds_filtered = ds_filtered.dropna(subset=['label2'])
+
+        ds_filtered = ds_filtered[~ds_filtered['label2'].isin(categories_to_drop)]
+
+        if exclude_no_detections_sequences:
+            seq_ids_with_detections = self.get_ids_with_detections(
+                set_type='full',
+                sequences_to_filter=ds_filtered['seq_id'].tolist(),
+                detection_confidence=self.applied_detection_confidence
+                )
+            ds_filtered = ds_filtered[ds_filtered['seq_id'].isin(seq_ids_with_detections)]
+
+        return ds_filtered
+
+    def split_dataset(
+            self,
+            seed: int,
+            test_size: float
+                ) -> Tuple[List[int], List[int]]:
+
+        ds = self.get_ds_filtered()
+
+        trainval_seq_ids, test_seq_ids = train_test_split(
+                                            ds['seq_id'].tolist(),
+                                            test_size=test_size,
+                                            random_state=seed,
+                                            stratify=ds['label2'].tolist()
+                                            )
+
+        return trainval_seq_ids, test_seq_ids
+
+    def create_folds(
+            self,
+            seed: int,
+            n_folds: int,
+            ) -> List[List[int]]:
+
+        ds = self.get_ds_filtered()
+        ds_trainval = ds[ds['seq_id'].isin(self.trainval_ids)]
+
+        # Group by seq_id to avoid duplicates if needed
+        seq_label_df = (
+            ds_trainval.groupby('seq_id')
+            .first()[['label2']]
+            .reset_index()
         )
 
-        filtered_test_seq_ids = self.exclude_ids_with_no_detections(
-            set_type='test',
-            sequences_to_filter=test_seq_ids,
-            detection_confidence=self.applied_detection_confidence
-        )
+        seq_ids = seq_label_df['seq_id'].tolist()
+        labels = seq_label_df['label2'].tolist()
 
-        if self.mode in ['train', 'init']:
-            active_seq_ids = filtered_train_seq_ids
-        elif self.mode == 'test':
-            active_seq_ids = filtered_test_seq_ids
+        skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
 
-        self.ds = self.ds_full[self.ds_full['seq_id'].isin(active_seq_ids)]
-        self.seq_ids = self.ds['seq_id'].tolist()
+        folds: List[List[int]] = []
+        for _, val_idx in skf.split(seq_ids, labels):
+            val_fold_ids = [seq_ids[i] for i in val_idx]
+            folds.append(val_fold_ids)
+
+        return folds
 
     def get_all_files_of_type(
             self,
@@ -268,19 +339,7 @@ class MammaliaData(Dataset):
             metadata = metadata[~metadata['label2'].isin(categories_to_drop)]
         return metadata
 
-    def explode_df_images(
-            self,
-            dataframe: pd.DataFrame,
-            ) -> pd.DataFrame:
-
-        df = dataframe.copy()
-        df["all_files"] = df["all_files"].str.split(",")
-        df_exploded = df.explode("all_files").reset_index(drop=True)
-        df_exploded = df_exploded.rename(columns={"all_files": "image_file"})
-
-        return df_exploded
-
-    def exclude_ids_with_no_detections(
+    def get_ids_with_detections(
             self,
             set_type: str,
             sequences_to_filter: list[int],
@@ -334,7 +393,7 @@ class MammaliaData(Dataset):
             ) -> dict[str, PathLike]:
 
         if dataframe is None:
-            dataframe = self.ds_full
+            dataframe = self.get_ds_full()
 
         try:
             row = dataframe.loc[dataframe['seq_id'] == seq_id].iloc[0]
@@ -370,10 +429,7 @@ class MammaliaData(Dataset):
             confidence=0.25
             )
 
-        metadata = self.reading_all_metadata(
-                    list_of_files=self.get_all_files_of_type(self.path_labelfiles, file_type='.csv'),
-                    categories_to_drop=None
-                    )
+        metadata = self.get_ds_full()
 
         sequences = metadata['seq_id'].tolist()
 
