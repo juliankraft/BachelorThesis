@@ -337,9 +337,9 @@ class MammaliaData(Dataset):
             dataframe = self.ds_full
 
         image_dict = {}
-        row = dataframe.loc[dataframe['seq_id'] == seq_id].squeeze()
-        seq_path = Path(row['Directory'])
-        all_files = row['all_files'].split(',')
+        row = dataframe.loc[dataframe['seq_id'] == seq_id]
+        seq_path = Path(row['Directory'].item())
+        all_files = row['all_files'][0].split(",")
         for file in all_files:
             image_dict[file] = self.path_to_dataset / seq_path / file
         return image_dict
