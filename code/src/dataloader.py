@@ -4,6 +4,7 @@ import csv
 import json
 import torch
 import pandas as pd
+import numpy as np
 from PIL import Image
 from pathlib import Path
 from typing import Any, Sequence, List, Tuple
@@ -217,9 +218,12 @@ class MammaliaData(Dataset):
 
         if self.__class__ == MammaliaData:
 
+            trainval_set = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.trainval_seq_ids)]
+
             self.trainval_folds = self.create_folds(
                                                 seed=self.random_seed,
                                                 n_folds=self.n_folds,
+                                                ds=trainval_set
                                                 )
 
             self.val_seq_ids = self.trainval_folds[self.val_fold]
@@ -563,6 +567,44 @@ class MammaliaDataImage(MammaliaData):
                 only_one_bb_per_image=True,
                 )
 
+        trainval_set = self.ds_exploded[self.ds_exploded['seq_id'].isin(self.trainval_seq_ids)]
+        test_set = self.ds_exploded[self.ds_exploded['seq_id'].isin(self.test_seq_ids)]
+
+        self.trainval_folds = self.create_folds(
+                                        seed=self.random_seed,
+                                        n_folds=self.n_folds,
+                                        ds=trainval_set.reset_index(drop=True)
+                                        )
+
+        self.val_indices = self.trainval_folds[self.val_fold]
+        self.train_indices = [
+            idx
+            for i, fold in enumerate(self.trainval_folds)
+            if i != self.val_fold
+            for idx in fold
+            ]
+
+        dataset = self.ds_exploded
+        if self.mode == 'test':
+            self.ds = dataset[dataset['seq_id'].isin(self.test_seq_ids)]
+        elif self.mode == 'train':
+            self.ds = trainval_set.iloc[self.train_indices]
+        elif self.mode == 'val':
+            self.ds = trainval_set.iloc[self.val_indices]
+        elif self.mode == 'init':
+            self.ds = trainval_set
+
+        if self.mode == 'test':
+            self.ds = test_set.reset_index(drop=True)
+        elif self.mode == 'train':
+            self.ds = trainval_set.iloc[self.train_indices].reset_index(drop=True)
+        elif self.mode == 'val':
+            self.ds = trainval_set.iloc[self.val_indices].reset_index(drop=True)
+        elif self.mode == 'init':
+            self.ds = trainval_set.reset_index(drop=True)
+
+        self.row_map = self.ds.index.tolist()
+
     def create_folds(
             self,
             seed: int,
@@ -573,7 +615,16 @@ class MammaliaDataImage(MammaliaData):
         if ds is None:
             ds = self.ds_exploded
 
+        labels = ds['label2'].tolist()
+        indices = np.arange(len(ds))
 
+        skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+
+        folds: List[List[int]] = []
+        for _, val_idx in skf.split(indices, labels):
+            folds.append(val_idx.tolist())
+
+        return folds
 
     def explode_df(
             self,
@@ -613,10 +664,13 @@ class MammaliaDataImage(MammaliaData):
 
                 out_rows.append(new_row)
 
-        return pd.DataFrame(out_rows)
+        return pd.DataFrame(out_rows).reset_index(drop=True)
 
     def __len__(self):
-        pass
+        return len(self.ds)
 
-    def __getitem__(self, idx):
-        pass
+    def __getitem__(self, index: int) -> Any:
+        row_index = self.row_map[index]
+        row = self.ds.iloc[row_index]
+
+        return row
