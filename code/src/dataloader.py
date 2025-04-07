@@ -336,13 +336,18 @@ class MammaliaData(Dataset):
         if dataframe is None:
             dataframe = self.ds_full
 
-        image_dict = {}
-        row = dataframe.loc[dataframe['seq_id'] == seq_id]
-        seq_path = Path(row['Directory'].item())
-        all_files = row['all_files'][0].split(",")
-        for file in all_files:
-            image_dict[file] = self.path_to_dataset / seq_path / file
-        return image_dict
+        try:
+            row = dataframe.loc[dataframe['seq_id'] == seq_id].iloc[0]
+        except IndexError:
+            raise ValueError(f"No sequence with seq_id={seq_id} found.")
+
+        seq_path = Path(row['Directory'])
+        all_files = row['all_files'].split(",")  # already a string, no need for [0]
+
+        return {
+            file_name: self.path_to_dataset / seq_path / file_name
+            for file_name in all_files
+            }
 
     def run_detector(
             self,
