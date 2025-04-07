@@ -5,9 +5,8 @@ import json
 import torch
 import pandas as pd
 import numpy as np
-from PIL import Image
 from pathlib import Path
-from typing import Any, Sequence, List, Tuple
+from typing import Any, List, Tuple
 
 from megadetector.detection.run_detector import model_string_to_model_version
 
@@ -17,137 +16,58 @@ from sklearn.model_selection import train_test_split, StratifiedKFold
 
 from ba_dev.runner import MegaDetectorRunner
 
+MAMMALIA_DATA_DOCSTRING = """
 
-class ImagePipeline:
-    def __init__(
-            self,
-            path: str | PathLike,
-            ):
+A class to load and process the Mammalia dataset. It can be used for the initial detection of the images
+utilizing the MegaDetector model, or for training a custom model for classification on the detected images.
+The dataset is divided into training and testing sets based on the sequence IDs.
 
-        self.img: Image.Image = Image.open(path)
-
-    def load(
-            self,
-            path: str | Path
-            ):
-        self.img = Image.open(path)
-        return self
-
-    def to_rgb(self):
-        self.img = self.img.convert("RGB")
-        return self
-
-    def crop_by_bbox(
-            self,
-            bbox: list[float] | tuple[float, float, float, float]
-            ):
-
-        width, height = self.img.size
-
-        x1 = int(bbox[0] * width)
-        y1 = int(bbox[1] * height)
-        x2 = int((bbox[0] + bbox[2]) * width)
-        y2 = int((bbox[1] + bbox[3]) * height)
-
-        self.img = self.img.crop((x1, y1, x2, y2))
-        self.img = self.img.crop((x1, y1, x2, y2))
-
-    def crop_center_sample(
-            self,
-            bbox: list[float] | tuple[float, float, float, float],
-            sample_size: int | Sequence[int] = (50, 50)
-            ):
-
-        if isinstance(sample_size, int):
-            target_width = target_height = sample_size
-        elif isinstance(sample_size, Sequence):
-            if len(sample_size) == 1:
-                target_width = target_height = sample_size[0]
-            elif len(sample_size) == 2:
-                target_width, target_height = sample_size
-            else:
-                raise ValueError("sample_size must be an int or a sequence of maximum two integers.")
-
-        width, height = self.img.size
-
-        center_x = int(bbox[0] * width) + int(bbox[2] * width / 2)
-        center_y = int(bbox[1] * height) + int(bbox[3] * height / 2)
-
-        x1 = center_x - (target_width // 2)
-        y1 = center_y - (target_height // 2)
-        x2 = x1 + target_width
-        y2 = y1 + target_height
-
-        self.img = self.img.crop((x1, y1, x2, y2))
-        return self
-
-    def resize(
-            self,
-            size: Sequence[int] | int,
-            ):
-        if isinstance(size, int):
-            size = (size, size)
-        elif isinstance(size, Sequence):
-            if len(size) == 1:
-                size = (size[0], size[0])
-            elif len(size) == 2:
-                size = (size[0], size[1])
-            else:
-                raise ValueError("size must be an int or a sequence of maximum two integers.")
-        self.img = self.img.resize(size)
-        return self
-
-    def get(self) -> Image.Image:
-        return self.img
+Parameters
+----------
+path_labelfiles : str | PathLike
+    Path to the directory containing the label files.
+path_to_dataset : str | PathLike
+    Path to the main directory of the dataset, referenced in the labelfiles.
+path_to_detector_output : str | PathLike
+    Path to the directory where the detector output is available for training or where the output will be saved
+    if detection is applied.
+categories_to_drop : list[str], optional
+    All empty labels are excluded anyways. Per default the categories 'other' and 'glis_glis' are excluded
+    as well. This argument could change this behavior.
+detector_model : str
+    If a detector model is provided, the detection will be applied to the whole dataset and stored for training.
+    The model must be one of the available models in the MegaDetector repository.
+    The default is None. A valid detection output must be available at the path_to_detector_output.
+applied_detection_confidence : float
+    The detection is done with a confidence of 0.25 by default to provide some flexibility
+    with the training. The confidence can be set to a higher value to reduce the number of detections used from
+    the output. The default is 0.25.
+random_seed : int
+    The seed used for the random number generator. The default is 55.
+test_size : float
+    The proportion of the dataset to include in the test split. The default is 0.2.
+n_folds : int
+    The number of folds to use for cross-validation. The default is 5.
+val_fold : int
+    The fold index to use for validation. The default is 0.
+available_detection_confidence : float
+    If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
+    must be set to the value used for the detection. The default is 0.25.
+sample_length : int
+    For training this parameter specifies the range (1 - sample_length) of randomly selected samples per sequence.
+    For testing this parameter specifies the maximum number of samples per sequence.
+    The default is 10.
+sample_img_size : [int, int]
+    The size to which the detected areas are resized. The default is [224, 224].
+mode : str
+    The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
+    be sampled and adjusting how it is sampled. The default is 'train'.
+"""
 
 
 class MammaliaData(Dataset):
-    """
-    A class to load and process the Mammalia dataset. It can be used for the initial detection of the images
-    utilizing the MegaDetector model, or for training a custom model for classification on the detected images.
-    The dataset is divided into training and testing sets based on the sequence IDs.
 
-    Parameters
-    ----------
-    path_labelfiles : str | PathLike
-        Path to the directory containing the label files.
-    path_to_dataset : str | PathLike
-        Path to the main directory of the dataset, referenced in the labelfiles.
-    path_to_detector_output : str | PathLike
-        Path to the directory where the detector output is available for training or where the output will be saved
-        if detection is applied.
-    categories_to_drop : list[str], optional
-        All empty labels are excluded anyways. Per default the categories 'other' and 'glis_glis' are excluded
-        as well. This argument could change this behavior.
-    detector_model : str
-        If a detector model is provided, the detection will be applied to the whole dataset and stored for training.
-        The model must be one of the available models in the MegaDetector repository.
-        The default is None. A valid detection output must be available at the path_to_detector_output.
-    applied_detection_confidence : float
-        The detection is done with a confidence of 0.25 by default to provide some flexibility
-        with the training. The confidence can be set to a higher value to reduce the number of detections used from
-        the output. The default is 0.25.
-    random_seed : int
-        The seed used for the random number generator. The default is 55.
-    test_size : float
-        The proportion of the dataset to include in the test split. The default is 0.2.
-    n_folds : int
-        The number of folds to use for cross-validation. The default is 5.
-    val_fold : int
-        The fold index to use for validation. The default is 0.
-    available_detection_confidence : float
-        If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
-        must be set to the value used for the detection. The default is 0.25.
-    sample_length : int
-        For training this parameter specifies the range (1 - sample_length) of randomly selected samples per sequence.
-        For testing this parameter specifies the maximum number of samples per sequence.
-        The default is 10.
-    sample_img_size : [int, int]
-        The size to which the detected areas are resized. The default is [224, 224].
-    mode : str
-        The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
-        be sampled and adjusting how it is sampled. The default is 'train'.
-    """
+    __doc__ = MAMMALIA_DATA_DOCSTRING
 
     def __init__(
             self,
@@ -535,7 +455,18 @@ class MammaliaData(Dataset):
         return row
 
 
+MAMMALIA_DATA_IMAGE_DOCSTRING = """
+
+This is a subclass of the MammaliaData class, specifically designed for handling the data on an
+image level instead of a sequence level.
+
+""" + MAMMALIA_DATA_DOCSTRING
+
+
 class MammaliaDataImage(MammaliaData):
+
+    __doc__ = MAMMALIA_DATA_IMAGE_DOCSTRING
+
     def __init__(
             self,
             path_labelfiles: str | PathLike,
