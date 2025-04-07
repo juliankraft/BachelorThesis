@@ -11,7 +11,8 @@ class ImagePipeline:
             path: str | PathLike,
             ):
 
-        self.img: Image.Image = Image.open(path)
+        if path is not None:
+            self.img: Image.Image = Image.open(path)
 
     def load(
             self,
@@ -24,7 +25,7 @@ class ImagePipeline:
         self.img = self.img.convert("RGB")
         return self
 
-    def crop_by_bbox(
+    def crop_by_bb(
             self,
             bbox: list[float] | tuple[float, float, float, float]
             ):
@@ -37,7 +38,7 @@ class ImagePipeline:
         y2 = int((bbox[1] + bbox[3]) * height)
 
         self.img = self.img.crop((x1, y1, x2, y2))
-        self.img = self.img.crop((x1, y1, x2, y2))
+        return self
 
     def crop_center_sample(
             self,
