@@ -182,9 +182,9 @@ class BatchImagePipeline(ImagePipeline):
     def __init__(
             self,
             path_to_dataset: str | PathLike,
+            num_workers: int = 4,
             steps: list[tuple[str, dict]] | None = None,
-            transform: Callable | None = None,
-            num_workers: int = 4
+            transform: Callable | None = None    
             ):
 
         super().__init__(
@@ -208,7 +208,8 @@ class BatchImagePipeline(ImagePipeline):
             path, bbox = args
             pipeline = ImagePipeline(
                                 path_to_dataset=self.path_to_dataset,
-                                steps=self.steps.copy()
+                                steps=self.steps.copy(),
+                                transform=self.transform
                                 )
             return pipeline(path, bbox)
 
