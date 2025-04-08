@@ -1,8 +1,9 @@
 import numpy as np
 from PIL import Image
+from concurrent.futures import ThreadPoolExecutor
+
 from pathlib import Path
 from typing import Any, Sequence
-
 from os import PathLike
 
 
@@ -147,3 +148,37 @@ class ImagePipeline:
                 self = method(**kwargs)
 
         return self.get()
+
+
+class BatchImagePipeline(ImagePipeline):
+
+    def __init__(
+            self,
+            num_workers: int = 4,
+            steps: list[tuple[str, dict]] | None = None
+            ):
+
+        super().__init__(
+            steps=steps
+            )
+
+        self.num_workers = num_workers
+
+    def __call__(
+            self,
+            paths: list[str | PathLike],
+            bboxes: list[Sequence[float]],
+            ) -> list[Any]:
+
+        if len(paths) != len(bboxes):
+            raise ValueError("paths and bboxes must have the same length.")
+
+        def process_one(args):
+            path, bbox = args
+            pipeline = ImagePipeline(steps=self.steps.copy())
+            return pipeline(path, bbox)
+
+        with ThreadPoolExecutor(max_workers=self.num_workers) as executor:
+            results = list(executor.map(process_one, zip(paths, bboxes)))
+
+        return results
