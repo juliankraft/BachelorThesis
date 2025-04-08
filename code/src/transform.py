@@ -13,16 +13,17 @@ class ImagePipeline:
 
     """
 
-    A image processing pipeline that allows for a series of transformations to be applied.
-    This list is defined by a list of (method_name, kwargs) passed as steps.
+    A image processing pipeline that allows for a series of initial operations to be applied.
+    This list is defined by a list of (method_name, kwargs) passed as pre_ops.
+    Additionally, a transform can be applied to the image after the pre_ops.
 
     Parameters
     ----------
     path_to_dataset : str | PathLike | None
         Path to the dataset. If None, a dummy image will be created.
-    steps : list[tuple[str, dict]] | None
-        List of steps to be applied to the image. Each step is a tuple of (method_name, kwargs).
-        If None, no steps will be applied. Image will be loaded and returned as is.
+    pre_ops : list[tuple[str, dict]] | None
+        List of pre_ops to be applied to the image. Each step is a tuple of (method_name, kwargs).
+        If None, no pre_ops will be applied. Image will be loaded and returned as is.
     transform : Callable | None
         A instance of the torchvision.transforms.Compose class or any other callable that takes a PIL image
         and returns a transformed image. If None, no transformation will be applied.
@@ -31,11 +32,9 @@ class ImagePipeline:
 
     pipeline = ImagePipeline(
         path_to_dataset='path/to/dataset',
-        steps=[
-            ('load', {'path': 'path/to/image.jpg'}),
+        pre_ops=[
             ('to_rgb', {}),
-            ('crop_by_bb', {}),
-            ('resize', {'size': 128}),
+            ('crop_by_bb', {})
             ]
         transform=v2.Compose([
                 v2.ToImage(),
@@ -51,7 +50,7 @@ class ImagePipeline:
     def __init__(
             self,
             path_to_dataset: str | PathLike,
-            steps: list[tuple[str, dict]] | None = None,
+            pre_ops: list[tuple[str, dict]] | None = None,
             transform: Callable | None = None
             ):
 
@@ -59,9 +58,9 @@ class ImagePipeline:
 
         self.path_to_dataset = Path(path_to_dataset)
 
-        if steps is None:
-            steps = []
-        self.steps = steps
+        if pre_ops is None:
+            pre_ops = []
+        self.pre_ops = pre_ops
 
         self.transform = transform
 
@@ -161,7 +160,7 @@ class ImagePipeline:
 
         self.load(path)
 
-        for step, kwargs in self.steps:
+        for step, kwargs in self.pre_ops:
             method = getattr(self, step)
             if method is None:
                 raise AttributeError(f"No method named '{step}' found in ImagePipeline")
@@ -183,13 +182,13 @@ class BatchImagePipeline(ImagePipeline):
             self,
             path_to_dataset: str | PathLike,
             num_workers: int = 4,
-            steps: list[tuple[str, dict]] | None = None,
-            transform: Callable | None = None    
+            pre_ops: list[tuple[str, dict]] | None = None,
+            transform: Callable | None = None
             ):
 
         super().__init__(
             path_to_dataset=path_to_dataset,
-            steps=steps,
+            pre_ops=pre_ops,
             transform=transform
             )
 
@@ -208,7 +207,7 @@ class BatchImagePipeline(ImagePipeline):
             path, bbox = args
             pipeline = ImagePipeline(
                                 path_to_dataset=self.path_to_dataset,
-                                steps=self.steps.copy(),
+                                pre_ops=self.pre_ops.copy(),
                                 transform=self.transform
                                 )
             return pipeline(path, bbox)
