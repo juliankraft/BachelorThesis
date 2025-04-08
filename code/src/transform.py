@@ -23,7 +23,7 @@ class ImagePipeline:
         Path to the dataset. If None, a dummy image will be created.
     pre_ops : list[tuple[str, dict]] | None
         List of pre_ops to be applied to the image. Each step is a tuple of (method_name, kwargs).
-        If None, no pre_ops will be applied. Image will be loaded and returned as is.
+        If None, no pre_ops will be applied. Image will only be loaded and returned as is.
     transform : Callable | None
         A instance of the torchvision.transforms.Compose class or any other callable that takes a PIL image
         and returns a transformed image. If None, no transformation will be applied.
