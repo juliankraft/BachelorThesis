@@ -517,7 +517,6 @@ class MammaliaDataImage(MammaliaData):
             n_folds: int = 5,
             val_fold: int = 0,
             mode: str = 'train',
-            transformation: ImagePipeline | None = None,
             ):
         super().__init__(
             path_labelfiles=path_labelfiles,
