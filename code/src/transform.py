@@ -1,4 +1,3 @@
-import numpy as np
 from PIL import Image
 from concurrent.futures import ThreadPoolExecutor
 
@@ -6,10 +5,11 @@ import torchvision.transforms.functional as F
 
 from torch import Tensor
 from pathlib import Path
-from typing import Any, Sequence, cast
+from typing import Sequence, Any, cast
 from os import PathLike
 
 BBox = Sequence[float]
+Stats = dict[str, list[float]]
 
 
 class ImagePipeline:
@@ -23,6 +23,11 @@ class ImagePipeline:
     ----------
     path_to_dataset : str | PathLike | None
         Path to the dataset. If None, a dummy image will be created.
+    stats : dict[str, list[float]] | None
+        Statistics for the dataset. If None, default values will be used.
+        Default values are from ImageNet dataset:
+            mean = (0.485, 0.456, 0.406)
+            std = (0.229, 0.224, 0.225)
     steps : list[tuple[str, dict]] | None
         List of steps to be applied to the image. Each step is a tuple of (method_name, kwargs).
         If None, no steps will be applied. Image will be loaded and returned as is.
@@ -46,17 +51,24 @@ class ImagePipeline:
     def __init__(
             self,
             path_to_dataset: str | PathLike,
+            stats: Stats | None = None,
             steps: list[tuple[str, dict]] | None = None
             ):
 
-        if steps is None:
-            self.steps = []
-        else:
-            self.steps = steps
+        self.img: Image.Image | Tensor | None = None
 
         self.path_to_dataset = Path(path_to_dataset)
 
-        self.img: Image.Image | Tensor | None = None
+        if stats is None:
+            stats = {
+                'mean': [0.485, 0.456, 0.406],
+                'std': [0.229, 0.224, 0.225],
+                }
+        self.stats = stats
+
+        if steps is None:
+            steps = []
+        self.steps = steps
 
     def load(
             self,
@@ -95,9 +107,7 @@ class ImagePipeline:
             ):
 
         size = self._process_size(size)
-
         width, height = self._pil().size
-
         center_x = int(bbox[0] * width) + int(bbox[2] * width / 2)
         center_y = int(bbox[1] * height) + int(bbox[3] * height / 2)
 
@@ -119,29 +129,17 @@ class ImagePipeline:
         self.img = self._pil().resize(size)
         return self
 
-    def to_tensor(
-            self
-            ):
-
+    def to_tensor(self):
         self.img = F.to_tensor(self._pil())
         return self
 
-    def create_dummy_image(
-            self,
-            size=(8, 8),
-            channels=3):
-
-        size = self._process_size(size)
-
-        array = np.random.randint(0, 256, size + (channels,), dtype=np.uint8)
-        self.img = Image.fromarray(array)
+    def normalize(self):
+        self.img = F.normalize(
+                        self._tensor(),
+                        mean=self.stats['mean'],
+                        std=self.stats['std']
+                        )
         return self
-
-    def get_pil(self) -> Image.Image:
-        return self._pil()
-
-    def get_tensor(self) -> Tensor:
-        return self._tensor()
 
     def get(self) -> Image.Image | Tensor:
         if self.img is None:
@@ -204,12 +202,14 @@ class BatchImagePipeline(ImagePipeline):
     def __init__(
             self,
             path_to_dataset: str | PathLike,
+            stats: Stats | None = None,
+            steps: list[tuple[str, dict]] | None = None,
             num_workers: int = 4,
-            steps: list[tuple[str, dict]] | None = None
             ):
 
         super().__init__(
             path_to_dataset=path_to_dataset,
+            stats=stats,
             steps=steps
             )
 

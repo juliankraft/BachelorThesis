@@ -15,7 +15,7 @@ from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split, StratifiedKFold
 
 from ba_dev.runner import MegaDetectorRunner
-from ba_dev.transform import ImagePipeline
+# from ba_dev.transform import ImagePipeline
 
 
 class MammaliaData(Dataset):
