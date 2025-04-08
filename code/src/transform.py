@@ -40,7 +40,7 @@ class ImagePipeline:
 
     def __init__(
             self,
-            path_to_dataset: str | PathLike | None = None,
+            path_to_dataset: str | PathLike,
             steps: list[tuple[str, dict]] | None = None
             ):
 
@@ -51,10 +51,7 @@ class ImagePipeline:
 
         self.img: Image.Image = self.create_dummy_image()
 
-        if path_to_dataset is None:
-            self.path_to_dataset = Path()
-        else:
-            self.path_to_dataset = Path(path_to_dataset)
+        self.path_to_dataset = Path(path_to_dataset)
 
     def load(
             self,
@@ -171,8 +168,8 @@ class BatchImagePipeline(ImagePipeline):
 
     def __init__(
             self,
+            path_to_dataset: str | PathLike,
             num_workers: int = 4,
-            path_to_dataset: str | PathLike | None = None,
             steps: list[tuple[str, dict]] | None = None
             ):
 
@@ -194,7 +191,10 @@ class BatchImagePipeline(ImagePipeline):
 
         def process_one(args):
             path, bbox = args
-            pipeline = ImagePipeline(steps=self.steps.copy())
+            pipeline = ImagePipeline(
+                                path_to_dataset=self.path_to_dataset,
+                                steps=self.steps.copy()
+                                )
             return pipeline(path, bbox)
 
         with ThreadPoolExecutor(max_workers=self.num_workers) as executor:
