@@ -6,7 +6,7 @@ import torch
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Sequence
 
 from megadetector.detection.run_detector import model_string_to_model_version
 
@@ -15,7 +15,6 @@ from torch.utils.data import Dataset
 from sklearn.model_selection import train_test_split, StratifiedKFold
 
 from ba_dev.runner import MegaDetectorRunner
-# from ba_dev.transform import ImagePipeline
 
 
 class MammaliaData(Dataset):
@@ -331,6 +330,13 @@ class MammaliaData(Dataset):
                 usecols=usecols
                 )
 
+    def get_feature_stats(                                       # still to be implemented
+            self
+            ):
+        feature_stats = {}
+
+        return feature_stats
+
     def get_class_weight(                                        # still to be implemented
             self
             ) -> torch.Tensor:
@@ -417,7 +423,7 @@ class MammaliaData(Dataset):
             self,
             seq_id: int,
             confidence: float | None = None,
-            ) -> list[dict]:
+            ) -> dict[str, Sequence[Any]]:
 
         if confidence is None:
             confidence = self.applied_detection_confidence
@@ -426,7 +432,9 @@ class MammaliaData(Dataset):
         with open(path_to_detection_results, 'r') as f:
             data = json.load(f)
 
-        bb_list = []
+        img_list = []
+        bbox_list = []
+        conf_list = []
 
         for entry in data:
             file_name = entry['file']
@@ -434,15 +442,15 @@ class MammaliaData(Dataset):
 
             for det in detections:
                 if det['category'] == "1" and det['conf'] >= confidence:
-                    bb_list.append({
-                        'file': file_name,
-                        'conf': det['conf'],
-                        'bbox': det['bbox']
-                    })
+                    img_list.append(file_name)
+                    bbox_list.append(det['bbox'])
+                    conf_list.append(det['conf'])
 
-        bb_list = sorted(bb_list, key=lambda x: x['conf'], reverse=True)
+        combined = list(zip(img_list, bbox_list, conf_list))
+        combined_sorted = sorted(combined, key=lambda x: x[2], reverse=True)
+        img_list, bbox_list, conf_list = zip(*combined_sorted)
 
-        return bb_list
+        return {'file': img_list, 'bbox': bbox_list, 'conf': conf_list}
 
     def __len__(self) -> int:
         return len(self.ds)
@@ -451,8 +459,15 @@ class MammaliaData(Dataset):
 
         seq_id = self.seq_id_map[index]
         row = self.ds[self.ds['seq_id'] == seq_id].squeeze()
+        detections = self.getting_bb_list_for_seq(
+            seq_id=seq_id,
+            confidence=self.applied_detection_confidence
+            )
+        label = row['label2']
+        image_path_list = [row['Directory'] / name for name in detections['file']]
+        bbox_list = detections['bbox']
 
-        return row
+        return label, image_path_list, bbox_list
 
 
 class MammaliaDataImage(MammaliaData):
@@ -606,31 +621,29 @@ class MammaliaDataImage(MammaliaData):
 
         out_rows = []
 
-        for i, row in in_df.iterrows():
+        for _, row in in_df.iterrows():
 
             used_files = set()
 
-            bb_list = self.getting_bb_list_for_seq(
+            bb_data = self.getting_bb_list_for_seq(
                         seq_id=row['seq_id'],
                         confidence=self.applied_detection_confidence,
                         )
 
-            row_info_to_add = {key: row[key] for key in original_keys_to_keep}
+            row_info = {key: row[key] for key in original_keys_to_keep}
+            directory = Path(row['Directory'])
 
-            for item in bb_list:
-
-                file_name = item['file']
+            for file_name, bbox, conf in zip(bb_data['file'], bb_data['bbox'], bb_data['conf']):
 
                 if only_one_bb_per_image and file_name in used_files:
                     continue
 
                 used_files.add(file_name)
 
-                new_row = row_info_to_add.copy()
-
-                new_row['file_path'] = Path(row['Directory']) / file_name
-                new_row['bbox'] = item['bbox']
-                new_row['conf'] = item['conf']
+                new_row = row_info.copy()
+                new_row['file_path'] = directory / file_name
+                new_row['bbox'] = bbox
+                new_row['conf'] = conf
 
                 out_rows.append(new_row)
 
