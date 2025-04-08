@@ -1,4 +1,3 @@
-import warnings
 import numpy as np
 from PIL import Image
 from pathlib import Path
@@ -10,22 +9,19 @@ from os import PathLike
 class ImagePipeline:
     def __init__(
             self,
-            path: str | PathLike,
             ):
 
-        path = Path(path)
-
-        if path is None:
-            warnings.warn("No image path provided, creating a dummy image.")
-            self.img: Image.Image = self.create_dummy_image()
-        else:
-            self.img: Image.Image = Image.open(path)
+        self.img: Image.Image = self.create_dummy_image()
 
     def load(
             self,
-            path: str | Path
+            path: str | PathLike
             ):
-        self.img = Image.open(path)
+
+        try:
+            self.img = Image.open(Path(path))
+        except Exception as e:
+            raise RuntimeError(f"Failed to load image from {path}: {e}")
         return self
 
     def to_rgb(self):
@@ -92,7 +88,7 @@ class ImagePipeline:
         self.img = self.img.resize(size)
         return self
 
-    def create_dummy_image(self, size=(512, 512), channels=3) -> Image.Image:
+    def create_dummy_image(self, size=(8, 8), channels=3) -> Image.Image:
         array = np.random.randint(0, 256, size + (channels,), dtype=np.uint8)
         return Image.fromarray(array)
 
