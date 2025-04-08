@@ -1,7 +1,9 @@
+import torch
 from PIL import Image
 from concurrent.futures import ThreadPoolExecutor
 
 import torchvision.transforms.functional as F
+import torchvision.transforms.v2 as T
 
 from torch import Tensor
 from pathlib import Path
@@ -10,6 +12,68 @@ from os import PathLike
 
 BBox = Sequence[float]
 Stats = dict[str, list[float]]
+
+
+class CropByBBox(T.Transform):
+    """Crop a tensor image using a normalized [x, y, width, height] bounding box."""
+
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, image: torch.Tensor, bbox: Sequence[float]) -> torch.Tensor:
+        if not isinstance(image, torch.Tensor):
+            raise TypeError("Expected image to be a torch.Tensor")
+
+        if len(bbox) != 4:
+            raise ValueError("Expected bbox in format [x, y, width, height]")
+
+        _, height, width = image.shape
+
+        x1 = int(bbox[0] * width)
+        y1 = int(bbox[1] * height)
+        x2 = int((bbox[0] + bbox[2]) * width)
+        y2 = int((bbox[1] + bbox[3]) * height)
+
+        return image[:, y1:y2, x1:x2]
+
+
+class CropCenterSampleFromBBox(T.Transform):
+    """Crop a center sample of fixed size from a normalized bounding box in a tensor image."""
+
+    def __init__(self, size: int | Sequence[int] = 50):
+        super().__init__()
+        if isinstance(size, int):
+            self.size = (size, size)
+        elif isinstance(size, Sequence) and len(size) == 2:
+            self.size = tuple(size)
+        else:
+            raise ValueError("size must be an int or a sequence of two ints")
+
+    def forward(self, image: torch.Tensor, bbox: Sequence[float]) -> torch.Tensor:
+        if not isinstance(image, torch.Tensor):
+            raise TypeError("Expected image to be a torch.Tensor")
+
+        if len(bbox) != 4:
+            raise ValueError("Expected bbox in format [x, y, width, height]")
+
+        _, H, W = image.shape
+        target_w, target_h = self.size
+
+        center_x = int(bbox[0] * W + bbox[2] * W / 2)
+        center_y = int(bbox[1] * H + bbox[3] * H / 2)
+
+        x1 = center_x - target_w // 2
+        y1 = center_y - target_h // 2
+        x2 = x1 + target_w
+        y2 = y1 + target_h
+
+        # Clamp to image boundaries
+        x1 = max(0, min(W - 1, x1))
+        y1 = max(0, min(H - 1, y1))
+        x2 = max(0, min(W, x2))
+        y2 = max(0, min(H, y2))
+
+        return image[:, y1:y2, x1:x2]
 
 
 class ImagePipeline:
