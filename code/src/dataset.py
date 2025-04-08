@@ -57,15 +57,15 @@ class MammaliaData(Dataset):
     available_detection_confidence : float
         If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
         must be set to the value used for the detection. The default is 0.25.
+    mode : str
+        The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
+        be sampled and adjusting how it is sampled. The default is 'train'.
     sample_length : int
         For training this parameter specifies the range (1 - sample_length) of randomly selected samples per sequence.
         For testing this parameter specifies the maximum number of samples per sequence.
         The default is 10.
     sample_img_size : [int, int]
         The size to which the detected areas are resized. The default is [224, 224].
-    mode : str
-        The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
-        be sampled and adjusting how it is sampled. The default is 'train'.
 
     """
 
@@ -492,15 +492,15 @@ class MammaliaDataImage(MammaliaData):
     available_detection_confidence : float
         If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
         must be set to the value used for the detection. The default is 0.25.
+    mode : str
+        The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
+        be sampled and adjusting how it is sampled. The default is 'train'.
     sample_length : int
         For training this parameter specifies the range (1 - sample_length) of randomly selected samples per sequence.
         For testing this parameter specifies the maximum number of samples per sequence.
         The default is 10.
     sample_img_size : [int, int]
         The size to which the detected areas are resized. The default is [224, 224].
-    mode : str
-        The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
-        be sampled and adjusting how it is sampled. The default is 'train'.
 
     """
 

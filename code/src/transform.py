@@ -1,3 +1,5 @@
+import warnings
+import numpy as np
 from PIL import Image
 from pathlib import Path
 from typing import Sequence
@@ -11,7 +13,12 @@ class ImagePipeline:
             path: str | PathLike,
             ):
 
-        if path is not None:
+        path = Path(path)
+
+        if path is None:
+            warnings.warn("No image path provided, creating a dummy image.")
+            self.img: Image.Image = self.create_dummy_image()
+        else:
             self.img: Image.Image = Image.open(path)
 
     def load(
@@ -84,6 +91,10 @@ class ImagePipeline:
                 raise ValueError("size must be an int or a sequence of maximum two integers.")
         self.img = self.img.resize(size)
         return self
+
+    def create_dummy_image(self, size=(512, 512), channels=3) -> Image.Image:
+        array = np.random.randint(0, 256, size + (channels,), dtype=np.uint8)
+        return Image.fromarray(array)
 
     def get(self) -> Image.Image:
         return self.img
