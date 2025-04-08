@@ -14,14 +14,25 @@ class ImagePipeline:
     A image processing pipeline that allows for a series of transformations to be applied.
     This list is defined by a list of (method_name, kwargs) passed as steps.
 
+    Parameters
+    ----------
+    path_to_dataset : str | PathLike | None
+        Path to the dataset. If None, a dummy image will be created.
+    steps : list[tuple[str, dict]] | None
+        List of steps to be applied to the image. Each step is a tuple of (method_name, kwargs).
+        If None, no steps will be applied. Image will be loaded and returned as is.
+
     Example:
 
-    pipeline = ImagePipeline([
-        ('load', {'path': 'path/to/image.jpg'}),
-        ('to_rgb', {}),
-        ('crop_by_bb', {}),
-        ('resize', {'size': 128}),
-    ])
+    pipeline = ImagePipeline(
+        path_to_dataset='path/to/dataset',
+        steps=[
+            ('load', {'path': 'path/to/image.jpg'}),
+            ('to_rgb', {}),
+            ('crop_by_bb', {}),
+            ('resize', {'size': 128}),
+            ]
+        )
 
     image = pipeline('path/to/image.jpg', bbox=[0.1, 0.1, 0.8, 0.8])
 
@@ -29,6 +40,7 @@ class ImagePipeline:
 
     def __init__(
             self,
+            path_to_dataset: str | PathLike | None = None,
             steps: list[tuple[str, dict]] | None = None
             ):
 
@@ -39,15 +51,20 @@ class ImagePipeline:
 
         self.img: Image.Image = self.create_dummy_image()
 
+        if path_to_dataset is None:
+            self.path_to_dataset = Path()
+        else:
+            self.path_to_dataset = Path(path_to_dataset)
+
     def load(
             self,
             path: str | PathLike
             ):
 
         try:
-            self.img = Image.open(Path(path))
+            self.img = Image.open(self.path_to_dataset / path)
         except Exception as e:
-            raise RuntimeError(f"Failed to load image from {path}: {e}")
+            raise RuntimeError(f"Failed to load image from {self.path_to_dataset / path}: {e}")
         return self
 
     def to_rgb(self):
@@ -155,10 +172,12 @@ class BatchImagePipeline(ImagePipeline):
     def __init__(
             self,
             num_workers: int = 4,
+            path_to_dataset: str | PathLike | None = None,
             steps: list[tuple[str, dict]] | None = None
             ):
 
         super().__init__(
+            path_to_dataset=path_to_dataset,
             steps=steps
             )
 
