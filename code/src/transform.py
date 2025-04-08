@@ -2,9 +2,14 @@ import numpy as np
 from PIL import Image
 from concurrent.futures import ThreadPoolExecutor
 
+import torchvision.transforms.functional as F
+
+from torch import Tensor
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Sequence, cast
 from os import PathLike
+
+BBox = Sequence[float]
 
 
 class ImagePipeline:
@@ -49,9 +54,9 @@ class ImagePipeline:
         else:
             self.steps = steps
 
-        self.img: Image.Image = self.create_dummy_image()
-
         self.path_to_dataset = Path(path_to_dataset)
+
+        self.img: Image.Image | Tensor | None = None
 
     def load(
             self,
@@ -65,33 +70,33 @@ class ImagePipeline:
         return self
 
     def to_rgb(self):
-        self.img = self.img.convert("RGB")
+        self.img = self._pil().convert("RGB")
         return self
 
     def crop_by_bb(
             self,
-            bbox: list[float] | tuple[float, float, float, float]
+            bbox: BBox,
             ):
 
-        width, height = self.img.size
+        width, height = self._pil().size
 
         x1 = int(bbox[0] * width)
         y1 = int(bbox[1] * height)
         x2 = int((bbox[0] + bbox[2]) * width)
         y2 = int((bbox[1] + bbox[3]) * height)
 
-        self.img = self.img.crop((x1, y1, x2, y2))
+        self.img = self._pil().crop((x1, y1, x2, y2))
         return self
 
     def crop_center_sample(
             self,
-            bbox: list[float] | tuple[float, float, float, float],
+            bbox: BBox,
             size: int | Sequence[int] = 50
             ):
 
-        size = self.process_size(size)
+        size = self._process_size(size)
 
-        width, height = self.img.size
+        width, height = self._pil().size
 
         center_x = int(bbox[0] * width) + int(bbox[2] * width / 2)
         center_y = int(bbox[1] * height) + int(bbox[3] * height / 2)
@@ -101,7 +106,7 @@ class ImagePipeline:
         x2 = x1 + size[0]
         y2 = y1 + size[1]
 
-        self.img = self.img.crop((x1, y1, x2, y2))
+        self.img = self._pil().crop((x1, y1, x2, y2))
         return self
 
     def resize(
@@ -109,25 +114,55 @@ class ImagePipeline:
             size: Sequence[int] | int,
             ):
 
-        size = self.process_size(size)
+        size = self._process_size(size)
 
-        self.img = self.img.resize(size)
+        self.img = self._pil().resize(size)
+        return self
+
+    def to_tensor(
+            self
+            ):
+
+        self.img = F.to_tensor(self._pil())
         return self
 
     def create_dummy_image(
             self,
             size=(8, 8),
-            channels=3) -> Image.Image:
+            channels=3):
 
-        size = self.process_size(size)
+        size = self._process_size(size)
 
         array = np.random.randint(0, 256, size + (channels,), dtype=np.uint8)
-        return Image.fromarray(array)
+        self.img = Image.fromarray(array)
+        return self
 
-    def get(self) -> Image.Image:
+    def get_pil(self) -> Image.Image:
+        return self._pil()
+
+    def get_tensor(self) -> Tensor:
+        return self._tensor()
+
+    def get(self) -> Image.Image | Tensor:
+        if self.img is None:
+            raise ValueError("Image has not been processed yet.")
         return self.img
 
-    def process_size(
+    def _pil(self) -> Image.Image:
+        if self.img is None:
+            raise ValueError("Image is not loaded yet. Call `.load()` first.")
+        if not isinstance(self.img, Image.Image):
+            raise TypeError("Operation requires PIL image. Call `.to_tensor()` after this step.")
+        return cast(Image.Image, self.img)
+
+    def _tensor(self) -> Tensor:
+        if self.img is None:
+            raise ValueError("Image is not loaded yet. Call `.load()` first.")
+        if not isinstance(self.img, Tensor):
+            raise TypeError("Operation requires tensor. Call `.to_tensor()` before this step.")
+        return cast(Tensor, self.img)
+
+    def _process_size(
             self,
             size: Sequence[int] | int,
             ) -> tuple[int, int]:
@@ -147,7 +182,7 @@ class ImagePipeline:
     def __call__(
             self,
             path: str | PathLike,
-            bbox: Sequence[float],
+            bbox: BBox,
             ) -> Any:
 
         self.load(path)
