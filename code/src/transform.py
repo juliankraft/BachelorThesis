@@ -1,79 +1,12 @@
-import torch
 from PIL import Image
 from concurrent.futures import ThreadPoolExecutor
 
-import torchvision.transforms.functional as F
-import torchvision.transforms.v2 as T
-
 from torch import Tensor
 from pathlib import Path
-from typing import Sequence, Any, cast
+from typing import Sequence, Callable, Any, cast
 from os import PathLike
 
 BBox = Sequence[float]
-Stats = dict[str, list[float]]
-
-
-class CropByBBox(T.Transform):
-    """Crop a tensor image using a normalized [x, y, width, height] bounding box."""
-
-    def __init__(self):
-        super().__init__()
-
-    def forward(self, image: torch.Tensor, bbox: Sequence[float]) -> torch.Tensor:
-        if not isinstance(image, torch.Tensor):
-            raise TypeError("Expected image to be a torch.Tensor")
-
-        if len(bbox) != 4:
-            raise ValueError("Expected bbox in format [x, y, width, height]")
-
-        _, height, width = image.shape
-
-        x1 = int(bbox[0] * width)
-        y1 = int(bbox[1] * height)
-        x2 = int((bbox[0] + bbox[2]) * width)
-        y2 = int((bbox[1] + bbox[3]) * height)
-
-        return image[:, y1:y2, x1:x2]
-
-
-class CropCenterSampleFromBBox(T.Transform):
-    """Crop a center sample of fixed size from a normalized bounding box in a tensor image."""
-
-    def __init__(self, size: int | Sequence[int] = 50):
-        super().__init__()
-        if isinstance(size, int):
-            self.size = (size, size)
-        elif isinstance(size, Sequence) and len(size) == 2:
-            self.size = tuple(size)
-        else:
-            raise ValueError("size must be an int or a sequence of two ints")
-
-    def forward(self, image: torch.Tensor, bbox: Sequence[float]) -> torch.Tensor:
-        if not isinstance(image, torch.Tensor):
-            raise TypeError("Expected image to be a torch.Tensor")
-
-        if len(bbox) != 4:
-            raise ValueError("Expected bbox in format [x, y, width, height]")
-
-        _, H, W = image.shape
-        target_w, target_h = self.size
-
-        center_x = int(bbox[0] * W + bbox[2] * W / 2)
-        center_y = int(bbox[1] * H + bbox[3] * H / 2)
-
-        x1 = center_x - target_w // 2
-        y1 = center_y - target_h // 2
-        x2 = x1 + target_w
-        y2 = y1 + target_h
-
-        # Clamp to image boundaries
-        x1 = max(0, min(W - 1, x1))
-        y1 = max(0, min(H - 1, y1))
-        x2 = max(0, min(W, x2))
-        y2 = max(0, min(H, y2))
-
-        return image[:, y1:y2, x1:x2]
 
 
 class ImagePipeline:
@@ -87,14 +20,12 @@ class ImagePipeline:
     ----------
     path_to_dataset : str | PathLike | None
         Path to the dataset. If None, a dummy image will be created.
-    stats : dict[str, list[float]] | None
-        Statistics for the dataset. If None, default values will be used.
-        Default values are from ImageNet dataset:
-            mean = (0.485, 0.456, 0.406)
-            std = (0.229, 0.224, 0.225)
     steps : list[tuple[str, dict]] | None
         List of steps to be applied to the image. Each step is a tuple of (method_name, kwargs).
         If None, no steps will be applied. Image will be loaded and returned as is.
+    transform : Callable | None
+        A instance of the torchvision.transforms.Compose class or any other callable that takes a PIL image
+        and returns a transformed image. If None, no transformation will be applied.
 
     Example:
 
@@ -106,6 +37,11 @@ class ImagePipeline:
             ('crop_by_bb', {}),
             ('resize', {'size': 128}),
             ]
+        transform=v2.Compose([
+                v2.ToImage(),
+                v2.ToDtype(torch.float32, scale=True),
+                v2.Resize((224, 224)),
+        ])
         )
 
     image = pipeline('path/to/image.jpg', bbox=[0.1, 0.1, 0.8, 0.8])
@@ -115,24 +51,19 @@ class ImagePipeline:
     def __init__(
             self,
             path_to_dataset: str | PathLike,
-            stats: Stats | None = None,
-            steps: list[tuple[str, dict]] | None = None
+            steps: list[tuple[str, dict]] | None = None,
+            transform: Callable | None = None
             ):
 
         self.img: Image.Image | Tensor | None = None
 
         self.path_to_dataset = Path(path_to_dataset)
 
-        if stats is None:
-            stats = {
-                'mean': [0.485, 0.456, 0.406],
-                'std': [0.229, 0.224, 0.225],
-                }
-        self.stats = stats
-
         if steps is None:
             steps = []
         self.steps = steps
+
+        self.transform = transform
 
     def load(
             self,
@@ -193,18 +124,6 @@ class ImagePipeline:
         self.img = self._pil().resize(size)
         return self
 
-    def to_tensor(self):
-        self.img = F.to_tensor(self._pil())
-        return self
-
-    def normalize(self):
-        self.img = F.normalize(
-                        self._tensor(),
-                        mean=self.stats['mean'],
-                        std=self.stats['std']
-                        )
-        return self
-
     def get(self) -> Image.Image | Tensor:
         if self.img is None:
             raise ValueError("Image has not been processed yet.")
@@ -216,13 +135,6 @@ class ImagePipeline:
         if not isinstance(self.img, Image.Image):
             raise TypeError("Operation requires PIL image. Call `.to_tensor()` after this step.")
         return cast(Image.Image, self.img)
-
-    def _tensor(self) -> Tensor:
-        if self.img is None:
-            raise ValueError("Image is not loaded yet. Call `.load()` first.")
-        if not isinstance(self.img, Tensor):
-            raise TypeError("Operation requires tensor. Call `.to_tensor()` before this step.")
-        return cast(Tensor, self.img)
 
     def _process_size(
             self,
@@ -258,7 +170,11 @@ class ImagePipeline:
             else:
                 self = method(**kwargs)
 
-        return self.get()
+        result = self.get()
+
+        if self.transform:
+            return self.transform(result)
+        return result
 
 
 class BatchImagePipeline(ImagePipeline):
@@ -266,15 +182,15 @@ class BatchImagePipeline(ImagePipeline):
     def __init__(
             self,
             path_to_dataset: str | PathLike,
-            stats: Stats | None = None,
             steps: list[tuple[str, dict]] | None = None,
-            num_workers: int = 4,
+            transform: Callable | None = None,
+            num_workers: int = 4
             ):
 
         super().__init__(
             path_to_dataset=path_to_dataset,
-            stats=stats,
-            steps=steps
+            steps=steps,
+            transform=transform
             )
 
         self.num_workers = num_workers
