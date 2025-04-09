@@ -667,5 +667,4 @@ class MammaliaDataImage(MammaliaData):
     def __getitem__(self, index: int) -> Any:
         row_index = self.row_map[index]
         row = self.ds.iloc[row_index]
-
         return row
