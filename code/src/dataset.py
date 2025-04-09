@@ -12,7 +12,8 @@ from megadetector.detection.run_detector import model_string_to_model_version
 
 from os import PathLike
 from torch.utils.data import Dataset
-from sklearn.model_selection import train_test_split, StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.utils.class_weight import compute_class_weight
 
 from ba_dev.runner import MegaDetectorRunner
 
@@ -105,7 +106,14 @@ class MammaliaData(Dataset):
         self.applied_detection_confidence = applied_detection_confidence
         self.available_detection_confidence = available_detection_confidence
 
+        labels = ['apodemus_sp', 'mustela_erminea', 'cricetidae', 'soricidae', 'other', 'glis_glis']
         self.categories_to_drop = categories_to_drop if categories_to_drop is not None else []
+        if any(label not in labels for label in self.categories_to_drop):
+            raise ValueError(f"Invalid categories to drop. Available categories: {labels}")
+        self.class_labels = sorted([label for label in labels if label not in self.categories_to_drop])
+        self.label_encoder = {label: idx for idx, label in enumerate(self.class_labels)}
+        self.label_decoder = {idx: label for label, idx in self.label_encoder.items()}
+
         self.sample_length = sample_length
         self.sample_img_size = sample_img_size
 
@@ -266,6 +274,44 @@ class MammaliaData(Dataset):
 
         return folds
 
+    def explode_df(
+            self,
+            in_df: pd.DataFrame,
+            only_one_bb_per_image: bool = True,
+            ) -> pd.DataFrame:
+
+        original_keys_to_keep = ['seq_id', 'label2', 'SerialNumber']
+
+        out_rows = []
+
+        for _, row in in_df.iterrows():
+
+            used_files = set()
+
+            bb_data = self.get_bb_list_for_seq(
+                        seq_id=row['seq_id'],
+                        confidence=self.applied_detection_confidence,
+                        )
+
+            row_info = {key: row[key] for key in original_keys_to_keep}
+            directory = Path(row['Directory'])
+
+            for file_name, bbox, conf in zip(bb_data['file'], bb_data['bbox'], bb_data['conf']):
+
+                if only_one_bb_per_image and file_name in used_files:
+                    continue
+
+                used_files.add(file_name)
+
+                new_row = row_info.copy()
+                new_row['file_path'] = directory / file_name
+                new_row['bbox'] = bbox
+                new_row['conf'] = conf
+
+                out_rows.append(new_row)
+
+        return pd.DataFrame(out_rows).reset_index(drop=True)
+
     def get_all_files_of_type(
             self,
             path: str | PathLike,
@@ -337,11 +383,21 @@ class MammaliaData(Dataset):
 
         return feature_stats
 
-    def get_class_weight(                                        # still to be implemented
-            self
+    def get_class_weight(
+            self,
+            trainset: pd.DataFrame,
             ) -> torch.Tensor:
 
-        class_weights = torch.Tensor()
+        encoded_labels = trainset['label2'].map(self.label_encoder).to_numpy()
+        classes = np.array(list(self.label_encoder.values()))
+
+        weights = compute_class_weight(
+            class_weight='balanced',
+            classes=classes,
+            y=encoded_labels
+        )
+
+        class_weights = torch.tensor(weights, dtype=torch.float32)
 
         return class_weights
 
@@ -419,7 +475,7 @@ class MammaliaData(Dataset):
             quoting=csv.QUOTE_NONNUMERIC
             )
 
-    def getting_bb_list_for_seq(
+    def get_bb_list_for_seq(
             self,
             seq_id: int,
             confidence: float | None = None,
@@ -457,17 +513,21 @@ class MammaliaData(Dataset):
 
     def __getitem__(self, index: int) -> Any:
 
-        seq_id = self.seq_id_map[index]
-        row = self.ds[self.ds['seq_id'] == seq_id].squeeze()
-        detections = self.getting_bb_list_for_seq(
-            seq_id=seq_id,
-            confidence=self.applied_detection_confidence
-            )
-        label = row['label2']
-        image_path_list = [row['Directory'] / name for name in detections['file']]
-        bbox_list = detections['bbox']
+        # seq_id = self.seq_id_map[index]
+        # row = self.ds[self.ds['seq_id'] == seq_id].squeeze()
+        # detections = self.get_bb_list_for_seq(
+        #     seq_id=seq_id,
+        #     confidence=self.applied_detection_confidence
+        #     )
 
-        return label, image_path_list, bbox_list
+        # # image_path_list = [row['Directory'] / name for name in detections['file']]
+        # # bbox_list = detections['bbox']
+
+        # x = 'not defined'
+        # y = self.label_encoder[row['label2']]
+        # return x, y
+
+        pass
 
 
 class MammaliaDataImage(MammaliaData):
@@ -569,16 +629,6 @@ class MammaliaDataImage(MammaliaData):
             for idx in fold
             ]
 
-        dataset = self.ds_exploded
-        if self.mode == 'test':
-            self.ds = dataset[dataset['seq_id'].isin(self.test_seq_ids)]
-        elif self.mode == 'train':
-            self.ds = trainval_set.iloc[self.train_indices]
-        elif self.mode == 'val':
-            self.ds = trainval_set.iloc[self.val_indices]
-        elif self.mode == 'init':
-            self.ds = trainval_set
-
         if self.mode == 'test':
             self.ds = test_set.reset_index(drop=True)
         elif self.mode == 'train':
@@ -610,44 +660,6 @@ class MammaliaDataImage(MammaliaData):
             folds.append(val_idx.tolist())
 
         return folds
-
-    def explode_df(
-            self,
-            in_df: pd.DataFrame,
-            only_one_bb_per_image: bool = True,
-            ) -> pd.DataFrame:
-
-        original_keys_to_keep = ['seq_id', 'label2', 'SerialNumber']
-
-        out_rows = []
-
-        for _, row in in_df.iterrows():
-
-            used_files = set()
-
-            bb_data = self.getting_bb_list_for_seq(
-                        seq_id=row['seq_id'],
-                        confidence=self.applied_detection_confidence,
-                        )
-
-            row_info = {key: row[key] for key in original_keys_to_keep}
-            directory = Path(row['Directory'])
-
-            for file_name, bbox, conf in zip(bb_data['file'], bb_data['bbox'], bb_data['conf']):
-
-                if only_one_bb_per_image and file_name in used_files:
-                    continue
-
-                used_files.add(file_name)
-
-                new_row = row_info.copy()
-                new_row['file_path'] = directory / file_name
-                new_row['bbox'] = bbox
-                new_row['conf'] = conf
-
-                out_rows.append(new_row)
-
-        return pd.DataFrame(out_rows).reset_index(drop=True)
 
     def __len__(self):
         return len(self.ds)
