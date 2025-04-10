@@ -38,6 +38,7 @@
 {https://www.zhaw.ch/en/lsfm/institutes-centres/iunr/}
 {Grüentalstrasse 14, Wädenswil, Switzerland}
 
+\pdfautorstring{Julian Kraft}
 \university{Zurich University of Applied Sciences}
 \department{Life Sciences and Facility Management}
 \institute{Institute of Natural Resource Sciences} 
@@ -45,7 +46,7 @@
 
 \AtBeginDocument{
 \hypersetup{pdftitle=\projecttitle} % Set the PDF's title to your title
-\hypersetup{pdfauthor=\printauthors} % Set the PDF's author to your name
+\hypersetup{pdfauthor=\pdfautorstring} % Set the PDF's author to your name
 \hypersetup{pdfkeywords=\keywords} % Set the PDF's keywords to your keywords
 }
 
@@ -61,7 +62,7 @@
 \include{front/imprint}
 
 %----------------------------------------------------------------------------------------
-% handeling page numbering
+% handling page numbering
 %----------------------------------------------------------------------------------------
 \clearpage
 \pagenumbering{roman}
@@ -95,7 +96,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %----------------------------------------------------------------------------------------
-% handeling page numbering
+% handling page numbering
 %----------------------------------------------------------------------------------------
 \clearpage
 \pagenumbering{arabic}
@@ -108,7 +109,7 @@
 \include{sections/04_discussion}
 \include{sections/05_acknowledgment_declaration}
 
-\printbibliography[heading=bibintoc]
+% \printbibliography[heading=bibintoc]
 
 \appendix
 % \include{sections/a_tables}
