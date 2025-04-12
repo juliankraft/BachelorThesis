@@ -24,50 +24,7 @@ class MammaliaData(Dataset):
 
     """
 
-    A class to load and process the Mammalia dataset. It can be used for the initial detection of the images
-    utilizing the MegaDetector model, or for training a custom model for classification on the detected images.
-    The dataset is divided into training and testing sets based on the sequence IDs.
-
-    Parameters
-    ----------
-    path_labelfiles : str | PathLike
-        Path to the directory containing the label files.
-    path_to_dataset : str | PathLike
-        Path to the main directory of the dataset, referenced in the labelfiles.
-    path_to_detector_output : str | PathLike
-        Path to the directory where the detector output is available for training or where the output will be saved
-        if detection is applied.
-    categories_to_drop : list[str], optional
-        All empty labels are excluded anyways. Per default the categories 'other' and 'glis_glis' are excluded
-        as well. This argument could change this behavior.
-    detector_model : str
-        If a detector model is provided, the detection will be applied to the whole dataset and stored for training.
-        The model must be one of the available models in the MegaDetector repository.
-        The default is None. A valid detection output must be available at the path_to_detector_output.
-    applied_detection_confidence : float
-        The detection is done with a confidence of 0.25 by default to provide some flexibility
-        with the training. The confidence can be set to a higher value to reduce the number of detections used from
-        the output. The default is 0.25.
-    random_seed : int
-        The seed used for the random number generator. The default is 55.
-    test_size : float
-        The proportion of the dataset to include in the test split. The default is 0.2.
-    n_folds : int
-        The number of folds to use for cross-validation. The default is 5.
-    val_fold : int
-        The fold index to use for validation. The default is 0.
-    available_detection_confidence : float
-        If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
-        must be set to the value used for the detection. The default is 0.25.
-    mode : str
-        The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
-        be sampled and adjusting how it is sampled. The default is 'train'.
-    sample_length : int
-        For training this parameter specifies the range (1 - sample_length) of randomly selected samples per sequence.
-        For testing this parameter specifies the maximum number of samples per sequence.
-        The default is 10.
-    sample_img_size : [int, int]
-        The size to which the detected areas are resized. The default is [224, 224].
+    A parent class to define the common methods and attributes for the different versions of Mammalia dataset.
 
     """
 
@@ -88,6 +45,10 @@ class MammaliaData(Dataset):
             sample_img_size: list[int] = [224, 224],
             mode: str = 'train',
             ):
+
+        if type(self) is MammaliaData:
+            raise TypeError("MammaliaData is abstract and can't be instantiated directly.")
+
         super().__init__()
 
         self.random_seed = random_seed
@@ -145,36 +106,15 @@ class MammaliaData(Dataset):
                                             test_size=self.test_size,
                                             )
 
-        if self.__class__ == MammaliaData:
+    def custom_split_dataset(
+            self,
+            ds: pd.DataFrame,
+            test_size: float,
+            n_folds: int,
+            seed: int,
+            ):
 
-            trainval_set = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.trainval_seq_ids)]
-
-            self.trainval_folds = self.create_folds(
-                                                seed=self.random_seed,
-                                                n_folds=self.n_folds,
-                                                ds=trainval_set
-                                                )
-
-            self.val_seq_ids = self.trainval_folds[self.val_fold]
-            self.train_seq_ids = [
-                    seq_id
-                    for i, fold in enumerate(self.trainval_folds)
-                    if i != self.val_fold
-                    for seq_id in fold
-                ]
-
-            dataset = self.ds_filtered
-
-            if self.mode == 'test':
-                self.ds = dataset[dataset['seq_id'].isin(self.test_seq_ids)]
-            elif self.mode == 'train':
-                self.ds = dataset[dataset['seq_id'].isin(self.train_seq_ids)]
-            elif self.mode == 'val':
-                self.ds = dataset[dataset['seq_id'].isin(self.val_seq_ids)]
-            elif self.mode == 'init':
-                self.ds = dataset[dataset['seq_id'].isin(self.trainval_seq_ids)]
-
-            self.seq_id_map = self.ds['seq_id'].tolist()
+        pass
 
     def get_ds_full(
             self,
@@ -510,6 +450,115 @@ class MammaliaData(Dataset):
 
         return {'file': img_list, 'bbox': bbox_list, 'conf': conf_list}
 
+
+class MammaliaDataSequence(MammaliaData):
+
+    """
+
+    A class to load and process the Mammalia dataset. It can be used for the initial detection of the images
+    utilizing the MegaDetector model, or for training a custom model for classification on the detected images.
+    The dataset is divided into training and testing sets based on the sequence IDs.
+
+    Parameters
+    ----------
+    path_labelfiles : str | PathLike
+        Path to the directory containing the label files.
+    path_to_dataset : str | PathLike
+        Path to the main directory of the dataset, referenced in the labelfiles.
+    path_to_detector_output : str | PathLike
+        Path to the directory where the detector output is available for training or where the output will be saved
+        if detection is applied.
+    categories_to_drop : list[str], optional
+        All empty labels are excluded anyways. Per default the categories 'other' and 'glis_glis' are excluded
+        as well. This argument could change this behavior.
+    detector_model : str
+        If a detector model is provided, the detection will be applied to the whole dataset and stored for training.
+        The model must be one of the available models in the MegaDetector repository.
+        The default is None. A valid detection output must be available at the path_to_detector_output.
+    applied_detection_confidence : float
+        The detection is done with a confidence of 0.25 by default to provide some flexibility
+        with the training. The confidence can be set to a higher value to reduce the number of detections used from
+        the output. The default is 0.25.
+    random_seed : int
+        The seed used for the random number generator. The default is 55.
+    test_size : float
+        The proportion of the dataset to include in the test split. The default is 0.2.
+    n_folds : int
+        The number of folds to use for cross-validation. The default is 5.
+    val_fold : int
+        The fold index to use for validation. The default is 0.
+    available_detection_confidence : float
+        If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
+        must be set to the value used for the detection. The default is 0.25.
+    mode : str
+        The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
+        be sampled and adjusting how it is sampled. The default is 'train'.
+    sample_length : int
+        For training this parameter specifies the range (1 - sample_length) of randomly selected samples per sequence.
+        For testing this parameter specifies the maximum number of samples per sequence.
+        The default is 10.
+    sample_img_size : [int, int]
+        The size to which the detected areas are resized. The default is [224, 224].
+
+    """
+
+    def __init__(
+            self,
+            path_labelfiles: str | PathLike,
+            path_to_dataset: str | PathLike,
+            path_to_detector_output: str | PathLike,
+            detector_model: str | None = None,
+            applied_detection_confidence: float = 0.25,
+            available_detection_confidence: float = 0.25,
+            random_seed: int = 55,
+            test_size: float = 0.2,
+            n_folds: int = 5,
+            val_fold: int = 0,
+            mode: str = 'train',
+            ):
+        super().__init__(
+            path_labelfiles=path_labelfiles,
+            path_to_dataset=path_to_dataset,
+            path_to_detector_output=path_to_detector_output,
+            detector_model=detector_model,
+            applied_detection_confidence=applied_detection_confidence,
+            available_detection_confidence=available_detection_confidence,
+            random_seed=random_seed,
+            test_size=test_size,
+            n_folds=n_folds,
+            val_fold=val_fold,
+            mode=mode,
+            )
+
+        trainval_set = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.trainval_seq_ids)]
+
+        self.trainval_folds = self.create_folds(
+                                            seed=self.random_seed,
+                                            n_folds=self.n_folds,
+                                            ds=trainval_set
+                                            )
+
+        self.val_seq_ids = self.trainval_folds[self.val_fold]
+        self.train_seq_ids = [
+                seq_id
+                for i, fold in enumerate(self.trainval_folds)
+                if i != self.val_fold
+                for seq_id in fold
+            ]
+
+        dataset = self.ds_filtered
+
+        if self.mode == 'test':
+            self.ds = dataset[dataset['seq_id'].isin(self.test_seq_ids)]
+        elif self.mode == 'train':
+            self.ds = dataset[dataset['seq_id'].isin(self.train_seq_ids)]
+        elif self.mode == 'val':
+            self.ds = dataset[dataset['seq_id'].isin(self.val_seq_ids)]
+        elif self.mode == 'init':
+            self.ds = dataset[dataset['seq_id'].isin(self.trainval_seq_ids)]
+
+        self.seq_id_map = self.ds['seq_id'].tolist()
+
     def __len__(self) -> int:
         return len(self.ds)
 
@@ -721,3 +770,4 @@ class MammaliaDatasetFeatureStats(MammaliaDataImage):
         bbox = row['bbox']
 
         return self.image_pipline(image_path, bbox)
+
