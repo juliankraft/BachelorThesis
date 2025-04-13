@@ -6,18 +6,18 @@ import torch
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Any, List, Tuple, Sequence
+from typing import Any, List, Tuple, Sequence, cast
 
 from megadetector.detection.run_detector import model_string_to_model_version
 
 from os import PathLike
 from torch.utils.data import Dataset
-from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.utils.class_weight import compute_class_weight
 from torchvision.transforms import v2
 
 from ba_dev.runner import MegaDetectorRunner
 from ba_dev.transform import ImagePipeline
+from ba_dev.utils import best_weighted_split
 
 
 class MammaliaData(Dataset):
@@ -101,20 +101,62 @@ class MammaliaData(Dataset):
         self.ds_full = self.get_ds_full()
         self.ds_filtered = self.get_ds_filtered()
 
-        self.trainval_seq_ids, self.test_seq_ids = self.split_dataset(
-                                            seed=self.random_seed,
+        self.test_seq_ids, self.folds = self.custom_split_dataset(
+                                            ds=self.ds_filtered,
                                             test_size=self.test_size,
+                                            n_folds=self.n_folds,
+                                            seed=self.random_seed
                                             )
+        
+        self.val_seq_ids = self.folds[self.val_fold]
 
+        
     def custom_split_dataset(
             self,
             ds: pd.DataFrame,
             test_size: float,
             n_folds: int,
             seed: int,
-            ):
+            ) -> tuple[list[int], list[list[int]]]:
 
-        pass
+        rng = np.random.default_rng(seed)
+
+        test_seq_ids = []
+        fold_seq_ids = [[] for _ in range(n_folds)]
+
+        for value in ds['label2'].unique():
+            ds_selected = ds[ds['label2'] == value]
+            length = ds_selected.shape[0]
+            indices = rng.permutation(length)
+
+            seq_ids = ds_selected['seq_id'].to_numpy()[indices]
+            seq_lengths = ds_selected['n_files'].to_numpy()[indices]
+
+            train_images = int(seq_lengths.sum() * test_size)
+            fold_images = int(seq_lengths.sum() * (1 - test_size)) // n_folds
+            split_sizes = [train_images] + [fold_images] * (n_folds)
+
+            cut_idx_list = []
+            seq_lengths_avail = seq_lengths.copy()
+
+            for split_size in split_sizes:
+                relative_cut_idx = best_weighted_split(seq_lengths_avail, split_size)
+
+                seq_lengths_avail = seq_lengths_avail[relative_cut_idx:]
+
+                used_idx = sum(cut_idx_list)
+                absolute_cut_idx = relative_cut_idx + used_idx
+                cut_idx_list.append(absolute_cut_idx)
+
+            split_seq_ids = np.split(seq_ids, cut_idx_list)
+
+            test_seq_ids.extend(split_seq_ids[0])
+
+            for fold in range(n_folds):
+                for fold in range(n_folds):
+                    fold_seq_ids[fold].extend(split_seq_ids[fold + 1])
+
+        return test_seq_ids, fold_seq_ids
 
     def get_ds_full(
             self,
@@ -168,53 +210,6 @@ class MammaliaData(Dataset):
             ds_filtered = ds_filtered[ds_filtered['seq_id'].isin(detect_seq_ids)]
 
         return ds_filtered
-
-    def split_dataset(
-            self,
-            seed: int,
-            test_size: float
-                ) -> Tuple[List[int], List[int]]:
-
-        ds = self.ds_filtered
-
-        trainval_seq_ids, test_seq_ids = train_test_split(
-                                            ds['seq_id'].tolist(),
-                                            test_size=test_size,
-                                            random_state=seed,
-                                            stratify=ds['label2'].tolist()
-                                            )
-
-        return trainval_seq_ids, test_seq_ids
-
-    def create_folds(
-            self,
-            seed: int,
-            n_folds: int,
-            ds: pd.DataFrame | None = None
-            ) -> List[List[int]]:
-
-        if ds is None:
-            ds = self.ds_filtered
-
-        ds_trainval = ds[ds['seq_id'].isin(self.trainval_seq_ids)]
-
-        seq_label_df = (
-            ds_trainval.groupby('seq_id')
-            .first()[['label2']]
-            .reset_index()
-        )
-
-        seq_ids = seq_label_df['seq_id'].tolist()
-        labels = seq_label_df['label2'].tolist()
-
-        skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
-
-        folds: List[List[int]] = []
-        for _, val_idx in skf.split(seq_ids, labels):
-            val_fold_ids = [seq_ids[i] for i in val_idx]
-            folds.append(val_fold_ids)
-
-        return folds
 
     def explode_df(
             self,
@@ -530,37 +525,8 @@ class MammaliaDataSequence(MammaliaData):
             mode=mode,
             )
 
-        trainval_set = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.trainval_seq_ids)]
-
-        self.trainval_folds = self.create_folds(
-                                            seed=self.random_seed,
-                                            n_folds=self.n_folds,
-                                            ds=trainval_set
-                                            )
-
-        self.val_seq_ids = self.trainval_folds[self.val_fold]
-        self.train_seq_ids = [
-                seq_id
-                for i, fold in enumerate(self.trainval_folds)
-                if i != self.val_fold
-                for seq_id in fold
-            ]
-
-        dataset = self.ds_filtered
-
-        if self.mode == 'test':
-            self.ds = dataset[dataset['seq_id'].isin(self.test_seq_ids)]
-        elif self.mode == 'train':
-            self.ds = dataset[dataset['seq_id'].isin(self.train_seq_ids)]
-        elif self.mode == 'val':
-            self.ds = dataset[dataset['seq_id'].isin(self.val_seq_ids)]
-        elif self.mode == 'init':
-            self.ds = dataset[dataset['seq_id'].isin(self.trainval_seq_ids)]
-
-        self.seq_id_map = self.ds['seq_id'].tolist()
-
     def __len__(self) -> int:
-        return len(self.ds)
+        pass
 
     def __getitem__(self, index: int) -> Any:
 
@@ -691,27 +657,6 @@ class MammaliaDataImage(MammaliaData):
 
         self.row_map = self.ds.index.tolist()
 
-    def create_folds(
-            self,
-            seed: int,
-            n_folds: int,
-            ds: pd.DataFrame | None = None
-            ) -> List[List[int]]:
-
-        if ds is None:
-            ds = self.ds_exploded
-
-        labels = ds['label2'].tolist()
-        indices = np.arange(len(ds))
-
-        skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
-
-        folds: List[List[int]] = []
-        for _, val_idx in skf.split(indices, labels):
-            folds.append(val_idx.tolist())
-
-        return folds
-
     def __len__(self):
         return len(self.ds)
 
@@ -770,4 +715,3 @@ class MammaliaDatasetFeatureStats(MammaliaDataImage):
         bbox = row['bbox']
 
         return self.image_pipline(image_path, bbox)
-
