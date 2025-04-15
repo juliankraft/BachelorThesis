@@ -314,20 +314,15 @@ class MammaliaData(Dataset):
                 usecols=usecols
                 )
 
-    def get_feature_stats(                                       # still to be implemented
-            self
-            ):
-        feature_stats = {}
-
-        return feature_stats
-
     def get_class_weight(
             self,
-            dataframe: pd.DataFrame,
             ) -> torch.Tensor:
 
-        encoded_labels = dataframe['class'].map(self.label_encoder).to_numpy()
-        classes = np.array(list(self.label_encoder.values()))
+        if self.mode != 'init':
+            raise ValueError('Class weights can only be computed in init mode.')
+
+        encoded_labels = self.ds['class'].to_numpy()
+        classes = np.array(encoded_labels)
 
         weights = compute_class_weight(
             class_weight='balanced',
@@ -645,7 +640,7 @@ class MammaliaDataImage(MammaliaData):
         return self.transform(image_path, bbox)
 
 
-class MammaliaDatasetFeatureStats(MammaliaDataImage):
+class MammaliaDataFeatureStats(MammaliaDataImage):
     def __init__(
             self,
             path_labelfiles: str | PathLike,
