@@ -6,7 +6,7 @@ import torch
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Any, List, Tuple, Sequence
+from typing import Any, List, Tuple, Sequence, TypedDict
 
 from megadetector.detection.run_detector import model_string_to_model_version
 
@@ -15,8 +15,14 @@ from torch.utils.data import Dataset
 from sklearn.utils.class_weight import compute_class_weight
 
 from ba_dev.runner import MegaDetectorRunner
-from ba_dev.transform import ImagePipeline
+from ba_dev.transform import ImagePipeline, BatchImagePipeline
 from ba_dev.utils import best_weighted_split
+
+
+class DetectionResult(TypedDict):
+    file: list[str]
+    bbox: list[Sequence[float]]
+    conf: list[float]
 
 
 class MammaliaData(Dataset):
@@ -411,7 +417,7 @@ class MammaliaData(Dataset):
             self,
             seq_id: int,
             confidence: float | None = None,
-            ) -> dict[str, Sequence[Any]]:
+            ) -> DetectionResult:
 
         if confidence is None:
             confidence = self.applied_detection_confidence
@@ -420,9 +426,9 @@ class MammaliaData(Dataset):
         with open(path_to_detection_results, 'r') as f:
             data = json.load(f)
 
-        img_list = []
-        bbox_list = []
-        conf_list = []
+        img_list: list[str] = []
+        bbox_list: list[Sequence[float]] = []
+        conf_list: list[float] = []
 
         for entry in data:
             file_name = entry['file']
@@ -436,7 +442,7 @@ class MammaliaData(Dataset):
 
         combined = list(zip(img_list, bbox_list, conf_list))
         combined_sorted = sorted(combined, key=lambda x: x[2], reverse=True)
-        img_list, bbox_list, conf_list = zip(*combined_sorted)
+        img_list, bbox_list, conf_list = map(list, zip(*combined_sorted))
 
         return {'file': img_list, 'bbox': bbox_list, 'conf': conf_list}
 
@@ -483,6 +489,7 @@ class MammaliaDataSequence(MammaliaData):
     mode : str
         The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
         be sampled and adjusting how it is sampled. The default is 'train'.
+    image_pipeline : BatchImagePipeline (custom class)
 
     """
 
@@ -499,6 +506,7 @@ class MammaliaDataSequence(MammaliaData):
             n_folds: int = 5,
             val_fold: int = 0,
             mode: str = 'train',
+            image_pipeline: BatchImagePipeline | None = None
             ):
         super().__init__(
             path_labelfiles=path_labelfiles,
@@ -514,26 +522,48 @@ class MammaliaDataSequence(MammaliaData):
             mode=mode,
             )
 
+        if image_pipeline is None:
+            self.image_pipeline = BatchImagePipeline(
+                pre_ops=[]
+                )
+        else:
+            self.image_pipeline = image_pipeline
+
+        if self.image_pipeline.path_to_dataset is None:
+            self.image_pipeline.path_to_dataset = self.path_to_dataset
+
+        self.row_map = self.ds.index.tolist()
+
     def __len__(self) -> int:
         return len(self.ds)
 
     def __getitem__(self, index: int) -> Any:
 
-        # seq_id = self.seq_id_map[index]
-        # row = self.ds[self.ds['seq_id'] == seq_id].squeeze()
-        # detections = self.get_bb_list_for_seq(
-        #     seq_id=seq_id,
-        #     confidence=self.applied_detection_confidence
-        #     )
+        row_index = self.row_map[index]
+        row = self.ds.iloc[row_index]
 
-        # # image_path_list = [row['Directory'] / name for name in detections['file']]
-        # # bbox_list = detections['bbox']
+        class_id = row['class_id']
+        class_name = row['label2']
+        seq_id = row['seq_id']
+        base_image_path = Path(row['Directory'])
 
-        # x = 'not defined'
-        # y = self.label_encoder[row['label2']]
-        # return x, y
+        sequence = self.get_bb_list_for_seq(seq_id)
 
-        pass
+        image_path: list[str | PathLike] = [base_image_path / file_name for file_name in sequence['file']]
+        bbox = sequence['bbox']
+        conf = sequence['conf']
+
+        sample = self.image_pipeline(image_path, bbox)
+
+        return {
+            'x': sample,
+            'y': class_id,
+            'class_name': class_name,
+            'bbox': bbox,
+            'conf': conf,
+            'seq_id': seq_id,
+            'file_path': image_path,
+        }
 
 
 class MammaliaDataImage(MammaliaData):
@@ -576,8 +606,8 @@ class MammaliaDataImage(MammaliaData):
     mode : str
         The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
         be sampled and adjusting how it is sampled. The default is 'train'.
-    transform : ImagePipeline (custom class)
-        The transform to be applied to the images.
+    image_pipeline : ImagePipeline (custom class)
+        The image_pipeline to be applied to the images.
 
     """
 
@@ -594,7 +624,7 @@ class MammaliaDataImage(MammaliaData):
             n_folds: int = 5,
             val_fold: int = 0,
             mode: str = 'train',
-            transform: ImagePipeline | None = None
+            image_pipeline: ImagePipeline | None = None
             ):
         super().__init__(
             path_labelfiles=path_labelfiles,
@@ -610,14 +640,14 @@ class MammaliaDataImage(MammaliaData):
             mode=mode,
             )
 
-        if transform is None:
-            self.transform = ImagePipeline(
+        if image_pipeline is None:
+            self.image_pipeline = ImagePipeline(
                 pre_ops=[]
                 )
         else:
-            self.transform = transform
-        if self.transform.path_to_dataset is None:
-            self.transform.path_to_dataset = self.path_to_dataset
+            self.image_pipeline = image_pipeline
+        if self.image_pipeline.path_to_dataset is None:
+            self.image_pipeline.path_to_dataset = self.path_to_dataset
 
         self.ds = self.explode_df(
                 in_df=self.ds,
@@ -638,7 +668,7 @@ class MammaliaDataImage(MammaliaData):
         image_path = row['file_path']
         bbox = row['bbox']
         conf = row['conf']
-        sample = self.transform(image_path, bbox)
+        sample = self.image_pipeline(image_path, bbox)
 
         return {
             'x': sample,
