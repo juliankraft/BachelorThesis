@@ -42,7 +42,6 @@ class MammaliaData(Dataset):
             n_folds: int = 5,
             val_fold: int = 0,
             mode: str = 'train',
-            transform: ImagePipeline | None = None
             ):
 
         if type(self) is MammaliaData:
@@ -93,15 +92,6 @@ class MammaliaData(Dataset):
             else:
                 if not any(self.path_to_detector_output.glob("*.json")):
                     raise ValueError('A valid detection output must be available at the path_to_detector_output.')
-
-        if transform is None:
-            self.transform = ImagePipeline(
-                pre_ops=[]
-                )
-        else:
-            self.transform = transform
-        if self.transform.path_to_dataset is None:
-            self.transform.path_to_dataset = self.path_to_dataset
 
         self.ds_full = self.get_ds_full()
         self.ds_filtered = self.get_ds_filtered()
@@ -499,8 +489,6 @@ class MammaliaDataSequence(MammaliaData):
     mode : str
         The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
         be sampled and adjusting how it is sampled. The default is 'train'.
-    transform : ImagePipeline (custom class)
-        The transform to be applied to the images.
 
     """
 
@@ -517,7 +505,6 @@ class MammaliaDataSequence(MammaliaData):
             n_folds: int = 5,
             val_fold: int = 0,
             mode: str = 'train',
-            transform: ImagePipeline | None = None
             ):
         super().__init__(
             path_labelfiles=path_labelfiles,
@@ -531,11 +518,10 @@ class MammaliaDataSequence(MammaliaData):
             n_folds=n_folds,
             val_fold=val_fold,
             mode=mode,
-            transform=transform
             )
 
-    def __len__(self):
-        pass
+    def __len__(self) -> int:
+        return len(self.ds)
 
     def __getitem__(self, index: int) -> Any:
 
@@ -628,8 +614,16 @@ class MammaliaDataImage(MammaliaData):
             n_folds=n_folds,
             val_fold=val_fold,
             mode=mode,
-            transform=transform
             )
+
+        if transform is None:
+            self.transform = ImagePipeline(
+                pre_ops=[]
+                )
+        else:
+            self.transform = transform
+        if self.transform.path_to_dataset is None:
+            self.transform.path_to_dataset = self.path_to_dataset
 
         self.ds = self.explode_df(
                 in_df=self.ds,

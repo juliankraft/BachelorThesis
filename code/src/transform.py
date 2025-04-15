@@ -181,7 +181,7 @@ class BatchImagePipeline(ImagePipeline):
 
     def __init__(
             self,
-            path_to_dataset: str | PathLike,
+            path_to_dataset: str | PathLike | None = None,
             num_workers: int = 4,
             pre_ops: list[tuple[str, dict]] | None = None,
             transform: Callable | None = None
