@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageOps
 from concurrent.futures import ThreadPoolExecutor
 
 from torch import Tensor
@@ -80,28 +80,75 @@ class ImagePipeline:
         self.img = self._pil().convert("RGB")
         return self
 
-    def crop_by_bb_fixed_ratio(      # still to be implemented
+    def crop_by_bb_fixed(
             self,
             bbox: BBox,
-            ratio: float = 1.0,
+            crop_shape: None | float | int | Sequence[int] = None,
             ):
 
         """
-        Parameters:
+        Flexible crop using bounding box.
 
+        Parameters
         ----------
-        ratio : float
-            width / height
+        bbox : Sequence[float]
+            Normalized bounding box: [x, y, width, height]
+        crop_shape : None | float | int | Sequence[int]
+            - None: crop exact bounding box
+            - float: desired aspect ratio (width / height), will pad if needed
+            - int or (w, h): fixed size center crop around bbox center, will pad if needed
         """
+        img = self._pil()
 
-        width, height = self._pil().size
+        width, height = img.size
 
-        actual_width = int(bbox[2] * width)
-        actual_height = int(bbox[3] * height)
+        x = bbox[0] * width
+        y = bbox[1] * height
+        w = bbox[2] * width
+        h = bbox[3] * height
 
-        return actual_height, actual_width
+        if crop_shape is None:
+            x1 = int(x)
+            y1 = int(y)
+            x2 = int(x + w)
+            y2 = int(y + h)
 
-    def crop_by_bb(
+        else:
+            if isinstance(crop_shape, float):
+                if w / h > crop_shape:
+                    new_w = w
+                    new_h = w / crop_shape
+                else:
+                    new_h = h
+                    new_w = h * crop_shape
+
+            else:
+                new_w, new_h = self._process_size(crop_shape)
+
+            cx = x + w / 2
+            cy = y + h / 2
+
+            x1 = cx - new_w / 2
+            y1 = cy - new_h / 2
+            x2 = cx + new_w / 2
+            y2 = cy + new_h / 2
+
+            pad_left = max(0, -int(x1))
+            pad_top = max(0, -int(y1))
+            pad_right = max(0, int(x2) - width)
+            pad_bottom = max(0, int(y2) - height)
+
+            if any([pad_left, pad_top, pad_right, pad_bottom]):
+                img = ImageOps.expand(img, border=(pad_left, pad_top, pad_right, pad_bottom), fill=0)
+                x1 += pad_left
+                x2 += pad_left
+                y1 += pad_top
+                y2 += pad_top
+
+        self.img = img.crop((x1, y1, x2, y2))
+        return self
+
+    def crop_by_bb_legacy(
             self,
             bbox: BBox,
             ):
