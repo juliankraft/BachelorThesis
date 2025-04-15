@@ -139,8 +139,8 @@ class MammaliaData(Dataset):
         test_seq_ids = []
         fold_seq_ids = [[] for _ in range(n_folds)]
 
-        for value in ds['class'].unique():
-            ds_selected = ds[ds['class'] == value]
+        for value in ds['class_id'].unique():
+            ds_selected = ds[ds['class_id'] == value]
             length = ds_selected.shape[0]
             indices = rng.permutation(length)
 
@@ -188,7 +188,7 @@ class MammaliaData(Dataset):
             duplicates = ds_full['seq_id'][ds_full['seq_id'].duplicated()].unique()
             raise ValueError(f"Duplicate seq_id(s) found in metadata: {duplicates[:5]} ...")
 
-        ds_full['class'] = ds_full['label2'].map(self.label_encoder)
+        ds_full['class_id'] = ds_full['label2'].map(self.label_encoder)
 
         return ds_full
 
@@ -234,7 +234,7 @@ class MammaliaData(Dataset):
             only_one_bb_per_image: bool = True,
             ) -> pd.DataFrame:
 
-        original_keys_to_keep = ['seq_id', 'class', 'label2', 'SerialNumber']
+        original_keys_to_keep = ['seq_id', 'class_id', 'label2', 'SerialNumber']
 
         out_rows = []
 
@@ -321,7 +321,7 @@ class MammaliaData(Dataset):
         if self.mode != 'init':
             raise ValueError('Class weights can only be computed in init mode.')
 
-        encoded_labels = self.ds['class'].to_numpy()
+        encoded_labels = self.ds['class_id'].to_numpy()
         classes = np.array(encoded_labels)
 
         weights = compute_class_weight(
@@ -687,7 +687,19 @@ class MammaliaDataFeatureStats(MammaliaDataImage):
         row_index = self.row_map[index]
         row = self.ds.iloc[row_index]
 
+        class_id = row['class_id']
+        class_name = row['label2']
         image_path = row['file_path']
         bbox = row['bbox']
+        conf = row['conf']
+        sample = self.image_pipline(image_path, bbox)
 
-        return self.image_pipline(image_path, bbox)
+        return {
+            'x': sample,
+            'y': class_id,
+            'class_name': class_name,
+            'bbox': bbox,
+            'conf': conf,
+            'seq_id': row['seq_id'],
+            'file_path': image_path,
+        }
