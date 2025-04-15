@@ -6,7 +6,7 @@ import torch
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Any, List, Tuple, Sequence, cast
+from typing import Any, List, Tuple, Sequence
 
 from megadetector.detection.run_detector import model_string_to_model_version
 
@@ -41,9 +41,8 @@ class MammaliaData(Dataset):
             test_size: float = 0.2,
             n_folds: int = 5,
             val_fold: int = 0,
-            sample_length: int = 10,
-            sample_img_size: list[int] = [224, 224],
             mode: str = 'train',
+            transform: ImagePipeline | None = None
             ):
 
         if type(self) is MammaliaData:
@@ -77,9 +76,6 @@ class MammaliaData(Dataset):
         self.label_encoder = {label: idx for idx, label in enumerate(self.class_labels)}
         self.label_decoder = {idx: label for label, idx in self.label_encoder.items()}
 
-        self.sample_length = sample_length
-        self.sample_img_size = sample_img_size
-
         self.path_labelfiles = Path(path_labelfiles)
         if not self.path_labelfiles.exists():
             raise ValueError("The path to the label files does not exist.")
@@ -98,6 +94,14 @@ class MammaliaData(Dataset):
                 if not any(self.path_to_detector_output.glob("*.json")):
                     raise ValueError('A valid detection output must be available at the path_to_detector_output.')
 
+        if transform is None:
+            self.transform = ImagePipeline(
+                path_to_dataset=self.path_to_dataset,
+                pre_ops=[]
+                )
+        else:
+            self.transform = transform
+
         self.ds_full = self.get_ds_full()
         self.ds_filtered = self.get_ds_filtered()
 
@@ -107,10 +111,30 @@ class MammaliaData(Dataset):
                                             n_folds=self.n_folds,
                                             seed=self.random_seed
                                             )
-        
+
         self.val_seq_ids = self.folds[self.val_fold]
 
-        
+        self.train_seq_ids = [
+            seq_id
+            for i, fold in enumerate(self.folds)
+            if i != self.val_fold
+            for seq_id in fold
+            ]
+        self.trainval_seq_ids = [
+            seq_id
+            for i, fold in enumerate(self.folds)
+            for seq_id in fold
+            ]
+
+        if self.mode == 'train':
+            self.ds = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.train_seq_ids)].reset_index(drop=True)
+        elif self.mode == 'val':
+            self.ds = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.val_seq_ids)].reset_index(drop=True)
+        elif self.mode == 'test':
+            self.ds = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.test_seq_ids)].reset_index(drop=True)
+        elif self.mode == 'init':
+            self.ds = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.trainval_seq_ids)].reset_index(drop=True)
+
     def custom_split_dataset(
             self,
             ds: pd.DataFrame,
@@ -124,8 +148,8 @@ class MammaliaData(Dataset):
         test_seq_ids = []
         fold_seq_ids = [[] for _ in range(n_folds)]
 
-        for value in ds['label2'].unique():
-            ds_selected = ds[ds['label2'] == value]
+        for value in ds['class'].unique():
+            ds_selected = ds[ds['class'] == value]
             length = ds_selected.shape[0]
             indices = rng.permutation(length)
 
@@ -173,6 +197,8 @@ class MammaliaData(Dataset):
             duplicates = ds_full['seq_id'][ds_full['seq_id'].duplicated()].unique()
             raise ValueError(f"Duplicate seq_id(s) found in metadata: {duplicates[:5]} ...")
 
+        ds_full['class'] = ds_full['label2'].map(self.label_encoder)
+
         return ds_full
 
     def get_ds_filtered(
@@ -217,7 +243,7 @@ class MammaliaData(Dataset):
             only_one_bb_per_image: bool = True,
             ) -> pd.DataFrame:
 
-        original_keys_to_keep = ['seq_id', 'label2', 'SerialNumber']
+        original_keys_to_keep = ['seq_id', 'class', 'label2', 'SerialNumber']
 
         out_rows = []
 
@@ -266,22 +292,6 @@ class MammaliaData(Dataset):
                     files.append(file)
         return files
 
-    def reading_all_metadata(
-            self,
-            list_of_files: list[PathLike | str],
-            categories_to_drop: list[str] | None = None,
-            ) -> pd.DataFrame:
-
-        if categories_to_drop is None:
-            categories_to_drop = []
-
-        metadata = pd.DataFrame()
-        for file in list_of_files:
-            metadata = pd.concat([metadata, pd.read_csv(file)], ignore_index=True)
-            metadata = metadata.dropna(subset=['label2'])
-            metadata = metadata[~metadata['label2'].isin(categories_to_drop)]
-        return metadata
-
     def check_seq_for_detections(
             self,
             sequences_to_filter: list[int],
@@ -322,10 +332,10 @@ class MammaliaData(Dataset):
 
     def get_class_weight(
             self,
-            trainset: pd.DataFrame,
+            dataframe: pd.DataFrame,
             ) -> torch.Tensor:
 
-        encoded_labels = trainset['label2'].map(self.label_encoder).to_numpy()
+        encoded_labels = dataframe['class'].map(self.label_encoder).to_numpy()
         classes = np.array(list(self.label_encoder.values()))
 
         weights = compute_class_weight(
@@ -488,12 +498,8 @@ class MammaliaDataSequence(MammaliaData):
     mode : str
         The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
         be sampled and adjusting how it is sampled. The default is 'train'.
-    sample_length : int
-        For training this parameter specifies the range (1 - sample_length) of randomly selected samples per sequence.
-        For testing this parameter specifies the maximum number of samples per sequence.
-        The default is 10.
-    sample_img_size : [int, int]
-        The size to which the detected areas are resized. The default is [224, 224].
+    transform : ImagePipeline (custom class)
+        The transform to be applied to the images.
 
     """
 
@@ -510,6 +516,7 @@ class MammaliaDataSequence(MammaliaData):
             n_folds: int = 5,
             val_fold: int = 0,
             mode: str = 'train',
+            transform: ImagePipeline | None = None
             ):
         super().__init__(
             path_labelfiles=path_labelfiles,
@@ -523,9 +530,10 @@ class MammaliaDataSequence(MammaliaData):
             n_folds=n_folds,
             val_fold=val_fold,
             mode=mode,
+            transform=transform
             )
 
-    def __len__(self) -> int:
+    def __len__(self):
         pass
 
     def __getitem__(self, index: int) -> Any:
@@ -587,12 +595,8 @@ class MammaliaDataImage(MammaliaData):
     mode : str
         The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
         be sampled and adjusting how it is sampled. The default is 'train'.
-    sample_length : int
-        For training this parameter specifies the range (1 - sample_length) of randomly selected samples per sequence.
-        For testing this parameter specifies the maximum number of samples per sequence.
-        The default is 10.
-    sample_img_size : [int, int]
-        The size to which the detected areas are resized. The default is [224, 224].
+    transform : ImagePipeline (custom class)
+        The transform to be applied to the images.
 
     """
 
@@ -609,6 +613,7 @@ class MammaliaDataImage(MammaliaData):
             n_folds: int = 5,
             val_fold: int = 0,
             mode: str = 'train',
+            transform: ImagePipeline | None = None
             ):
         super().__init__(
             path_labelfiles=path_labelfiles,
@@ -622,48 +627,27 @@ class MammaliaDataImage(MammaliaData):
             n_folds=n_folds,
             val_fold=val_fold,
             mode=mode,
+            transform=transform
             )
 
-        self.ds_exploded = self.explode_df(
-                in_df=self.ds_filtered,
+        self.ds = self.explode_df(
+                in_df=self.ds,
                 only_one_bb_per_image=True,
                 )
 
-        trainval_set = self.ds_exploded[self.ds_exploded['seq_id'].isin(self.trainval_seq_ids)]
-        test_set = self.ds_exploded[self.ds_exploded['seq_id'].isin(self.test_seq_ids)]
-
-        self.trainval_folds = self.create_folds(
-                                        seed=self.random_seed,
-                                        n_folds=self.n_folds,
-                                        ds=trainval_set.reset_index(drop=True)
-                                        )
-
-        self.val_indices = self.trainval_folds[self.val_fold]
-        self.train_indices = [
-            idx
-            for i, fold in enumerate(self.trainval_folds)
-            if i != self.val_fold
-            for idx in fold
-            ]
-
-        if self.mode == 'test':
-            self.ds = test_set.reset_index(drop=True)
-        elif self.mode == 'train':
-            self.ds = trainval_set.iloc[self.train_indices].reset_index(drop=True)
-        elif self.mode == 'val':
-            self.ds = trainval_set.iloc[self.val_indices].reset_index(drop=True)
-        elif self.mode == 'init':
-            self.ds = trainval_set.reset_index(drop=True)
-
         self.row_map = self.ds.index.tolist()
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.ds)
 
-    def __getitem__(self, index: int) -> Any:
+    def __getitem__(self, index):
         row_index = self.row_map[index]
         row = self.ds.iloc[row_index]
-        return row
+
+        image_path = row['file_path']
+        bbox = row['bbox']
+
+        return self.transform(image_path, bbox)
 
 
 class MammaliaDatasetFeatureStats(MammaliaDataImage):
@@ -680,6 +664,7 @@ class MammaliaDatasetFeatureStats(MammaliaDataImage):
             n_folds: int = 5,
             val_fold: int = 0,
             mode: str = 'init',
+            transform: ImagePipeline | None = None
             ):
         super().__init__(
             path_labelfiles=path_labelfiles,
@@ -692,7 +677,8 @@ class MammaliaDatasetFeatureStats(MammaliaDataImage):
             test_size=test_size,
             n_folds=n_folds,
             val_fold=val_fold,
-            mode=mode
+            mode=mode,
+            transform=transform
         )
 
         self.image_pipline = ImagePipeline(
