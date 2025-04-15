@@ -13,7 +13,6 @@ from megadetector.detection.run_detector import model_string_to_model_version
 from os import PathLike
 from torch.utils.data import Dataset
 from sklearn.utils.class_weight import compute_class_weight
-from torchvision.transforms import v2
 
 from ba_dev.runner import MegaDetectorRunner
 from ba_dev.transform import ImagePipeline
@@ -634,65 +633,12 @@ class MammaliaDataImage(MammaliaData):
         row_index = self.row_map[index]
         row = self.ds.iloc[row_index]
 
-        image_path = row['file_path']
-        bbox = row['bbox']
-
-        return self.transform(image_path, bbox)
-
-
-class MammaliaDataFeatureStats(MammaliaDataImage):
-    def __init__(
-            self,
-            path_labelfiles: str | PathLike,
-            path_to_dataset: str | PathLike,
-            path_to_detector_output: str | PathLike,
-            detector_model: str | None = None,
-            applied_detection_confidence: float = 0.25,
-            available_detection_confidence: float = 0.25,
-            random_seed: int = 55,
-            test_size: float = 0.2,
-            n_folds: int = 5,
-            val_fold: int = 0,
-            mode: str = 'init',
-            transform: ImagePipeline | None = None
-            ):
-        super().__init__(
-            path_labelfiles=path_labelfiles,
-            path_to_dataset=path_to_dataset,
-            path_to_detector_output=path_to_detector_output,
-            detector_model=detector_model,
-            applied_detection_confidence=applied_detection_confidence,
-            available_detection_confidence=available_detection_confidence,
-            random_seed=random_seed,
-            test_size=test_size,
-            n_folds=n_folds,
-            val_fold=val_fold,
-            mode=mode,
-            transform=transform
-        )
-
-        self.image_pipline = ImagePipeline(
-                path_to_dataset=self.path_to_dataset,
-                pre_ops=[
-                    ('to_rgb', {}),
-                    ('crop_by_bb', {})
-                ],
-                transform=v2.Compose([
-                                v2.ToImage(),
-                                v2.ToDtype(torch.float32, scale=True),
-                                ])
-                )
-
-    def __getitem__(self, index):
-        row_index = self.row_map[index]
-        row = self.ds.iloc[row_index]
-
         class_id = row['class_id']
         class_name = row['label2']
         image_path = row['file_path']
         bbox = row['bbox']
         conf = row['conf']
-        sample = self.image_pipline(image_path, bbox)
+        sample = self.transform(image_path, bbox)
 
         return {
             'x': sample,
