@@ -80,6 +80,27 @@ class ImagePipeline:
         self.img = self._pil().convert("RGB")
         return self
 
+    def crop_by_bb_fixed_ratio(      # still to be implemented
+            self,
+            bbox: BBox,
+            ratio: float = 1.0,
+            ):
+
+        """
+        Parameters:
+
+        ----------
+        ratio : float
+            width / height
+        """
+
+        width, height = self._pil().size
+
+        actual_width = int(bbox[2] * width)
+        actual_height = int(bbox[3] * height)
+
+        return actual_height, actual_width
+
     def crop_by_bb(
             self,
             bbox: BBox,
