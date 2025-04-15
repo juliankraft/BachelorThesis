@@ -34,7 +34,7 @@ class ImagePipeline:
         path_to_dataset='path/to/dataset',
         pre_ops=[
             ('to_rgb', {}),
-            ('crop_by_bb', {})
+            ('crop_by_bb', {'crop_shape': 1.0})
             ]
         transform=v2.Compose([
                 v2.ToImage(),
@@ -98,6 +98,7 @@ class ImagePipeline:
             - float: desired aspect ratio (width / height), will pad if needed
             - int or (w, h): fixed size center crop around bbox center, will pad if needed
         """
+
         img = self._pil()
 
         width, height = img.size
@@ -216,7 +217,7 @@ class BatchImagePipeline(ImagePipeline):
     def __init__(
             self,
             path_to_dataset: str | PathLike | None = None,
-            num_workers: int = 4,
+            num_workers: int = 1,
             pre_ops: list[tuple[str, dict]] | None = None,
             transform: Callable | None = None
             ):
@@ -229,11 +230,17 @@ class BatchImagePipeline(ImagePipeline):
 
         self.num_workers = num_workers
 
+    def set_path_to_dataset(self, path: str | PathLike):
+        self.path_to_dataset = Path(path)
+
     def __call__(
             self,
             paths: list[str | PathLike],
             bboxes: list[Sequence[float]],
             ) -> list[Any]:
+
+        if self.path_to_dataset is None:
+            raise ValueError("Path to dataset must be set before calling BatchImagePipeline.")
 
         if len(paths) != len(bboxes):
             raise ValueError("paths and bboxes must have the same length.")
