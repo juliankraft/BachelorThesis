@@ -96,11 +96,12 @@ class MammaliaData(Dataset):
 
         if transform is None:
             self.transform = ImagePipeline(
-                path_to_dataset=self.path_to_dataset,
                 pre_ops=[]
                 )
         else:
             self.transform = transform
+        if self.transform.path_to_dataset is None:
+            self.transform.path_to_dataset = self.path_to_dataset
 
         self.ds_full = self.get_ds_full()
         self.ds_filtered = self.get_ds_filtered()

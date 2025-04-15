@@ -49,14 +49,14 @@ class ImagePipeline:
 
     def __init__(
             self,
-            path_to_dataset: str | PathLike,
+            path_to_dataset: str | PathLike | None = None,
             pre_ops: list[tuple[str, dict]] | None = None,
             transform: Callable | None = None
             ):
 
         self.img: Image.Image | Tensor | None = None
 
-        self.path_to_dataset = Path(path_to_dataset)
+        self.path_to_dataset = Path(path_to_dataset) if path_to_dataset is not None else None
 
         if pre_ops is None:
             pre_ops = []
@@ -68,7 +68,8 @@ class ImagePipeline:
             self,
             path: str | PathLike
             ):
-
+        if self.path_to_dataset is None:
+            raise ValueError("Path to dataset has not been set in the pipeline.")
         try:
             self.img = Image.open(self.path_to_dataset / path)
         except Exception as e:
