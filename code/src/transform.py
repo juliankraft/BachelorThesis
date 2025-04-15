@@ -80,7 +80,7 @@ class ImagePipeline:
         self.img = self._pil().convert("RGB")
         return self
 
-    def crop_by_bb_fixed(
+    def crop_by_bb(
             self,
             bbox: BBox,
             crop_shape: None | float | int | Sequence[int] = None,
@@ -146,40 +146,6 @@ class ImagePipeline:
                 y2 += pad_top
 
         self.img = img.crop((x1, y1, x2, y2))
-        return self
-
-    def crop_by_bb_legacy(
-            self,
-            bbox: BBox,
-            ):
-
-        width, height = self._pil().size
-
-        x1 = int(bbox[0] * width)
-        y1 = int(bbox[1] * height)
-        x2 = int((bbox[0] + bbox[2]) * width)
-        y2 = int((bbox[1] + bbox[3]) * height)
-
-        self.img = self._pil().crop((x1, y1, x2, y2))
-        return self
-
-    def crop_center_sample(
-            self,
-            bbox: BBox,
-            size: int | Sequence[int] = 50
-            ):
-
-        size = self._process_size(size)
-        width, height = self._pil().size
-        center_x = int(bbox[0] * width) + int(bbox[2] * width / 2)
-        center_y = int(bbox[1] * height) + int(bbox[3] * height / 2)
-
-        x1 = center_x - (size[0] // 2)
-        y1 = center_y - (size[1] // 2)
-        x2 = x1 + size[0]
-        y2 = y1 + size[1]
-
-        self.img = self._pil().crop((x1, y1, x2, y2))
         return self
 
     def resize(
