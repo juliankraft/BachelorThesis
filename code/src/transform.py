@@ -228,6 +228,8 @@ class BatchImagePipeline(ImagePipeline):
             transform=transform
             )
 
+        if num_workers < 1:
+            raise ValueError("num_workers must be greater than 0.")
         self.num_workers = num_workers
 
     def set_path_to_dataset(self, path: str | PathLike):
