@@ -61,7 +61,7 @@ class MammaliaData(Dataset):
         self.n_folds = n_folds
         self.val_fold = val_fold
 
-        mode_available = ['train', 'test', 'val', 'init']
+        mode_available = ['train', 'test', 'val', 'init', 'eval']
         if mode in mode_available:
             self.mode = mode
         else:
@@ -99,7 +99,7 @@ class MammaliaData(Dataset):
                     raise ValueError('A valid detection output must be available at the path_to_detector_output.')
 
         self.ds_full = self.get_ds_full()
-        self.ds_filtered = self.get_ds_filtered()
+        self.ds_filtered, self.no_detect_seq_ids = self.get_ds_filtered()
 
         self.test_seq_ids, self.folds = self.custom_split_dataset(
                                             ds=self.ds_filtered,
@@ -130,6 +130,8 @@ class MammaliaData(Dataset):
             self.ds = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.test_seq_ids)].reset_index(drop=True)
         elif self.mode == 'init':
             self.ds = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.trainval_seq_ids)].reset_index(drop=True)
+        elif self.mode == 'eval':
+            self.ds = self.ds_filtered
 
     def custom_split_dataset(
             self,
@@ -202,7 +204,7 @@ class MammaliaData(Dataset):
             categories_to_drop: list[str] | None = None,  # if not provided it will use self.categories_to_drop
             drop_label2_nan: bool = True,
             exclude_no_detections_sequences: bool = True
-            ) -> pd.DataFrame:
+            ) -> tuple[pd.DataFrame, list[int]]:
 
         if categories_to_drop is None:
             categories_to_drop = self.categories_to_drop
@@ -231,7 +233,7 @@ class MammaliaData(Dataset):
 
             ds_filtered = ds_filtered[ds_filtered['seq_id'].isin(detect_seq_ids)]
 
-        return ds_filtered
+        return ds_filtered, no_detect_seq_ids
 
     def explode_df(
             self,
@@ -487,10 +489,15 @@ class MammaliaDataSequence(MammaliaData):
         If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
         must be set to the value used for the detection. The default is 0.25.
     mode : str
-        The mode in which the dataset is used. Can be either 'train', 'test', 'val' or 'init' defining which data will
-        be sampled and adjusting how it is sampled. The default is 'train'.
+        The mode in which the dataset is used. Can be either 'train', 'test', 'val', 'init', 'eval' defining which data
+        will be sampled and adjusting how it is sampled. The default is 'train'.
     image_pipeline : BatchImagePipeline (custom class)
-
+        The image_pipeline to be applied to the images.
+    sample_size : int
+        The limit of samples to be used from each sequence. In train mode this means, between 1 and sample_size samples
+        will be randomly chosen with replacement. In test and val mode the images with the highest detection
+        confidence scores will be used and it is limited to sample_size samples. For init and eval mode, all
+        images will be used. The default is None meaning in all modes all images will be used.
     """
 
     def __init__(
@@ -506,7 +513,8 @@ class MammaliaDataSequence(MammaliaData):
             n_folds: int = 5,
             val_fold: int = 0,
             mode: str = 'train',
-            image_pipeline: BatchImagePipeline | None = None
+            image_pipeline: BatchImagePipeline | None = None,
+            sample_size: int | None = 10
             ):
         super().__init__(
             path_labelfiles=path_labelfiles,
@@ -521,6 +529,8 @@ class MammaliaDataSequence(MammaliaData):
             val_fold=val_fold,
             mode=mode,
             )
+
+        self.sample_size = sample_size
 
         if image_pipeline is None:
             self.image_pipeline = BatchImagePipeline(
@@ -552,6 +562,23 @@ class MammaliaDataSequence(MammaliaData):
         image_path: list[str | PathLike] = [base_image_path / file_name for file_name in sequence['file']]
         bbox = sequence['bbox']
         conf = sequence['conf']
+
+        if self.sample_size is not None and self.mode in ['train', 'val', 'test']:
+            sequence_length = len(sequence['file'])
+
+            if self.mode == 'train':
+                actual_sample_size = np.random.randint(1, self.sample_size + 1)
+                sample_indices = np.random.choice(
+                    sequence_length,
+                    size=actual_sample_size,
+                    replace=True
+                    )
+            else:
+                sample_indices = np.arange(min(sequence_length, self.sample_size))
+
+            image_path = [image_path[i] for i in sample_indices]
+            bbox = [bbox[i] for i in sample_indices]
+            conf = [conf[i] for i in sample_indices]
 
         sample = self.image_pipeline(image_path, bbox)
 
@@ -663,19 +690,16 @@ class MammaliaDataImage(MammaliaData):
         row_index = self.row_map[index]
         row = self.ds.iloc[row_index]
 
-        class_id = row['class_id']
-        class_name = row['label2']
         image_path = row['file_path']
         bbox = row['bbox']
-        conf = row['conf']
         sample = self.image_pipeline(image_path, bbox)
 
         return {
             'x': sample,
-            'y': class_id,
-            'class_name': class_name,
+            'y': row['class_id'],
+            'class_name': row['label2'],
             'bbox': bbox,
-            'conf': conf,
+            'conf': row['conf'],
             'seq_id': row['seq_id'],
             'file_path': image_path,
         }
