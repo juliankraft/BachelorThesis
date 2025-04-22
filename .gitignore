@@ -12,7 +12,6 @@ data/*
 path_config.yml
 
 # excluded for LaTeX
-*.pdf
 *.lof
 *.lot
 *.toc
