@@ -1,6 +1,13 @@
 import yaml
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 from pathlib import Path
+from PIL import Image
+from typing import Sequence
+from matplotlib.figure import Figure
+
+BBox = Sequence[float]
 
 
 def load_config_yaml(path_to_config):
@@ -34,3 +41,42 @@ def best_weighted_split(
         raise ValueError("No valid cut found")
 
     return best_cut_idx
+
+
+def plot_image_with_bbox(
+        image: Image.Image,
+        bbox: BBox,
+        conf: float | None = None) -> Figure:
+
+    width, height = image.size
+
+    x_abs = bbox[0] * width
+    y_abs = bbox[1] * height
+    w_abs = bbox[2] * width
+    h_abs = bbox[3] * height
+
+    fig, ax = plt.subplots()
+    ax.imshow(image)
+
+    rect = patches.Rectangle(
+        (x_abs, y_abs), w_abs, h_abs,
+        linewidth=1, edgecolor='red', facecolor='none'
+    )
+
+    ax.add_patch(rect)
+
+    if conf is not None:
+        ax.text(
+            x_abs + 5, y_abs - 10,
+            f"conf = {conf:.2f}",
+            fontsize=8,
+            color='white',
+            bbox=dict(facecolor='red', alpha=0.5, edgecolor='none', pad=1.5)
+        )
+
+    ax.axis('off')
+    plt.tight_layout()
+
+    plt.close(fig)
+
+    return fig
