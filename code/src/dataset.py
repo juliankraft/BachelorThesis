@@ -201,14 +201,18 @@ class MammaliaData(Dataset):
             duplicates = ds_full['seq_id'][ds_full['seq_id'].duplicated()].unique()
             raise ValueError(f"Duplicate seq_id(s) found in metadata: {duplicates[:5]} ...")
 
-        ds_full['class_id'] = ds_full['label2'].map(self.label_encoder).fillna(-1).astype(int)
+        ds_full['class_label'] = ds_full['label2']
+        ds_full['class_id'] = ds_full['class_label'].map(self.label_encoder).fillna(-1).astype(int)
+
+        # drop some columns
+        ds_full = ds_full.drop(columns=['label', 'label2', 'duplicate_label'], errors='ignore')
 
         return ds_full
 
     def get_ds_filtered(
             self,
             categories_to_drop: list[str] | None = None,  # if not provided it will use self.categories_to_drop
-            drop_label2_nan: bool = True,
+            drop_nan: bool = True,
             exclude_no_detections_sequences: bool = True
             ) -> tuple[pd.DataFrame, list[int]]:
 
@@ -217,10 +221,10 @@ class MammaliaData(Dataset):
 
         ds_filtered = self.ds_full.copy()
 
-        if drop_label2_nan:
-            ds_filtered = ds_filtered.dropna(subset=['label2'])
+        if drop_nan:
+            ds_filtered = ds_filtered.dropna(subset=['class_label'])
 
-        ds_filtered = ds_filtered[~ds_filtered['label2'].isin(categories_to_drop)]
+        ds_filtered = ds_filtered[~ds_filtered['class_label'].isin(categories_to_drop)]
 
         if exclude_no_detections_sequences:
             detect_seq_ids, no_detect_seq_ids = self.check_seq_for_detections(
@@ -247,7 +251,7 @@ class MammaliaData(Dataset):
             only_one_bb_per_image: bool = True,
             ) -> pd.DataFrame:
 
-        original_keys_to_keep = ['seq_id', 'class_id', 'label2', 'SerialNumber']
+        original_keys_to_keep = ['seq_id', 'class_id', 'class_label', 'SerialNumber']
 
         out_rows = []
 
@@ -559,7 +563,7 @@ class MammaliaDataSequence(MammaliaData):
         row = self.ds.iloc[row_index]
 
         class_id = row['class_id']
-        class_name = row['label2']
+        class_label = row['class_label']
         seq_id = row['seq_id']
         base_image_path = Path(row['Directory'])
 
@@ -591,7 +595,7 @@ class MammaliaDataSequence(MammaliaData):
         return {
             'x': sample,
             'y': class_id,
-            'class_name': class_name,
+            'class_label': class_label,
             'bbox': bbox,
             'conf': conf,
             'seq_id': seq_id,
@@ -703,7 +707,7 @@ class MammaliaDataImage(MammaliaData):
         return {
             'x': sample,
             'y': row['class_id'],
-            'class_name': row['label2'],
+            'class_label': row['class_label'],
             'bbox': bbox,
             'conf': row['conf'],
             'seq_id': row['seq_id'],
