@@ -251,7 +251,7 @@ class MammaliaData(Dataset):
             only_one_bb_per_image: bool = True,
             ) -> pd.DataFrame:
 
-        original_keys_to_keep = ['seq_id', 'class_id', 'class_label', 'SerialNumber']
+        original_keys_to_keep = ['seq_id', 'class_id', 'class_label', 'SerialNumber', 'n_files']
 
         out_rows = []
 
