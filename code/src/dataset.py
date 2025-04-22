@@ -72,12 +72,18 @@ class MammaliaData(Dataset):
         self.applied_detection_confidence = applied_detection_confidence
         self.available_detection_confidence = available_detection_confidence
 
-        labels = ['apodemus_sp', 'mustela_erminea', 'cricetidae', 'soricidae', 'other', 'glis_glis']
+        labels = ['apodemus_sp', 'mustela_erminea', 'cricetidae', 'soricidae', 'glis_glis', 'other']
         self.categories_to_drop = categories_to_drop if categories_to_drop is not None else []
         if any(label not in labels for label in self.categories_to_drop):
             raise ValueError(f"Invalid categories to drop. Available categories: {labels}")
-        self.class_labels = sorted([label for label in labels if label not in self.categories_to_drop])
-        self.label_encoder = {label: idx for idx, label in enumerate(self.class_labels)}
+
+        kept_labels = [label for label in labels if label not in self.categories_to_drop]
+        dropped_labels = [label for label in labels if label in self.categories_to_drop]
+
+        all_labels = kept_labels + dropped_labels
+
+        self.class_labels = kept_labels
+        self.label_encoder = {label: idx for idx, label in enumerate(all_labels)}
         self.label_decoder = {idx: label for label, idx in self.label_encoder.items()}
 
         self.path_labelfiles = Path(path_labelfiles)
@@ -195,7 +201,7 @@ class MammaliaData(Dataset):
             duplicates = ds_full['seq_id'][ds_full['seq_id'].duplicated()].unique()
             raise ValueError(f"Duplicate seq_id(s) found in metadata: {duplicates[:5]} ...")
 
-        ds_full['class_id'] = ds_full['label2'].map(self.label_encoder)
+        ds_full['class_id'] = ds_full['label2'].map(self.label_encoder).fillna(-1).astype(int)
 
         return ds_full
 
