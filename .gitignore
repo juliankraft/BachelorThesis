@@ -14,6 +14,7 @@ path_config.yml
 # excluded for LaTeX
 *.pdf
 !LaTeX/thesis/figures/*.pdf
+!LaTeX/thesis/front/*.pdf
 
 *.lof
 *.lot
