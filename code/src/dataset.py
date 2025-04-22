@@ -204,7 +204,6 @@ class MammaliaData(Dataset):
         ds_full['class_label'] = ds_full['label2']
         ds_full['class_id'] = ds_full['class_label'].map(self.label_encoder).fillna(-1).astype(int)
 
-        # drop some columns
         ds_full = ds_full.drop(columns=['label', 'label2', 'duplicate_label'], errors='ignore')
 
         return ds_full
