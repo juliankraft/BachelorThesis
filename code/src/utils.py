@@ -65,7 +65,10 @@ def plot_image_with_bbox(
     w_abs = bbox[2] * width
     h_abs = bbox[3] * height
 
-    fig, ax = plt.subplots()
+    dpi = 72
+    figsize = (width / dpi, height / dpi)
+
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
     ax.imshow(image)
 
     rect = patches.Rectangle(
@@ -85,7 +88,7 @@ def plot_image_with_bbox(
         )
 
     ax.axis('off')
-    plt.tight_layout()
+    fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
     plt.close(fig)
 
