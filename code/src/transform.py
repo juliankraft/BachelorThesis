@@ -159,6 +159,22 @@ class ImagePipeline:
         self.img = self._pil().resize(size)
         return self
 
+    def reduce_resolution(
+            self,
+            factor: float
+            ):
+        if factor <= 0 or factor > 1:
+            raise ValueError("factor must be between 0 and 1.")
+
+        img = self._pil()
+        width, height = img.size
+        new_width = int(width * factor)
+        new_height = int(height * factor)
+
+        self.img = img.resize((new_width, new_height))
+
+        return self
+
     def get(self) -> Image.Image | Tensor:
         if self.img is None:
             raise ValueError("Image has not been processed yet.")
