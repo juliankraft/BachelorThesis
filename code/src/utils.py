@@ -48,6 +48,16 @@ def plot_image_with_bbox(
         bbox: BBox,
         conf: float | None = None) -> Figure:
 
+    """
+    Plot an image with a bounding box.
+    Args:
+        image (Image.Image): The image to plot.
+        bbox (BBox): The bounding box to plot, in the format [x, y, w, h].
+        conf (float | None): The confidence score to display. If None, no score is displayed.
+    Returns:
+        Figure: The matplotlib figure object.
+    """
+
     width, height = image.size
 
     x_abs = bbox[0] * width
