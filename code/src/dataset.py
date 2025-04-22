@@ -551,11 +551,16 @@ class MammaliaDataSequence(MammaliaData):
         if self.image_pipeline.path_to_dataset is None:
             self.image_pipeline.path_to_dataset = self.path_to_dataset
 
-    def get_index_by_seq_id(self, seq_id: int) -> int:
-        matches = self.ds.index[self.ds['seq_id'] == seq_id].tolist()
-        if not matches:
+    def get_index_by_seq_id(
+            self,
+            seq_id: int) -> int:
+
+        mask = self.ds['seq_id'] == seq_id
+        if not mask.any():
             raise ValueError(f"seq_id {seq_id} not found in dataset.")
-        return matches[0]
+
+        pos = int(np.flatnonzero(mask.to_numpy())[0])
+        return pos
 
     def __len__(self) -> int:
         return len(self.ds)
