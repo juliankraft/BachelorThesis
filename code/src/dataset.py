@@ -593,8 +593,8 @@ class MammaliaDataSequence(MammaliaData):
         sample = self.image_pipeline(image_path, bbox)
 
         return {
-            'x': sample,
-            'y': class_id,
+            'sample': sample,
+            'class_id': class_id,
             'class_label': class_label,
             'bbox': bbox,
             'conf': conf,
@@ -705,8 +705,8 @@ class MammaliaDataImage(MammaliaData):
         sample = self.image_pipeline(image_path, bbox)
 
         return {
-            'x': sample,
-            'y': row['class_id'],
+            'sample': sample,
+            'class_id': row['class_id'],
             'class_label': row['class_label'],
             'bbox': bbox,
             'conf': row['conf'],
