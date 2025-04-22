@@ -551,15 +551,18 @@ class MammaliaDataSequence(MammaliaData):
         if self.image_pipeline.path_to_dataset is None:
             self.image_pipeline.path_to_dataset = self.path_to_dataset
 
-        self.row_map = self.ds.index.tolist()
+    def get_index_by_seq_id(self, seq_id: int) -> int:
+        matches = self.ds.index[self.ds['seq_id'] == seq_id].tolist()
+        if not matches:
+            raise ValueError(f"seq_id {seq_id} not found in dataset.")
+        return matches[0]
 
     def __len__(self) -> int:
         return len(self.ds)
 
     def __getitem__(self, index: int) -> Any:
 
-        row_index = self.row_map[index]
-        row = self.ds.iloc[row_index]
+        row = self.ds.iloc[index]
 
         class_id = row['class_id']
         class_label = row['class_label']
