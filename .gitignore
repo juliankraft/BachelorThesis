@@ -4,8 +4,8 @@ meetings/
 data_zip/
 sandbox/
 output/
-data/
-dataset/
+data/*
+!data/feature_stats.pt
 
 # exclude files
 

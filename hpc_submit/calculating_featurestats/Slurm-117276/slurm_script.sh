@@ -3,14 +3,12 @@
 #SBATCH --job-name=jk-BA
 #SBATCH --mail-type=fail,end
 #SBATCH --time=01-00:00:00
-#SBATCH --qos=earth-4.4d
-#SBATCH --partition=earth-4
+#SBATCH --partition=earth-1
 #SBATCH --constraint=rhel8
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks=1
 #SBATCH --cpus-per-task=12
-#SBATCH --mem=42G
-#SBATCH --gres=gpu:l40s:1
+#SBATCH --mem=120G
 
 # shellcheck disable=SC1091
 
@@ -30,8 +28,6 @@ echo '### Host info: ###########################################################
 echo
 echo 'Running on host:'
 hostname
-echo
-nvidia-smi
 echo
 echo 'Working directory:'
 cd /cfs/earth/scratch/kraftjul/BA/hpc_submit/calculating_featurestats
