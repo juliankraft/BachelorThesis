@@ -16,7 +16,7 @@ from sklearn.utils.class_weight import compute_class_weight
 
 from ba_dev.runner import MegaDetectorRunner
 from ba_dev.transform import ImagePipeline, BatchImagePipeline
-from ba_dev.utils import best_weighted_split
+from ba_dev.utils import best_weighted_split, BBox
 
 
 class DetectionResult(TypedDict):
@@ -428,6 +428,7 @@ class MammaliaData(Dataset):
             self,
             seq_id: int,
             confidence: float | None = None,
+            only_one_bb_per_image: bool = False,
             ) -> DetectionResult:
 
         if confidence is None:
@@ -437,25 +438,37 @@ class MammaliaData(Dataset):
         with open(path_to_detection_results, 'r') as f:
             data = json.load(f)
 
-        img_list: list[str] = []
-        bbox_list: list[Sequence[float]] = []
-        conf_list: list[float] = []
-
+        combined: list[tuple[str, BBox, float]] = []
         for entry in data:
             file_name = entry['file']
-            detections = entry.get('detections', [])
-
-            for det in detections:
+            for det in entry.get('detections', []):
                 if det['category'] == "1" and det['conf'] >= confidence:
-                    img_list.append(file_name)
-                    bbox_list.append(det['bbox'])
-                    conf_list.append(det['conf'])
+                    combined.append((file_name, det['bbox'], det['conf']))
 
-        combined = list(zip(img_list, bbox_list, conf_list))
+        # If requested, keep only the best (highest-conf) det per image:
+        if only_one_bb_per_image:
+            best_per_file: dict[str, tuple[BBox, float]] = {}
+            for file_name, bbox, conf in combined:
+                prev = best_per_file.get(file_name)
+                if prev is None or conf > prev[1]:
+                    best_per_file[file_name] = (bbox, conf)
+            # rebuild combined from best_per_file
+            combined = [(fn, bc[0], bc[1]) for fn, bc in best_per_file.items()]
+
+        # sort all remaining detections by confidence descending
         combined_sorted = sorted(combined, key=lambda x: x[2], reverse=True)
-        img_list, bbox_list, conf_list = map(list, zip(*combined_sorted))
 
-        return {'file': img_list, 'bbox': bbox_list, 'conf': conf_list}
+        # unzip (guard against empty)
+        if combined_sorted:
+            img_list, bbox_list, conf_list = map(list, zip(*combined_sorted))
+        else:
+            img_list, bbox_list, conf_list = [], [], []
+
+        return {
+            'file': img_list,
+            'bbox': bbox_list,
+            'conf': conf_list
+        }
 
 
 class MammaliaDataSequence(MammaliaData):
@@ -574,7 +587,7 @@ class MammaliaDataSequence(MammaliaData):
         seq_id = row['seq_id']
         base_image_path = Path(row['Directory'])
 
-        sequence = self.get_bb_list_for_seq(seq_id)
+        sequence = self.get_bb_list_for_seq(seq_id, only_one_bb_per_image=True)
 
         image_path: list[str | PathLike] = [base_image_path / file_name for file_name in sequence['file']]
         bbox = sequence['bbox']
