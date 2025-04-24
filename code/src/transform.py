@@ -31,7 +31,6 @@ class ImagePipeline:
     Example:
 
     pipeline = ImagePipeline(
-        path_to_dataset='path/to/dataset',
         pre_ops=[
             ('to_rgb', {}),
             ('crop_by_bb', {'crop_shape': 1.0})
