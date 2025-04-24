@@ -333,7 +333,7 @@ class MammaliaData(Dataset):
                 usecols=usecols
                 )
 
-    def get_class_weight(
+    def get_class_weights(
             self,
             ) -> torch.Tensor:
 
