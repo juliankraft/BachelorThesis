@@ -1,12 +1,15 @@
 import torch
 from pytorch_lightning import LightningDataModule
-from ba_dev.dataset import MammaliaData, MammaliaDataImage
+from ba_dev.dataset import MammaliaData, MammaliaDataSequence, MammaliaDataImage
+
+from typing import Type
 
 
-class MammliaDataModule(LightningDataModule):
+class MammaliaDataModule(LightningDataModule):
     def __init__(
             self,
-            dataset: MammaliaData | MammaliaDataImage,
+            dataset_cls: Type[MammaliaData],
+            dataset_kwargs: dict,
             n_folds: int = 5,
             val_fold: int = 0,
             batch_size: int = 32,
@@ -14,18 +17,43 @@ class MammliaDataModule(LightningDataModule):
             pin_memory: bool = True,
             ) -> None:
         super().__init__()
-        self.dataset = dataset
+
+        self.dataset_cls = dataset_cls
+        self.dataset_kwargs = dataset_kwargs.copy()
         self.n_folds = n_folds
         self.val_fold = val_fold
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.pin_memory = pin_memory
 
-    def setup(self, stage: str | None = None) -> None:
-        pass
+        self.train_dataset: MammaliaData | None = None
+        self.val_dataset: MammaliaData | None = None
+        self.test_dataset: MammaliaData | None = None
 
-    def get_dataset(self, stage: str) -> MammaliaData | MammaliaDataImage:
-        pass
+        self.class_weights: torch.Tensor | None = None
+
+    def setup(self, stage: str | None = None) -> None:
+
+        init_kwargs = {
+            **self.dataset_kwargs,
+            'n_folds': self.n_folds,
+            'val_fold': self.val_fold,
+            'mode': 'init'
+        }
+
+        master = self.dataset_cls(**init_kwargs)
+
+        self.class_weights = master.get_class_weights()
+
+        base_kwargs = {
+            **self.dataset_kwargs,
+            'n_folds': self.n_folds,
+            'val_fold': self.val_fold,
+        }
+
+        self.train_dataset = self.dataset_cls(**{**base_kwargs, 'mode': 'train'})
+        self.val_dataset   = self.dataset_cls(**{**base_kwargs, 'mode': 'val'})
+        self.test_dataset  = self.dataset_cls(**{**base_kwargs, 'mode': 'test'})
 
     def train_dataloader(self) -> torch.utils.data.DataLoader:
         pass
