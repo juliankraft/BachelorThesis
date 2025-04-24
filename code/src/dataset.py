@@ -43,9 +43,10 @@ class MammaliaData(Dataset):
             applied_detection_confidence: float = 0.25,
             available_detection_confidence: float = 0.25,
             random_seed: int = 55,
-            test_size: float = 0.2,
+            test_size: float | None = None,
             n_folds: int = 5,
             val_fold: int = 0,
+            test_fold: int = 1,
             mode: str = 'train',
             ):
 
@@ -107,7 +108,7 @@ class MammaliaData(Dataset):
         self.ds_full = self.get_ds_full()
         self.ds_filtered, self.no_detect_seq_ids = self.get_ds_filtered()
 
-        self.test_seq_ids, self.folds = self.custom_split_dataset(
+        self.test_seq_ids, self.folds = self.custom_split(
                                             ds=self.ds_filtered,
                                             test_size=self.test_size,
                                             n_folds=self.n_folds,
@@ -139,50 +140,51 @@ class MammaliaData(Dataset):
         elif self.mode == 'eval':
             self.ds = self.ds_filtered
 
-    def custom_split_dataset(
+    def custom_split(
             self,
             ds: pd.DataFrame,
-            test_size: float,
+            test_size: float | None,
             n_folds: int,
             seed: int,
             ) -> tuple[list[int], list[list[int]]]:
 
         rng = np.random.default_rng(seed)
 
-        test_seq_ids = []
-        fold_seq_ids = [[] for _ in range(n_folds)]
+        if test_size is not None and not (0.0 < test_size < 1.0):
+            raise ValueError("test_size must be between 0 and 1, or None.")
 
-        for value in ds['class_id'].unique():
-            ds_selected = ds[ds['class_id'] == value]
-            length = ds_selected.shape[0]
-            indices = rng.permutation(length)
+        test_seq_ids: list[int] = []
+        fold_seq_ids: list[list[int]] = [[] for _ in range(n_folds)]
 
-            seq_ids = ds_selected['seq_id'].to_numpy()[indices]
-            seq_lengths = ds_selected['n_files'].to_numpy()[indices]
+        for selected_class in ds['class_id'].unique():
+            ds_selected = ds[ds['class_id'] == selected_class]
+            permutation = rng.permutation(len(ds_selected))
+            seq_ids = ds_selected['seq_id'].to_numpy()[permutation]
+            seq_lengths = ds_selected['n_files'].to_numpy()[permutation]
 
-            train_images = int(seq_lengths.sum() * test_size)
-            fold_images = int(seq_lengths.sum() * (1 - test_size)) // n_folds
-            split_sizes = [train_images] + [fold_images] * (n_folds)
+            if test_size is not None:
+                n_test_images = int(seq_lengths.sum() * test_size)
+                cut_idx = best_weighted_split(seq_lengths, n_test_images)
+                if cut_idx == 0:
+                    raise ValueError(f'The test set is not containing images for the class {selected_class}.')
+                test_seq_ids.extend(seq_ids[:cut_idx])
+                seq_ids = seq_ids[cut_idx:]
+                seq_lengths = seq_lengths[cut_idx:]
 
-            cut_idx_list = []
-            seq_lengths_avail = seq_lengths.copy()
+            fold_size = seq_lengths.sum() / n_folds
 
-            for split_size in split_sizes:
-                relative_cut_idx = best_weighted_split(seq_lengths_avail, split_size)
+            avail_ids = seq_ids
+            avail_lengths = seq_lengths
 
-                seq_lengths_avail = seq_lengths_avail[relative_cut_idx:]
+            for i in range(n_folds - 1):
+                cut_idx = best_weighted_split(avail_lengths, fold_size)
+                if cut_idx == 0 or cut_idx == len(avail_lengths):
+                    raise ValueError(f'Not all folds will contain samples of class_id: {selected_class}.')
+                fold_seq_ids[i].extend(avail_ids[:cut_idx])
+                avail_ids = avail_ids[cut_idx:]
+                avail_lengths = avail_lengths[cut_idx:]
 
-                used_idx = sum(cut_idx_list)
-                absolute_cut_idx = relative_cut_idx + used_idx
-                cut_idx_list.append(absolute_cut_idx)
-
-            split_seq_ids = np.split(seq_ids, cut_idx_list)
-
-            test_seq_ids.extend(split_seq_ids[0])
-
-            for fold in range(n_folds):
-                for fold in range(n_folds):
-                    fold_seq_ids[fold].extend(split_seq_ids[fold + 1])
+            fold_seq_ids[-1].extend(avail_ids)
 
         return test_seq_ids, fold_seq_ids
 
