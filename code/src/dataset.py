@@ -43,10 +43,9 @@ class MammaliaData(Dataset):
             applied_detection_confidence: float = 0.25,
             available_detection_confidence: float = 0.25,
             random_seed: int = 55,
-            test_size: float | None = None,
+            extra_test_set: float | None = None,
             n_folds: int = 5,
             val_fold: int = 0,
-            test_fold: int = 1,
             mode: str = 'train',
             ):
 
@@ -56,11 +55,12 @@ class MammaliaData(Dataset):
         super().__init__()
 
         self.random_seed = random_seed
-        self.test_size = test_size
+        self.extra_test_set = extra_test_set
         if n_folds <= val_fold:
             raise ValueError("The val_fold must be smaller than n_folds.")
         self.n_folds = n_folds
         self.val_fold = val_fold
+        self.test_fold = (val_fold + 1) % n_folds
 
         mode_available = ['train', 'test', 'val', 'init', 'eval']
         if mode in mode_available:
@@ -108,19 +108,20 @@ class MammaliaData(Dataset):
         self.ds_full = self.get_ds_full()
         self.ds_filtered, self.no_detect_seq_ids = self.get_ds_filtered()
 
-        self.test_seq_ids, self.folds = self.custom_split(
+        self.separate_test_seq_ids, self.folds = self.custom_split(
                                             ds=self.ds_filtered,
-                                            test_size=self.test_size,
+                                            test_size=self.extra_test_set,
                                             n_folds=self.n_folds,
                                             seed=self.random_seed
                                             )
 
         self.val_seq_ids = self.folds[self.val_fold]
+        self.test_seq_ids = self.folds[self.test_fold]
 
         self.train_seq_ids = [
             seq_id
             for i, fold in enumerate(self.folds)
-            if i != self.val_fold
+            if i != self.val_fold and i != self.test_fold
             for seq_id in fold
             ]
         self.trainval_seq_ids = [
@@ -503,12 +504,13 @@ class MammaliaDataSequence(MammaliaData):
         the output. The default is 0.25.
     random_seed : int
         The seed used for the random number generator. The default is 55.
-    test_size : float
-        The proportion of the dataset to include in the test split. The default is 0.2.
+    extra_test_set : float | None
+        If a extra test set needs to be created not included in the folds for additional later experiments.
+        The value defines the proportion of the dataset to include in the separate test split. The default is None.
     n_folds : int
         The number of folds to use for cross-validation. The default is 5.
     val_fold : int
-        The fold index to use for validation. The default is 0.
+        This is the fold selected for validation. The train fold will be the next one in the list.
     available_detection_confidence : float
         If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
         must be set to the value used for the detection. The default is 0.25.
@@ -529,11 +531,12 @@ class MammaliaDataSequence(MammaliaData):
             path_labelfiles: str | PathLike,
             path_to_dataset: str | PathLike,
             path_to_detector_output: str | PathLike,
+            categories_to_drop: list[str] | None = ['other', 'glis_glis'],
             detector_model: str | None = None,
             applied_detection_confidence: float = 0.25,
             available_detection_confidence: float = 0.25,
             random_seed: int = 55,
-            test_size: float = 0.2,
+            extra_test_set: float | None = None,
             n_folds: int = 5,
             val_fold: int = 0,
             mode: str = 'train',
@@ -545,10 +548,11 @@ class MammaliaDataSequence(MammaliaData):
             path_to_dataset=path_to_dataset,
             path_to_detector_output=path_to_detector_output,
             detector_model=detector_model,
+            categories_to_drop=categories_to_drop,
             applied_detection_confidence=applied_detection_confidence,
             available_detection_confidence=available_detection_confidence,
             random_seed=random_seed,
-            test_size=test_size,
+            extra_test_set=extra_test_set,
             n_folds=n_folds,
             val_fold=val_fold,
             mode=mode,
@@ -653,12 +657,13 @@ class MammaliaDataImage(MammaliaData):
         the output. The default is 0.25.
     random_seed : int
         The seed used for the random number generator. The default is 55.
-    test_size : float
-        The proportion of the dataset to include in the test split. The default is 0.2.
+    extra_test_set : float | None
+        If a extra test set needs to be created not included in the folds for additional later experiments.
+        The value defines the proportion of the dataset to include in the separate test split. The default is None.
     n_folds : int
         The number of folds to use for cross-validation. The default is 5.
     val_fold : int
-        The fold index to use for validation. The default is 0.
+        This is the fold selected for validation. The train fold will be the next one in the list.
     available_detection_confidence : float
         If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
         must be set to the value used for the detection. The default is 0.25.
@@ -675,11 +680,12 @@ class MammaliaDataImage(MammaliaData):
             path_labelfiles: str | PathLike,
             path_to_dataset: str | PathLike,
             path_to_detector_output: str | PathLike,
+            categories_to_drop: list[str] | None = ['other', 'glis_glis'],
             detector_model: str | None = None,
             applied_detection_confidence: float = 0.25,
             available_detection_confidence: float = 0.25,
             random_seed: int = 55,
-            test_size: float = 0.2,
+            extra_test_set: float | None = None,
             n_folds: int = 5,
             val_fold: int = 0,
             mode: str = 'train',
@@ -689,11 +695,12 @@ class MammaliaDataImage(MammaliaData):
             path_labelfiles=path_labelfiles,
             path_to_dataset=path_to_dataset,
             path_to_detector_output=path_to_detector_output,
+            categories_to_drop=categories_to_drop,
             detector_model=detector_model,
             applied_detection_confidence=applied_detection_confidence,
             available_detection_confidence=available_detection_confidence,
             random_seed=random_seed,
-            test_size=test_size,
+            extra_test_set=extra_test_set,
             n_folds=n_folds,
             val_fold=val_fold,
             mode=mode,
