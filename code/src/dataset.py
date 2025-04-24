@@ -89,7 +89,11 @@ class MammaliaData(Dataset):
         all_labels = kept_labels + dropped_labels
 
         self.class_labels = kept_labels
-        self.label_encoder = {label: idx for idx, label in enumerate(all_labels)}
+        self.num_classes = len(kept_labels)
+
+        self.complete_label_encoder = {label: idx for idx, label in enumerate(all_labels)}
+
+        self.label_encoder = {label: idx for idx, label in enumerate(kept_labels)}
         self.label_decoder = {idx: label for label, idx in self.label_encoder.items()}
 
         self.path_labelfiles = Path(path_labelfiles)
@@ -212,7 +216,7 @@ class MammaliaData(Dataset):
             raise ValueError(f"Duplicate seq_id(s) found in metadata: {duplicates[:5]} ...")
 
         ds_full['class_label'] = ds_full['label2']
-        ds_full['class_id'] = ds_full['class_label'].map(self.label_encoder).fillna(-1).astype(int)
+        ds_full['class_id'] = ds_full['class_label'].map(self.complete_label_encoder).fillna(-1).astype(int)
 
         ds_full = ds_full.drop(columns=['label', 'label2', 'duplicate_label'], errors='ignore')
 
@@ -359,6 +363,15 @@ class MammaliaData(Dataset):
         class_weights = torch.tensor(weights, dtype=torch.float32)
 
         return class_weights
+
+    def get_num_classes(self) -> int:
+        return self.num_classes
+
+    def get_label_encoder(self) -> dict[str, int]:
+        return self.label_encoder
+
+    def get_label_decoder(self) -> dict[int, str]:
+        return self.label_decoder
 
     def get_all_images_of_sequence(
             self,
