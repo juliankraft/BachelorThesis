@@ -45,7 +45,7 @@ class MammaliaData(Dataset):
             random_seed: int = 55,
             extra_test_set: float | None = None,
             n_folds: int = 5,
-            val_fold: int = 0,
+            test_fold: int = 0,
             mode: str = 'train',
             image_pipeline: ImagePipeline | None = None,
             sample_size: int | None = None
@@ -61,11 +61,11 @@ class MammaliaData(Dataset):
 
         self.random_seed = random_seed
         self.extra_test_set = extra_test_set
-        if n_folds <= val_fold:
-            raise ValueError("The val_fold must be smaller than n_folds.")
+        if n_folds <= test_fold:
+            raise ValueError("The test_fold must be smaller than n_folds.")
         self.n_folds = n_folds
-        self.val_fold = val_fold
-        self.test_fold = (val_fold + 1) % n_folds
+        self.test_fold = test_fold
+        self.val_fold = (test_fold + 1) % n_folds
 
         mode_available = ['train', 'test', 'val', 'init', 'eval']
         if mode in mode_available:
@@ -126,12 +126,14 @@ class MammaliaData(Dataset):
         self.train_seq_ids = [
             seq_id
             for i, fold in enumerate(self.folds)
-            if i != self.val_fold and i != self.test_fold
+            if i != self.test_fold and i != self.val_fold
             for seq_id in fold
             ]
+
         self.trainval_seq_ids = [
             seq_id
             for i, fold in enumerate(self.folds)
+            if i != self.test_fold
             for seq_id in fold
             ]
 
@@ -514,8 +516,8 @@ class MammaliaDataSequence(MammaliaData):
         The value defines the proportion of the dataset to include in the separate test split. The default is None.
     n_folds : int
         The number of folds to use for cross-validation. The default is 5.
-    val_fold : int
-        This is the fold selected for validation. The train fold will be the next one in the list.
+    test_fold : int
+        Index of the fold used for testing; val_fold is (test_fold+1)%n_folds.
     available_detection_confidence : float
         If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
         must be set to the value used for the detection. The default is 0.25.
@@ -543,7 +545,7 @@ class MammaliaDataSequence(MammaliaData):
             random_seed: int = 55,
             extra_test_set: float | None = None,
             n_folds: int = 5,
-            val_fold: int = 0,
+            test_fold: int = 0,
             mode: str = 'train',
             image_pipeline: BatchImagePipeline | None = None,
             sample_size: int | None = 10
@@ -559,7 +561,7 @@ class MammaliaDataSequence(MammaliaData):
             random_seed=random_seed,
             extra_test_set=extra_test_set,
             n_folds=n_folds,
-            val_fold=val_fold,
+            test_fold=test_fold,
             mode=mode,
             )
 
@@ -667,8 +669,8 @@ class MammaliaDataImage(MammaliaData):
         The value defines the proportion of the dataset to include in the separate test split. The default is None.
     n_folds : int
         The number of folds to use for cross-validation. The default is 5.
-    val_fold : int
-        This is the fold selected for validation. The train fold will be the next one in the list.
+    test_fold : int
+        Index of the fold used for testing; val_fold is (test_fold+1)%n_folds.
     available_detection_confidence : float
         If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
         must be set to the value used for the detection. The default is 0.25.
@@ -692,7 +694,7 @@ class MammaliaDataImage(MammaliaData):
             random_seed: int = 55,
             extra_test_set: float | None = None,
             n_folds: int = 5,
-            val_fold: int = 0,
+            test_fold: int = 0,
             mode: str = 'train',
             image_pipeline: ImagePipeline | None = None
             ):
@@ -707,7 +709,7 @@ class MammaliaDataImage(MammaliaData):
             random_seed=random_seed,
             extra_test_set=extra_test_set,
             n_folds=n_folds,
-            val_fold=val_fold,
+            test_fold=test_fold,
             mode=mode,
             )
 

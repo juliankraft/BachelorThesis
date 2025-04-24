@@ -28,11 +28,11 @@ class MammaliaDataModule(LightningDataModule):
             'available_detection_confidence', 'random_seed', 'extra_test_set',
             'image_pipeline', 'sample_size'
         Forbidden keys:
-            'n_folds', 'val_fold', 'image_pipeline', 'mode'
+            'n_folds', 'test_fold', 'image_pipeline', 'mode'
     n_folds : int, default=5
         Number of stratified folds for cross-validation.
-    val_fold : int, default=0
-        Index of the fold used for validation; test fold is (val_fold+1)%n_folds.
+    test_fold : int, default=0
+        Index of the fold used for testing; val_fold is (test_fold+1)%n_folds.
     image_pipeline : ImagePipeline | None, default=None
         Pipeline for loading and preprocessing images.
     augmented_image_pipeline : ImagePipeline | None, default=None
@@ -56,7 +56,7 @@ class MammaliaDataModule(LightningDataModule):
             dataset_cls: Type[MammaliaData],
             dataset_kwargs: dict,
             n_folds: int = 5,
-            val_fold: int = 0,
+            test_fold: int = 0,
             image_pipeline: ImagePipeline | None = None,
             augmented_image_pipeline: ImagePipeline | None = None,
 
@@ -73,15 +73,15 @@ class MammaliaDataModule(LightningDataModule):
             if key not in dataset_kwargs:
                 raise ValueError(f"Missing required key '{key}' in dataset_kwargs.")
 
-        module_keys = ['n_folds', 'val_fold', 'image_pipeline', 'mode']
+        module_keys = ['n_folds', 'test_fold', 'image_pipeline', 'mode']
         for key in module_keys:
             if key in dataset_kwargs:
                 raise ValueError(f"Key '{key}' should not be provided in dataset_kwargs. It is defined internally.")
 
         self.n_folds = n_folds
         dataset_kwargs['n_folds'] = n_folds
-        self.val_fold = val_fold
-        dataset_kwargs['val_fold'] = val_fold
+        self.test_fold = test_fold
+        dataset_kwargs['test_fold'] = test_fold
 
         self.dataset_kwargs = dataset_kwargs.copy()
 
