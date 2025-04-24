@@ -1,5 +1,5 @@
 import torch
-from pytorch_lightning import LightningDataModule
+import pytorch_lightning as L
 from torch.utils.data import DataLoader
 from ba_dev.dataset import MammaliaData
 from ba_dev.transform import ImagePipeline
@@ -7,7 +7,7 @@ from ba_dev.transform import ImagePipeline
 from typing import Type, Any
 
 
-class MammaliaDataModule(LightningDataModule):
+class MammaliaDataModule(L.LightningDataModule):
 
     """
     LightningDataModule for Mammalia datasets, handling train/val/test splits and dataloaders.
