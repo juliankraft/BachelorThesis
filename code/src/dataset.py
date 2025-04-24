@@ -340,13 +340,13 @@ class MammaliaData(Dataset):
         if self.mode != 'init':
             raise ValueError('Class weights can only be computed in init mode.')
 
-        encoded_labels = self.ds['class_id'].to_numpy()
-        classes = np.array(encoded_labels)
+        y = self.ds['class_id'].to_numpy()
+        classes = np.unique(y)
 
         weights = compute_class_weight(
             class_weight='balanced',
             classes=classes,
-            y=encoded_labels
+            y=y
         )
 
         class_weights = torch.tensor(weights, dtype=torch.float32)
@@ -494,7 +494,7 @@ class MammaliaDataSequence(MammaliaData):
     categories_to_drop : list[str], optional
         All empty labels are excluded anyways. Per default the categories 'other' and 'glis_glis' are excluded
         as well. This argument could change this behavior.
-    detector_model : str
+    detector_model : str | None
         If a detector model is provided, the detection will be applied to the whole dataset and stored for training.
         The model must be one of the available models in the MegaDetector repository.
         The default is None. A valid detection output must be available at the path_to_detector_output.
@@ -647,7 +647,7 @@ class MammaliaDataImage(MammaliaData):
     categories_to_drop : list[str], optional
         All empty labels are excluded anyways. Per default the categories 'other' and 'glis_glis' are excluded
         as well. This argument could change this behavior.
-    detector_model : str
+    detector_model : str | None
         If a detector model is provided, the detection will be applied to the whole dataset and stored for training.
         The model must be one of the available models in the MegaDetector repository.
         The default is None. A valid detection output must be available at the path_to_detector_output.
