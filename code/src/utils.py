@@ -1,4 +1,5 @@
 import yaml
+import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -9,6 +10,10 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 
 BBox = Sequence[float]
+
+
+def count_trainable_parameters(model: torch.nn.Module) -> int:
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
 def load_config_yaml(path_to_config):
