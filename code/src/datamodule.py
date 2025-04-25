@@ -95,6 +95,9 @@ class MammaliaDataModule(L.LightningDataModule):
         init_dataset = self.get_dataset(mode='init')
 
         self.class_weights = init_dataset.get_class_weights()
+        self.num_classes = init_dataset.get_num_classes()
+        self.label_encoder = init_dataset.get_label_encoder()
+        self.label_decoder = init_dataset.get_label_decoder()
 
         self.batch_size = batch_size
         self.num_workers = num_workers
@@ -105,6 +108,15 @@ class MammaliaDataModule(L.LightningDataModule):
             'num_workers': self.num_workers,
             'pin_memory': self.pin_memory
             }
+
+    def get_num_classes(self) -> int:
+        return self.num_classes
+
+    def get_label_encoder(self) -> dict[str, int]:
+        return self.label_encoder
+
+    def get_label_decoder(self) -> dict[int, str]:
+        return self.label_decoder
 
     def get_class_weights(self) -> torch.Tensor:
         return self.class_weights
