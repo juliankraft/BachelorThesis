@@ -42,9 +42,7 @@ class LightningModelImage(L.LightningModule):
                     f'Length of class_weights ({len(self.class_weights)})'
                     f'does not match num_classes ({self.num_classes}).'
                     )
-
             self.criterion = nn.CrossEntropyLoss(weight=class_weights)
-
         else:
             self.criterion = nn.CrossEntropyLoss()
 
