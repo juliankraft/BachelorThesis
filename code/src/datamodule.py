@@ -166,7 +166,7 @@ class MammaliaDataModule(L.LightningDataModule):
         )
 
     def predict_dataloader(self) -> DataLoader:
-        dataset = self.get_dataset(mode='eval')
+        dataset = self.get_dataset(mode='pred')
         return DataLoader(
             dataset,
             batch_size=self.batch_size * 2,
