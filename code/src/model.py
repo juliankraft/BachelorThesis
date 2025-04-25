@@ -1,0 +1,129 @@
+import torch
+import torch.nn as nn
+import pytorch_lightning as L
+from torchvision.models import get_model
+from typing import Dict, Any
+
+
+class LightningModelImage(L.LightningModule):
+    def __init__(
+            self,
+            num_classes: int,
+            class_weights: torch.Tensor | None = None,
+            backbone_name: str = 'efficientnet_b0',
+            backbone_pretrained: bool = True,
+            backbone_weights: str = 'DEFAULT',
+            optimizer_name: str = 'AdamW',
+            optimizer_kwargs: Dict[str, Any] | None = None,
+            scheduler_name: str | None = None,
+            scheduler_kwargs: Dict[str, Any] | None = None,
+            ):
+        super().__init__()
+
+        self.save_hyperparameters()
+
+        self.num_classes = num_classes
+        self.class_weights = class_weights
+
+        self.backbone = get_model(
+            backbone_name,
+            weights=(backbone_weights if backbone_pretrained else None)
+            )
+
+        self._swap_head()
+
+        if self.class_weights is not None:
+            if not isinstance(self.class_weights, torch.Tensor):
+                raise TypeError(
+                    "class_weights must be a torch.Tensor or None."
+                )
+            if len(self.class_weights) != self.num_classes:
+                raise ValueError(
+                    f'Length of class_weights ({len(self.class_weights)})'
+                    f'does not match num_classes ({self.num_classes}).'
+                    )
+
+            self.criterion = nn.CrossEntropyLoss(weight=class_weights)
+
+        else:
+            self.criterion = nn.CrossEntropyLoss()
+
+        self.optimizer_cls = getattr(torch.optim, optimizer_name)
+        self.optimizer_kwargs = optimizer_kwargs or {}
+        self.scheduler_name = scheduler_name
+        self.scheduler_kwargs = scheduler_kwargs or {}
+
+    def _swap_head(self):
+        if hasattr(self.backbone, 'fc'):
+            if isinstance(self.backbone.fc, torch.nn.Linear):
+                in_features = self.backbone.fc.in_features
+                self.backbone.fc = nn.Linear(in_features, self.num_classes)
+            else:
+                raise AttributeError("The backbone's 'fc' layer is not a torch.nn.Linear module.")
+
+        elif hasattr(self.backbone, 'classifier'):
+            cls = self.backbone.classifier
+
+            if isinstance(cls, torch.nn.Sequential):
+                *body, last = list(cls.children())
+                in_features = last.in_features
+                if isinstance(in_features, int):
+                    body.append(nn.Linear(in_features, self.num_classes))
+                else:
+                    raise AttributeError(
+                        "The backbone's 'classifier' layer does not have an integer input feature size."
+                        )
+                self.backbone.classifier = nn.Sequential(*body)
+
+            elif isinstance(cls, nn.Linear):
+                in_features = cls.in_features
+                self.backbone.classifier = nn.Linear(in_features, self.num_classes)
+
+            else:
+                raise ValueError(
+                    f"Unexpected classifier structure: {type(cls)}"
+                    )
+        else:
+            raise ValueError(
+                f"Cannot find a head to replace on model {type(self.backbone)}"
+                )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.backbone(x)
+
+    def training_step(self, batch: Dict[str, Any], batch_idx: int) -> torch.Tensor:
+        x = batch['sample']
+        y = batch['class_id']
+        logits = self(x)
+        loss = self.criterion(logits, y)
+        self.log('train_loss', loss, on_step=True, on_epoch=True)
+        return loss
+
+    def validation_step(self, batch: Dict[str, Any], batch_idx: int) -> None:
+        x = batch['sample']
+        y = batch['class_id']
+        logits = self(x)
+        loss = self.criterion(logits, y)
+        self.log('val_loss', loss, prog_bar=True)
+
+    def configure_optimizers(self) -> Any:
+        # Instantiate optimizer
+        optimizer = self.optimizer_cls(
+            self.parameters(),
+            **self.optimizer_kwargs
+        )
+        # Optionally instantiate scheduler
+        if self.scheduler_name is not None:
+            sched_cls = getattr(torch.optim.lr_scheduler, self.scheduler_name, None)
+            if sched_cls is None:
+                raise ValueError(f"Scheduler '{self.scheduler_name}' not found in torch.optim.lr_scheduler")
+            scheduler = sched_cls(optimizer, **self.scheduler_kwargs)
+            return {
+                'optimizer': optimizer,
+                'lr_scheduler': {
+                    'scheduler': scheduler,
+                    'monitor': 'val_loss',
+                    'interval': 'epoch'
+                }
+            }
+        return optimizer
