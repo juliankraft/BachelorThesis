@@ -104,7 +104,6 @@ class MammaliaDataModule(L.LightningDataModule):
         self.pin_memory = pin_memory
 
         self.dataloader_kwargs: dict[str, Any] = {
-            'batch_size': self.batch_size,
             'num_workers': self.num_workers,
             'pin_memory': self.pin_memory
             }
