@@ -34,7 +34,7 @@ class ImagePipeline:
         pre_ops=[
             ('to_rgb', {}),
             ('crop_by_bb', {'crop_shape': 1.0})
-            ]
+            ],
         transform=v2.Compose([
                 v2.ToImage(),
                 v2.ToDtype(torch.float32, scale=True),
