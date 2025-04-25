@@ -245,7 +245,7 @@ class MammaliaData(Dataset):
                 detection_confidence=self.applied_detection_confidence
                 )
 
-            if len(no_detect_seq_ids) > 0:
+            if len(no_detect_seq_ids) > 0 and self.mode in ['init', 'eval']:
                 suffix = "" if len(no_detect_seq_ids) <= 10 else " ..."
                 warnings.warn(
                     f"With the detection confidence of {self.applied_detection_confidence},\n"
