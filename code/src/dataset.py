@@ -67,7 +67,7 @@ class MammaliaData(Dataset):
         self.test_fold = test_fold
         self.val_fold = (test_fold + 1) % n_folds
 
-        mode_available = ['train', 'test', 'val', 'init', 'eval']
+        mode_available = ['train', 'test', 'val', 'pred', 'init', 'eval']
         if mode in mode_available:
             self.mode = mode
         else:
@@ -149,7 +149,7 @@ class MammaliaData(Dataset):
             self.ds = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.test_seq_ids)].reset_index(drop=True)
         elif self.mode == 'init':
             self.ds = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.trainval_seq_ids)].reset_index(drop=True)
-        elif self.mode == 'eval':
+        elif self.mode in ['eval', 'pred']:
             self.ds = self.ds_filtered
 
     def custom_split(
@@ -535,8 +535,8 @@ class MammaliaDataSequence(MammaliaData):
         If the MD is applied, this is the minimal confidence to storred the output. If MD is not applied, this Value
         must be set to the value used for the detection. The default is 0.25.
     mode : str
-        The mode in which the dataset is used. Can be either 'train', 'test', 'val', 'init', 'eval' defining which data
-        will be sampled and adjusting how it is sampled. The default is 'train'.
+        The mode in which the dataset is used. Available: 'train', 'test', 'val', 'pred' 'init', 'eval'
+        The default is 'train'.
     image_pipeline : BatchImagePipeline (custom class)
         The image_pipeline to be applied to the images.
     sample_size : int
@@ -619,7 +619,7 @@ class MammaliaDataSequence(MammaliaData):
         bbox = sequence['bbox']
         conf = sequence['conf']
 
-        if self.sample_size is not None and self.mode in ['train', 'val', 'test']:
+        if self.sample_size is not None and self.mode in ['train', 'val', 'test', 'pred', 'eval']:
             sequence_length = len(sequence['file'])
 
             if self.mode == 'train':
@@ -638,15 +638,19 @@ class MammaliaDataSequence(MammaliaData):
 
         sample = self.image_pipeline(image_path, bbox)
 
-        return {
+        item = {
             'sample': sample,
             'class_id': class_id,
             'class_label': class_label,
             'bbox': bbox,
             'conf': conf,
             'seq_id': seq_id,
-            'file_path': image_path,
-        }
+            }
+
+        if self.mode == 'eval':
+            item['file_path'] = image_path
+
+        return item
 
 
 class MammaliaDataImage(MammaliaData):
@@ -753,12 +757,16 @@ class MammaliaDataImage(MammaliaData):
         bbox = row['bbox']
         sample = self.image_pipeline(image_path, bbox)
 
-        return {
+        item = {
             'sample': sample,
             'class_id': row['class_id'],
             'class_label': row['class_label'],
             'bbox': bbox,
             'conf': row['conf'],
             'seq_id': row['seq_id'],
-            'file_path': image_path,
         }
+
+        if self.mode == 'eval':
+            item['file_path'] = image_path
+
+        return item
