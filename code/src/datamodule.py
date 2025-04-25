@@ -148,7 +148,7 @@ class MammaliaDataModule(L.LightningDataModule):
             )
 
     def val_dataloader(self) -> DataLoader:
-        dataset = self.get_dataset(mode='valid')
+        dataset = self.get_dataset(mode='val')
         return DataLoader(
             dataset,
             batch_size=self.batch_size * 2,
