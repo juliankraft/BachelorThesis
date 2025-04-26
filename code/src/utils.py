@@ -177,20 +177,28 @@ class PredictionWriter(L.Callback):
 
         for out_dict in outputs_list:
             B = len(next(iter(out_dict.values())))
-
             for i in range(B):
                 row = {}
                 for k, v in out_dict.items():
-                    elem = v[i] if hasattr(v, "__len__") else v
+                    if hasattr(v, "__len__") and not isinstance(v, (str, bytes)):
+                        if len(v) == B:
+                            elem = v[i]
+                        else:
+                            elem = v
+                    else:
+                        elem = v
                     row[k] = self._sanitize(elem)
 
                 if not self._header_written:
-                    self._writer = csv.DictWriter(self._csv, fieldnames=list(row.keys()))
+                    self._writer = csv.DictWriter(
+                                    self._csv,
+                                    fieldnames=list(row.keys())
+                                    )
                     self._writer.writeheader()
                     self._header_written = True
 
-                assert self._writer is not None
-                self._writer.writerow(row)
+                    assert self._writer is not None
+                    self._writer.writerow(row)
 
     def on_predict_end(
             self,
