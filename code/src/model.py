@@ -155,9 +155,11 @@ class LightningModelImage(L.LightningModule):
         logits, _ = self.common_step(batch, 'pred')
         probs = nn.functional.softmax(logits, dim=1)
         preds = torch.argmax(probs, dim=1)
-        batch['preds'] = preds
-        batch['probs'] = probs
-        return batch
+
+        outputs = {k: v for k, v in batch.items() if k != 'sample'}
+        outputs['preds'] = preds
+        outputs['probs'] = probs
+        return outputs
 
     def configure_optimizers(self) -> Any:
         optimizer = self.optimizer_cls(
