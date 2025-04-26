@@ -145,9 +145,8 @@ class PredictionWriter(L.Callback):
             ):
         super().__init__()
 
-        self.output_path = Path(output_path)
-        self.output_file = self.output_path / 'predictions.csv'
-        self._csv_file = None
+        self.output_file = Path(output_path) / "predictions.csv"
+        self._csv = None
         self._writer = None
         self._header_written = False
 
@@ -155,7 +154,7 @@ class PredictionWriter(L.Callback):
             self, trainer: L.Trainer,
             pl_module: L.LightningModule
             ):
-        self.output_path.mkdir(parents=True, exist_ok=True)
+        self.output_file.parent.mkdir(parents=True, exist_ok=True)
         self._csv = open(self.output_file, "w", newline="", encoding="utf-8")
         self._writer = None
         self._header_written = False
@@ -178,16 +177,20 @@ class PredictionWriter(L.Callback):
         for out_dict in outputs_list:
             B = len(next(iter(out_dict.values())))
             for i in range(B):
-                row = {}
-                for k, v in out_dict.items():
-                    val = self._item(v, i, B)
-                    row[k] = self._sanitize(val)
-
-                if not self._header:
-                    self._writer = csv.DictWriter(self._csv, fieldnames=list(row.keys()))
+                row = {
+                    k: self._sanitize(self._item(v, i, B))
+                    for k, v in out_dict.items()
+                }
+                # write header once
+                if not self._header_written:
+                    assert self._csv is not None
+                    self._writer = csv.DictWriter(
+                                    self._csv,
+                                    fieldnames=list(row.keys())
+                                    )
                     self._writer.writeheader()
-                    self._header = True
-
+                    self._header_written = True
+                # write every row
                 assert self._writer is not None
                 self._writer.writerow(row)
 
@@ -205,17 +208,22 @@ class PredictionWriter(L.Callback):
             return v[i] if len(v) == B else v
         return v
 
-    def _sanitize(self, x):
-        # tensors -> CPU scalars/lists
+    def _sanitize(self, x: Any):
+        # 1) torch.Tensor → Python number or list
         if isinstance(x, torch.Tensor):
             x = x.detach().cpu().tolist()
-        # numpy arrays etc.
-        if hasattr(x, 'tolist') and not isinstance(x, (str, bytes, dict, list)):
+        # 2) numpy arrays, etc.
+        if hasattr(x, "tolist") and not isinstance(x, (str, bytes, dict, list)):
             try:
                 x = x.tolist()
             except Exception:
                 pass
-        # lists/dicts -> JSON strings
+        # 3) lists/dicts → JSON strings
         if isinstance(x, (list, dict)):
             return json.dumps(x, ensure_ascii=False)
-        return x
+        # 4) final fallback: if not JSON serializable, turn into str
+        try:
+            json.dumps(x)
+            return x
+        except (TypeError, ValueError):
+            return str(x)
