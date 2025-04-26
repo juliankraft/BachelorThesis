@@ -647,6 +647,14 @@ class MammaliaDataSequence(MammaliaData):
             'seq_id': seq_id,
             }
 
+        if self.mode in ['eval', 'pred']:
+            if row['seq_id'] in self.val_seq_ids:
+                item['set'] = 'val'
+            elif row['seq_id'] in self.test_seq_ids:
+                item['set'] = 'test'
+            else:
+                item['set'] = 'train'
+
         if self.mode == 'eval':
             item['file_path'] = image_path
 
@@ -765,6 +773,14 @@ class MammaliaDataImage(MammaliaData):
             'conf': row['conf'],
             'seq_id': row['seq_id'],
         }
+
+        if self.mode in ['eval', 'pred']:
+            if row['seq_id'] in self.val_seq_ids:
+                item['set'] = 'val'
+            elif row['seq_id'] in self.test_seq_ids:
+                item['set'] = 'test'
+            else:
+                item['set'] = 'train'
 
         if self.mode == 'eval':
             item['file_path'] = image_path
