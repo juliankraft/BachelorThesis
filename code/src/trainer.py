@@ -20,14 +20,14 @@ class MammaliaTrainer(L.Trainer):
 
         tb_logger = TensorBoardLogger(
             save_dir=log_dir,
-            name=None,
-            version=None
+            name='',
+            version=''
             )
 
         csv_logger = CSVLogger(
             save_dir=log_dir,
-            name=None,
-            version=None
+            name='',
+            version=''
             )
 
         loggers = [tb_logger, csv_logger]
@@ -40,7 +40,7 @@ class MammaliaTrainer(L.Trainer):
                 every_n_epochs=1
                 ),
             EarlyStopping(
-                monitor='valid_loss',
+                monitor='val_loss',
                 patience=patience,
                 ),
             LearningRateMonitor(
