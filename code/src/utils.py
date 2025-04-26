@@ -180,25 +180,16 @@ class PredictionWriter(L.Callback):
             for i in range(B):
                 row = {}
                 for k, v in out_dict.items():
-                    if hasattr(v, "__len__") and not isinstance(v, (str, bytes)):
-                        if len(v) == B:
-                            elem = v[i]
-                        else:
-                            elem = v
-                    else:
-                        elem = v
-                    row[k] = self._sanitize(elem)
+                    val = self._item(v, i, B)
+                    row[k] = self._sanitize(val)
 
-                if not self._header_written:
-                    self._writer = csv.DictWriter(
-                                    self._csv,
-                                    fieldnames=list(row.keys())
-                                    )
+                if not self._header:
+                    self._writer = csv.DictWriter(self._csv, fieldnames=list(row.keys()))
                     self._writer.writeheader()
-                    self._header_written = True
+                    self._header = True
 
-                    assert self._writer is not None
-                    self._writer.writerow(row)
+                assert self._writer is not None
+                self._writer.writerow(row)
 
     def on_predict_end(
             self,
@@ -208,19 +199,23 @@ class PredictionWriter(L.Callback):
         if self._csv:
             self._csv.close()
 
-    @staticmethod
-    def _sanitize(x):
+    def _item(self, v, i, B):
+        # only index sequences of length B
+        if hasattr(v, '__len__') and not isinstance(v, (str, bytes, dict)):
+            return v[i] if len(v) == B else v
+        return v
 
+    def _sanitize(self, x):
+        # tensors -> CPU scalars/lists
         if isinstance(x, torch.Tensor):
             x = x.detach().cpu().tolist()
-
-        if hasattr(x, "tolist") and not isinstance(x, (str, bytes, dict, list)):
+        # numpy arrays etc.
+        if hasattr(x, 'tolist') and not isinstance(x, (str, bytes, dict, list)):
             try:
                 x = x.tolist()
             except Exception:
                 pass
-
+        # lists/dicts -> JSON strings
         if isinstance(x, (list, dict)):
             return json.dumps(x, ensure_ascii=False)
-
         return x
