@@ -167,7 +167,7 @@ class PredictionWriter(L.Callback):
             outputs: list[dict[str, Any]],
             batch: dict[str, Any],
             batch_idx: int,
-            dataloader_idx: int
+            dataloader_idx: int | None = None
             ):
 
         if isinstance(outputs, dict):
