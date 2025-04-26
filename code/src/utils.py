@@ -152,7 +152,7 @@ class PredictionWriter(L.Callback):
         self._header_written = False
 
     def on_predict_start(
-            self, trainer: L.Trainer, 
+            self, trainer: L.Trainer,
             pl_module: L.LightningModule
             ):
         self.output_path.mkdir(parents=True, exist_ok=True)
