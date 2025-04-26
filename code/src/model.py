@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import pytorch_lightning as L
 from torchvision.models import get_model
-from typing import Dict, Any
+from torchmetrics import Accuracy, MetricCollection
+from typing import Dict,  Literal, Any
 
 
 class LightningModelImage(L.LightningModule):
@@ -51,6 +52,21 @@ class LightningModelImage(L.LightningModule):
         self.scheduler_name = scheduler_name
         self.scheduler_kwargs = scheduler_kwargs or {}
 
+        splits = ['train', 'val', 'test']
+        averages: Dict[Literal['micro', 'macro'], str] = {
+            'micro': '',
+            'macro': 'bal_'
+        }
+        for split in splits:
+            for avg, prefix in averages.items():
+                name = f"{split}_{prefix}acc"
+                metric = Accuracy(
+                    task="multiclass",
+                    num_classes=self.num_classes,
+                    average=avg
+                )
+                setattr(self, name, metric)
+
     def _swap_head(self):
         if hasattr(self.backbone, 'fc'):
             if isinstance(self.backbone.fc, torch.nn.Linear):
@@ -89,28 +105,56 @@ class LightningModelImage(L.LightningModule):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.backbone(x)
 
-    def training_step(self, batch: Dict[str, Any], batch_idx: int) -> torch.Tensor:
+    def common_step(
+            self,
+            batch: Dict[str, Any],
+            mode: Literal['train', 'val', 'test', 'pred']
+            ) -> tuple[torch.Tensor, torch.Tensor]:
         x = batch['sample']
         y = batch['class_id']
         logits = self(x)
         loss = self.criterion(logits, y)
-        self.log('train_loss', loss, on_step=True, on_epoch=True)
+
+        if mode != 'pred':
+            acc = getattr(self, f"{mode}_acc")(logits, y)
+            bal_acc = getattr(self, f"{mode}_bal_acc")(logits, y)
+
+            self.log_dict({
+                    f'{mode}_loss': loss,
+                    f'{mode}_acc': acc,
+                    f'{mode}_bal_acc': bal_acc
+                    },
+                logger=True,
+                on_step=(mode == 'train'),
+                on_epoch=True
+                )
+        return logits, loss
+
+    def training_step(self, batch: Dict[str, Any], batch_idx: int) -> torch.Tensor:
+        _, loss = self.common_step(batch, 'train')
         return loss
 
-    def validation_step(self, batch: Dict[str, Any], batch_idx: int) -> None:
-        x = batch['sample']
-        y = batch['class_id']
-        logits = self(x)
-        loss = self.criterion(logits, y)
-        self.log('val_loss', loss, prog_bar=True)
+    def validation_step(self, batch: Dict[str, Any], batch_idx: int) -> torch.Tensor:
+        _, loss = self.common_step(batch, 'val')
+        return loss
+
+    def test_step(self, batch: Dict[str, Any], batch_idx: int) -> torch.Tensor:
+        _, loss = self.common_step(batch, 'test')
+        return loss
+
+    def predict_step(self, batch: Dict[str, Any], batch_idx: int):
+        logits, _ = self.common_step(batch, 'pred')
+        probs = nn.functional.softmax(logits, dim=1)
+        preds = torch.argmax(probs, dim=1)
+        batch['preds'] = preds
+        batch['probs'] = probs
+        return batch
 
     def configure_optimizers(self) -> Any:
-        # Instantiate optimizer
         optimizer = self.optimizer_cls(
             self.parameters(),
             **self.optimizer_kwargs
-        )
-        # Optionally instantiate scheduler
+            )
         if self.scheduler_name is not None:
             sched_cls = getattr(torch.optim.lr_scheduler, self.scheduler_name, None)
             if sched_cls is None:
