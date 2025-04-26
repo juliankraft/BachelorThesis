@@ -178,16 +178,3 @@ class LightningModelImage(L.LightningModule):
                 }
             }
         return optimizer
-
-    def on_train_epoch_end(self) -> None:
-        if not self.scheduler_name:
-            return
-
-        optim = self.optimizers()
-        if isinstance(optim, list):
-            optim0 = optim[0]
-        else:
-            optim0 = optim
-
-        lr = optim0.param_groups[0]['lr']
-        self.log('lr', lr, on_epoch=True)
