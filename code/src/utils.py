@@ -1,5 +1,4 @@
 import csv
-import json
 import yaml
 import torch
 import numpy as np
@@ -203,27 +202,12 @@ class PredictionWriter(L.Callback):
             self._csv.close()
 
     def _item(self, v, i, B):
-        # only index sequences of length B
         if hasattr(v, '__len__') and not isinstance(v, (str, bytes, dict)):
             return v[i] if len(v) == B else v
         return v
 
     def _sanitize(self, x: Any):
-        # 1) torch.Tensor → Python number or list
         if isinstance(x, torch.Tensor):
             x = x.detach().cpu().tolist()
-        # 2) numpy arrays, etc.
-        if hasattr(x, "tolist") and not isinstance(x, (str, bytes, dict, list)):
-            try:
-                x = x.tolist()
-            except Exception:
-                pass
-        # 3) lists/dicts → JSON strings
-        if isinstance(x, (list, dict)):
-            return json.dumps(x, ensure_ascii=False)
-        # 4) final fallback: if not JSON serializable, turn into str
-        try:
-            json.dumps(x)
+        else:
             return x
-        except (TypeError, ValueError):
-            return str(x)
