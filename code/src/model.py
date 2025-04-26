@@ -3,14 +3,15 @@ import torch.nn as nn
 import pytorch_lightning as L
 from torchvision.models import get_model
 from torchmetrics import Accuracy, MetricCollection
-from typing import Dict,  Literal, Any
+from torch import Tensor
+from typing import Dict, Literal, Any
 
 
 class LightningModelImage(L.LightningModule):
     def __init__(
             self,
             num_classes: int,
-            class_weights: torch.Tensor | None = None,
+            class_weights: Tensor | None = None,
             backbone_name: str = 'efficientnet_b0',
             backbone_pretrained: bool = True,
             backbone_weights: str = 'DEFAULT',
@@ -34,9 +35,9 @@ class LightningModelImage(L.LightningModule):
         self._swap_head()
 
         if self.class_weights is not None:
-            if not isinstance(self.class_weights, torch.Tensor):
+            if not isinstance(self.class_weights, Tensor):
                 raise TypeError(
-                    "class_weights must be a torch.Tensor or None."
+                    "class_weights must be a Tensor or None."
                 )
             if len(self.class_weights) != self.num_classes:
                 raise ValueError(
@@ -52,20 +53,9 @@ class LightningModelImage(L.LightningModule):
         self.scheduler_name = scheduler_name
         self.scheduler_kwargs = scheduler_kwargs or {}
 
-        splits = ['train', 'val', 'test']
-        averages: Dict[Literal['micro', 'macro'], str] = {
-            'micro': '',
-            'macro': 'bal_'
-        }
-        for split in splits:
-            for avg, prefix in averages.items():
-                name = f"{split}_{prefix}acc"
-                metric = Accuracy(
-                    task="multiclass",
-                    num_classes=self.num_classes,
-                    average=avg
-                )
-                setattr(self, name, metric)
+        self.train_metrics = self.make_metrics('train')
+        self.val_metrics = self.make_metrics('val')
+        self.test_metrics = self.make_metrics('test')
 
     def _swap_head(self):
         if hasattr(self.backbone, 'fc'):
@@ -102,43 +92,62 @@ class LightningModelImage(L.LightningModule):
                 f"Cannot find a head to replace on model {type(self.backbone)}"
                 )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def make_metrics(
+            self,
+            split: str
+            ) -> MetricCollection:
+
+        mc = MetricCollection({
+            'acc':     Accuracy(task="multiclass",
+                                num_classes=self.num_classes,
+                                average="micro"),
+            'bal_acc': Accuracy(task="multiclass",
+                                num_classes=self.num_classes,
+                                average="macro"),
+        }, prefix=f"{split}_")
+        return mc
+
+    def forward(self, x: Tensor) -> Tensor:
         return self.backbone(x)
 
     def common_step(
             self,
             batch: Dict[str, Any],
             mode: Literal['train', 'val', 'test', 'pred']
-            ) -> tuple[torch.Tensor, torch.Tensor]:
+            ) -> tuple[Tensor, Tensor]:
         x = batch['sample']
         y = batch['class_id']
         logits = self(x)
         loss = self.criterion(logits, y)
 
         if mode != 'pred':
-            acc = getattr(self, f"{mode}_acc")(logits, y)
-            bal_acc = getattr(self, f"{mode}_bal_acc")(logits, y)
+            mc = {
+                'train': self.train_metrics,
+                'val':   self.val_metrics,
+                'test':  self.test_metrics
+                }[mode]
+
+            metric_dict = mc(logits, y)
 
             self.log_dict({
-                    f'{mode}_loss': loss,
-                    f'{mode}_acc': acc,
-                    f'{mode}_bal_acc': bal_acc
+                    f"{mode}_loss": loss,
+                    **metric_dict
                     },
-                logger=True,
                 on_step=(mode == 'train'),
-                on_epoch=True
-                )
+                on_epoch=True,
+                logger=True
+            )
         return logits, loss
 
-    def training_step(self, batch: Dict[str, Any], batch_idx: int) -> torch.Tensor:
+    def training_step(self, batch: Dict[str, Any], batch_idx: int) -> Tensor:
         _, loss = self.common_step(batch, 'train')
         return loss
 
-    def validation_step(self, batch: Dict[str, Any], batch_idx: int) -> torch.Tensor:
+    def validation_step(self, batch: Dict[str, Any], batch_idx: int) -> Tensor:
         _, loss = self.common_step(batch, 'val')
         return loss
 
-    def test_step(self, batch: Dict[str, Any], batch_idx: int) -> torch.Tensor:
+    def test_step(self, batch: Dict[str, Any], batch_idx: int) -> Tensor:
         _, loss = self.common_step(batch, 'test')
         return loss
 
