@@ -185,9 +185,9 @@ class PredictionWriter(L.Callback):
                 if not self._header_written:
                     assert self._csv is not None
                     self._writer = csv.DictWriter(
-                                    self._csv,
-                                    fieldnames=list(row.keys())
-                                    )
+                                self._csv,
+                                fieldnames=list(row.keys())
+                                )
                     self._writer.writeheader()
                     self._header_written = True
                 # write every row
