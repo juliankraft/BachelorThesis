@@ -4,6 +4,8 @@ from pytorch_lightning.loggers import TensorBoardLogger, CSVLogger
 from typing import Literal, Any
 from pathlib import Path
 
+from ba_dev.utils import PredictionWriter
+
 
 class MammaliaTrainer(L.Trainer):
     def __init__(
@@ -43,6 +45,9 @@ class MammaliaTrainer(L.Trainer):
                 ),
             LearningRateMonitor(
                 logging_interval='epoch'
+                ),
+            PredictionWriter(
+                output_path=log_dir
                 )
             ]
 
