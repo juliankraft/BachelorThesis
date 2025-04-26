@@ -177,7 +177,7 @@ class PredictionWriter(L.Callback):
             B = len(next(iter(out_dict.values())))
             for i in range(B):
                 row = {
-                    k: self._sanitize(self._item(v, i, B))
+                    k: self._sanitize(self)
                     for k, v in out_dict.items()
                 }
                 # write header once
@@ -200,11 +200,6 @@ class PredictionWriter(L.Callback):
             ):
         if self._csv:
             self._csv.close()
-
-    def _item(self, v, i, B):
-        if hasattr(v, '__len__') and not isinstance(v, (str, bytes, dict)):
-            return v[i] if len(v) == B else v
-        return v
 
     def _sanitize(self, x: Any):
         if isinstance(x, torch.Tensor):
