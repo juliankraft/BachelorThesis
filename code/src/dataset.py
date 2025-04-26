@@ -641,7 +641,6 @@ class MammaliaDataSequence(MammaliaData):
         item = {
             'sample': sample,
             'class_id': class_id,
-            'class_label': class_label,
             'bbox': bbox,
             'conf': conf,
             'seq_id': seq_id,
@@ -657,6 +656,7 @@ class MammaliaDataSequence(MammaliaData):
 
         if self.mode == 'eval':
             item['file_path'] = image_path
+            item['class_label'] = class_label
 
         return item
 
@@ -768,7 +768,6 @@ class MammaliaDataImage(MammaliaData):
         item = {
             'sample': sample,
             'class_id': row['class_id'],
-            'class_label': row['class_label'],
             'bbox': bbox,
             'conf': row['conf'],
             'seq_id': row['seq_id'],
@@ -784,5 +783,9 @@ class MammaliaDataImage(MammaliaData):
 
         if self.mode == 'eval':
             item['file_path'] = image_path
+            item['class_label'] = row['class_label']
+
+        if self.mode == 'pred':
+            item['file'] = image_path.name
 
         return item
