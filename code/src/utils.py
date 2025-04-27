@@ -155,7 +155,7 @@ class PredictionWriter(L.Callback):
         self.output_file.parent.mkdir(parents=True, exist_ok=True)
         self._csv = open(self.output_file, "w", newline="", encoding="utf-8")
 
-        keys = ['class_id', 'bbox', 'conf', 'seq_id', 'set', 'file', 'preds', 'probs']
+        keys = ['class_id', 'bbox', 'conf', 'seq_id', 'set', 'file', 'pred_id', 'probs']
 
         self._writer = csv.DictWriter(
                                 self._csv,
@@ -213,7 +213,7 @@ class PredictionWriter(L.Callback):
                 'seq_id': batch['seq_id'][i].item(),
                 'set': batch['set'][i],
                 'file': batch['file'][i],
-                'pred': batch['preds'][i].item(),
+                'pred_id': batch['preds'][i].item(),
                 'probs': batch['probs'][i].tolist()
             }
             reconstructed.append(item)
