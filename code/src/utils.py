@@ -161,6 +161,7 @@ class PredictionWriter(L.Callback):
                                 self._csv,
                                 fieldnames=keys
                                 )
+        self._writer.writeheader()
 
     def on_predict_batch_end(
             self,
@@ -185,7 +186,6 @@ class PredictionWriter(L.Callback):
 
             for row in output:
 
-                assert self._writer is not None
                 self._writer.writerow(row)
 
     def on_predict_end(
