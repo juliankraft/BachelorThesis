@@ -147,7 +147,6 @@ class PredictionWriter(L.Callback):
         self.output_file = Path(output_path) / "predictions.csv"
         self._csv = None
         self._writer = None
-        self._header_written = False
 
     def on_predict_start(
             self, trainer: L.Trainer,
@@ -155,8 +154,13 @@ class PredictionWriter(L.Callback):
             ):
         self.output_file.parent.mkdir(parents=True, exist_ok=True)
         self._csv = open(self.output_file, "w", newline="", encoding="utf-8")
-        self._writer = None
-        self._header_written = False
+
+        keys = ['class_id', 'bbox', 'conf', 'seq_id', 'set', 'file', 'preds', 'probs']
+
+        self._writer = csv.DictWriter(
+                                self._csv,
+                                fieldnames=keys
+                                )
 
     def on_predict_batch_end(
             self,
@@ -168,28 +172,19 @@ class PredictionWriter(L.Callback):
             dataloader_idx: int | None = None
             ):
 
+        assert self._writer is not None
+
         if isinstance(outputs, dict):
             outputs_list = [outputs]
         else:
             outputs_list = outputs
 
         for out_dict in outputs_list:
-            B = len(next(iter(out_dict.values())))
-            for i in range(B):
-                row = {
-                    k: self._sanitize(self._item(v, i, B))
-                    for k, v in out_dict.items()
-                    }
-                # write header once
-                if not self._header_written:
-                    assert self._csv is not None
-                    self._writer = csv.DictWriter(
-                                self._csv,
-                                fieldnames=list(row.keys())
-                                )
-                    self._writer.writeheader()
-                    self._header_written = True
-                # write every row
+
+            output = self.reconstruct_batch(out_dict)
+
+            for row in output:
+
                 assert self._writer is not None
                 self._writer.writerow(row)
 
@@ -201,13 +196,26 @@ class PredictionWriter(L.Callback):
         if self._csv:
             self._csv.close()
 
-    def _item(self, v, i, B):
-        if hasattr(v, "__len__") and not isinstance(v, (str, bytes, dict)):
-            return v[i] if len(v) == B else v
-        return v
+    def reconstruct_batch(
+            self,
+            batch
+            ) -> list[dict[str, Any]]:
 
-    def _sanitize(self, x: Any):
-        if isinstance(x, torch.Tensor):
-            x = x.detach().cpu().tolist()
-        else:
-            return x
+        batch_size = len(batch['class_id'])
+        reconstructed = []
+
+        for i in range(batch_size):
+            bbox = [tensor[i].item() for tensor in batch['bbox']]
+            item = {
+                'class_id': batch['class_id'][i].item(),
+                'bbox': bbox,
+                'conf': batch['conf'][i].item(),
+                'seq_id': batch['seq_id'][i].item(),
+                'set': batch['set'][i],
+                'file': batch['file'][i],
+                'pred': batch['preds'][i].item(),
+                'probs': batch['probs'][i].tolist()
+            }
+            reconstructed.append(item)
+
+        return reconstructed
