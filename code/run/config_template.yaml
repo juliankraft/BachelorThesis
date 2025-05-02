@@ -1,0 +1,19 @@
+### experiment config file
+experiment_name: 'test'
+
+### source path setup
+dataset: /cfs/earth/scratch/kraftjul/BA/data/dataset
+labels: /cfs/earth/scratch/kraftjul/BA/data/dataset/info/labels
+test_labels: /cfs/earth/scratch/kraftjul/BA/data/test_set_large
+md_output: /cfs/earth/scratch/kraftjul/BA/data/dataset/info/md_output
+
+### image pipeline
+to_rgb: true
+# can be a path to a .pt file to load stats, can be 'imagenet' to use the image net stats
+# or a dict with mean and std values fot each channel. if false it will not normalize
+feature_stats: /cfs/earth/scratch/kraftjul/BA/data/feature_stats.pt
+
+
+
+### model config
+
