@@ -14,8 +14,6 @@ class MammaliaTrainer(L.Trainer):
             accelerator: Literal['cpu', 'gpu'] = 'cpu',
             devices: int = 1,
             patience: int = 5,
-            log_every_n_steps: int = 1,
-            max_epochs: int | None = None,
             trainer_kwargs: dict[str, Any] | None = None
             ):
 
@@ -61,7 +59,5 @@ class MammaliaTrainer(L.Trainer):
             callbacks=callbacks,
             accelerator=accelerator,
             devices=devices,
-            log_every_n_steps=log_every_n_steps,
-            max_epochs=max_epochs,
             **trainer_kwargs
             )
