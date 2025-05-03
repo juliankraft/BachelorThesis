@@ -1,5 +1,7 @@
 import yaml
+import shutil
 import torch
+import pandas as pd
 from argparse import ArgumentParser
 from torchvision.transforms import v2
 from pathlib import Path
@@ -17,9 +19,9 @@ def print_banner(text, width=80, border_char='-'):
     line = border_char * (width - 2)
     centered = text.center(inner_width)
 
-    print(f"+{line}+")
-    print(f"| {centered} |")
-    print(f"+{line}+")
+    print(f'+{line}+')
+    print(f'| {centered} |')
+    print(f'+{line}+')
 
 
 def read_config_yaml(config_path):
@@ -28,11 +30,11 @@ def read_config_yaml(config_path):
             return yaml.load(f, Loader=yaml.FullLoader)
     except FileNotFoundError:
         raise FileNotFoundError(
-            f"Config file not found at {config_path}. Please provide a valid path."
+            f'Config file not found at {config_path}. Please provide a valid path.'
             )
     except yaml.YAMLError as e:
         raise ValueError(
-            f"Error parsing YAML file at {config_path}: {e}"
+            f'Error parsing YAML file at {config_path}: {e}'
             )
 
 
@@ -58,7 +60,7 @@ def set_up_image_pipeline(cfg):
             ops.append(v2.Resize((resize)))
         else:
             raise ValueError(
-                f"Invalid resize value: {resize}. Must be int or Sequence of two ints."
+                f'Invalid resize value: {resize}. Must be int or Sequence of two ints.'
                 )
 
     norm = cfg['normalize']
@@ -91,7 +93,7 @@ def set_up_image_pipeline(cfg):
             name, params = next(iter(entry.items()))
             Op = getattr(v2, name, None)
             if Op is None:
-                raise ValueError(f"Unknown transform: {name!r}")
+                raise ValueError(f'Unknown transform: {name!r}')
             ops_aug.append(Op(**(params or {})))
 
         augmented_image_pipeline = ImagePipeline(
@@ -117,65 +119,163 @@ if __name__ == '__main__':
         action='store_true',
         help='Run a quick dev run to test the experiment setup.'
         )
+    parser.add_argument(
+        '--output_dir',
+        type=str,
+        default=None,
+        help='Path to the output directory.'
+        )
 
     args = parser.parse_args()
 
-    cfg = read_config_yaml(args.config_path)
-
     if args.dev_run:
-        print_banner("!!!   Running in dev mode   !!!", width=80)
+        print_banner('!!!   Running in dev mode   !!!', width=80)
+
+    output_dir = Path(args.output_dir)
+    config_path = Path(args.config_path)
+
+    if not output_dir.exists():
+        raise FileNotFoundError(
+            f'Output directory {output_dir} does not exist. Please provide a valid path.'
+        )
+
+    cfg = read_config_yaml(config_path)
+
+    try:
+        shutil.copy2(config_path, output_dir / 'experiment_config.yaml')
+    except Exception as e:
+        raise RuntimeError(
+            f"Failed to copy config file to {output_dir}: {e}"
+            )
 
     # setting up image pipeline
     image_pipeline, augmented_image_pipeline = set_up_image_pipeline(cfg['image_pipeline'])
 
-
-
+    # setting up datamodule config
+    label_key = 'test_labels' if args.dev_run else 'labels'
+    dataset_raw = cfg.get('dataset') or {}
+    paths = cfg['paths']
     dataset_kwargs = {
-            'path_labelfiles': paths['test_labels'],
-            'path_to_dataset': paths['dataset'],
-            'path_to_detector_output': paths['md_output'],
+        'path_labelfiles': paths[label_key],
+        'path_to_dataset': paths['dataset'],
+        'path_to_detector_output': paths['md_output'],
+        **dataset_raw
+        }
+
+    datamodule_raw = cfg.get('data_module') or {}
+    datamodule_cfg = {
+        'dataset_cls': MammaliaDataImage,
+        'dataset_kwargs': dataset_kwargs,
+        'image_pipeline': image_pipeline,
+        'augmented_image_pipeline': augmented_image_pipeline,
+        **datamodule_raw
+        }
+
+    # setting up model config
+    model_cfg = cfg['model']
+
+    # setting up trainer config
+    trainer_raw = cfg.get('trainer') or {}
+
+    _not_dev_defaults = {
+        'limit_train_batches': 1.0,
+        'limit_val_batches': 1.0,
+        'limit_test_batches': 1.0,
+        'limit_predict_batches': 1.0,
+        'max_epochs': -1,
+        'log_every_n_steps': 10,
+        }
+
+    if args.dev_run:
+        dev_run_args = {
+            'limit_train_batches': 1,
+            'limit_val_batches': 1,
+            'limit_test_batches': 1,
+            'limit_predict_batches': 5,
+            'max_epochs': 3,
+            'log_every_n_steps': 1
             }
+    else:
+        dev_run_args = (trainer_raw.get('not_dev') or {}).copy()
+        for key, value in _not_dev_defaults.items():
+            if key not in dev_run_args:
+                dev_run_args[key] = value
 
-    datamodule = MammaliaDataModule(
-                    dataset_cls=MammaliaDataImage,
-                    dataset_kwargs=dataset_kwargs,
-                    n_folds=5,
-                    test_fold=0,
-                    image_pipeline=image_pipeline,
-                    augmented_image_pipeline=augmented_image_pipeline,
-                    batch_size=32,
-                    num_workers=1,
-                    pin_memory=True,
-                    )
+    trainer_kwargs = {
+        **(trainer_raw.get('trainer_kwargs') or {}),
+        **dev_run_args
+        }
 
-    model = LightningModelImage(
-                num_classes=datamodule.num_classes,
-                class_weights=datamodule.class_weights,
-                backbone_name='efficientnet_b0',
-                backbone_pretrained=True,
-                backbone_weights='DEFAULT',
-                optimizer_name='AdamW',
-                optimizer_kwargs={
-                    'lr': 1e-3,
-                    'weight_decay': 1e-5,
-                    'amsgrad': False
-                    },
-                scheduler_name='CosineAnnealingLR',
-                scheduler_kwargs={'T_max': 5},
+    trainer_cfg = (trainer_raw.get('base_args') or {}).copy()
+    trainer_cfg['trainer_kwargs'] = trainer_kwargs
+
+    trainer_do_predict = trainer_raw['do_predict']
+
+    # setting up folds or cross-validation
+    cross_val = cfg['cross_val']['apply']
+    n_folds = cfg['cross_val']['n_folds']
+    test_fold = cfg['cross_val']['test_fold']
+
+    if cross_val:
+        folds = range(n_folds)
+    else:
+        folds = [test_fold]
+
+    log_dir = output_dir / 'logs'
+
+    all_test_metrics = []
+
+    # running the experiment
+    for fold in folds:
+        if cross_val:
+            trainer_log_dir = log_dir / f'fold_{fold}'
+            print_statement = f'Running cross-validation fold {fold+1}/{n_folds}'
+        else:
+            trainer_log_dir = log_dir
+            print_statement = f'Running Experiment with test fold = {test_fold}'
+
+        print_banner(print_statement, width=80)
+        log_dir.mkdir(parents=True)
+
+        datamodule = MammaliaDataModule(
+                        n_folds=5,
+                        test_fold=0,
+                        **datamodule_cfg,
+                        )
+
+        model = LightningModelImage(
+                        num_classes=datamodule.num_classes,
+                        class_weights=datamodule.class_weights,
+                        **model_cfg
+                        )
+
+        trainer = MammaliaTrainer(
+                        log_dir=trainer_log_dir,
+                        **trainer_cfg
+                        )
+
+        trainer.fit(
+            model=model,
+            datamodule=datamodule
+            )
+
+        test_metrics = trainer.test(
+            model=model,
+            datamodule=datamodule
+            )
+
+        all_test_metrics.append(test_metrics[0])
+
+        if trainer_do_predict:
+            best_ckpt = trainer_log_dir / 'checkpoints' / 'best.ckpt'
+            trainer.predict(
+                model=model,
+                datamodule=datamodule,
+                ckpt_path=best_ckpt,
+                return_predictions=False
                 )
 
-    log_dir = Path('/cfs/earth/scratch/kraftjul/BA/output/test')
-    if log_dir.exists():
-        shutil.rmtree(log_dir)
-    log_dir.mkdir(parents=True, exist_ok=True)
+    print_banner('Experiment completed!', width=80)
 
-    trainer = MammaliaTrainer(
-                log_dir=log_dir,
-                accelerator='cpu',
-                devices=1,
-                patience=5,
-                log_every_n_steps=1,
-                trainer_kwargs={
-                    'max_epochs': 1,
-                    }
-                )
+    df = pd.DataFrame(all_test_metrics)
+    df.to_csv(log_dir / "test_metrics.csv", index=False)
