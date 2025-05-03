@@ -60,6 +60,7 @@ trainer:
       - set
       - pred_id
       - probs
+    pred_writer_prob_precision: 4
     accelerator: cpu
     patience: 5
 

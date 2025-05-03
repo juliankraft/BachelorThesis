@@ -141,13 +141,15 @@ class PredictionWriter(L.Callback):
     def __init__(
             self,
             output_path: PathLike,
-            log_keys: Sequence[str] | None = None
+            log_keys: Sequence[str] | None = None,
+            prob_precision: int | None = None
             ):
         super().__init__()
 
         self.output_file = Path(output_path) / "predictions.csv"
         self._csv = None
         self._writer = None
+        self.prob_precision = prob_precision
 
         _available_keys = ['class_id', 'bbox', 'conf', 'seq_id', 'set', 'file', 'pred_id', 'probs']
         if log_keys is not None:
@@ -217,6 +219,9 @@ class PredictionWriter(L.Callback):
 
         for i in range(batch_size):
             bbox = [tensor[i].item() for tensor in batch['bbox']]
+            probs = batch['probs'][i].tolist()
+            if self.prob_precision is not None:
+                probs = [round(p, self.prob_precision) for p in probs]
             item = {
                 'class_id': batch['class_id'][i].item(),
                 'bbox': bbox,
@@ -225,7 +230,7 @@ class PredictionWriter(L.Callback):
                 'set': batch['set'][i],
                 'file': batch['file'][i],
                 'pred_id': batch['preds'][i].item(),
-                'probs': batch['probs'][i].tolist()
+                'probs': probs
                 }
             filtered = {k: item[k] for k in self.log_keys}
             reconstructed.append(filtered)

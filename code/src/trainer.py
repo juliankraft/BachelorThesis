@@ -12,6 +12,7 @@ class MammaliaTrainer(L.Trainer):
             self,
             log_dir: Path,
             pred_writer_log_keys: Sequence[str] | None = None,
+            pred_writer_prob_precision: int | None = None,
             accelerator: Literal['cpu', 'gpu'] = 'cpu',
             patience: int = 5,
             trainer_kwargs: dict[str, Any] | None = None
@@ -50,7 +51,8 @@ class MammaliaTrainer(L.Trainer):
                 ),
             PredictionWriter(
                 output_path=log_dir,
-                log_keys=pred_writer_log_keys
+                log_keys=pred_writer_log_keys,
+                prob_precision=pred_writer_prob_precision
                 )
             ]
 
