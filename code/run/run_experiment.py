@@ -224,6 +224,7 @@ if __name__ == '__main__':
     log_dir = output_dir / 'logs'
 
     all_test_metrics = []
+    save_ds = True
 
     # running the experiment
     for fold in folds:
@@ -242,6 +243,13 @@ if __name__ == '__main__':
                         test_fold=0,
                         **datamodule_cfg,
                         )
+
+        if save_ds:
+            dataset = datamodule.get_dataset('pred')
+            df = dataset.get_ds_with_folds()
+            df.to_csv(log_dir / 'dataset.csv', index=False)
+            del dataset, df
+            save_ds = False
 
         model = LightningModelImage(
                         num_classes=datamodule.num_classes,
