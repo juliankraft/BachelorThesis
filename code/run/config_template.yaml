@@ -55,6 +55,11 @@ model:
   
 trainer:
   base_args:
+    pred_writer_log_keys:
+      - class_id
+      - set
+      - pred_id
+      - probs
     accelerator: cpu
     patience: 5
 

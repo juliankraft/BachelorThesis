@@ -1,7 +1,7 @@
 import pytorch_lightning as L
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger, CSVLogger
-from typing import Literal, Any
+from typing import Literal, Sequence, Any
 from pathlib import Path
 
 from ba_dev.utils import PredictionWriter
@@ -11,6 +11,7 @@ class MammaliaTrainer(L.Trainer):
     def __init__(
             self,
             log_dir: Path,
+            pred_writer_log_keys: Sequence[str] | None = None,
             accelerator: Literal['cpu', 'gpu'] = 'cpu',
             patience: int = 5,
             trainer_kwargs: dict[str, Any] | None = None
@@ -48,7 +49,8 @@ class MammaliaTrainer(L.Trainer):
                 logging_interval='epoch'
                 ),
             PredictionWriter(
-                output_path=log_dir
+                output_path=log_dir,
+                log_keys=pred_writer_log_keys
                 )
             ]
 

@@ -140,13 +140,26 @@ def draw_bbox_on_ax(
 class PredictionWriter(L.Callback):
     def __init__(
             self,
-            output_path: PathLike
+            output_path: PathLike,
+            log_keys: Sequence[str] | None = None
             ):
         super().__init__()
 
         self.output_file = Path(output_path) / "predictions.csv"
         self._csv = None
         self._writer = None
+
+        _available_keys = ['class_id', 'bbox', 'conf', 'seq_id', 'set', 'file', 'pred_id', 'probs']
+        if log_keys is not None:
+            for key in log_keys:
+                if key not in _available_keys:
+                    raise ValueError(
+                        f"Invalid key '{key}' in log_keys. "
+                        f"Available keys are: {_available_keys}"
+                    )
+            self.log_keys = log_keys
+        else:
+            self.log_keys = _available_keys
 
     def on_predict_start(
             self, trainer: L.Trainer,
@@ -155,11 +168,9 @@ class PredictionWriter(L.Callback):
         self.output_file.parent.mkdir(parents=True, exist_ok=True)
         self._csv = open(self.output_file, "w", newline="", encoding="utf-8")
 
-        keys = ['class_id', 'bbox', 'conf', 'seq_id', 'set', 'file', 'pred_id', 'probs']
-
         self._writer = csv.DictWriter(
                                 self._csv,
-                                fieldnames=keys
+                                fieldnames=self.log_keys
                                 )
         self._writer.writeheader()
 
@@ -215,7 +226,8 @@ class PredictionWriter(L.Callback):
                 'file': batch['file'][i],
                 'pred_id': batch['preds'][i].item(),
                 'probs': batch['probs'][i].tolist()
-            }
-            reconstructed.append(item)
+                }
+            filtered = {k: item[k] for k in self.log_keys}
+            reconstructed.append(filtered)
 
         return reconstructed
