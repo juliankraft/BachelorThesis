@@ -296,6 +296,23 @@ class MammaliaData(Dataset):
 
         return pd.DataFrame(out_rows).reset_index(drop=True)
 
+    def get_ds_with_folds(self) -> pd.DataFrame:
+        """
+        Return a copy of self.ds with an extra column 'fold':
+         - = -1 for seq_ids in the separate_test_seq_ids
+         - = 0,1,… for the other folds as per self.folds
+        """
+        fold_map: dict[int, int] = {
+            seq_id: -1 for seq_id in self.separate_test_seq_ids
+        }
+        for fold_idx, seq_ids in enumerate(self.folds):
+            for seq_id in seq_ids:
+                if seq_id not in fold_map:
+                    fold_map[seq_id] = fold_idx
+        df = self.ds.copy()
+        df['fold'] = df['seq_id'].map(fold_map).fillna(-1).astype(int)
+        return df
+
     def get_all_files_of_type(
             self,
             path: str | PathLike,
