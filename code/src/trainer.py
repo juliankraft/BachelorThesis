@@ -12,7 +12,6 @@ class MammaliaTrainer(L.Trainer):
             self,
             log_dir: Path,
             accelerator: Literal['cpu', 'gpu'] = 'cpu',
-            devices: int = 1,
             patience: int = 5,
             trainer_kwargs: dict[str, Any] | None = None
             ):
@@ -58,6 +57,5 @@ class MammaliaTrainer(L.Trainer):
             logger=loggers,
             callbacks=callbacks,
             accelerator=accelerator,
-            devices=devices,
             **trainer_kwargs
             )
