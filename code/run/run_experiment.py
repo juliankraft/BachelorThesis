@@ -3,6 +3,7 @@ import torch
 from argparse import ArgumentParser
 from torchvision.transforms import v2
 from pathlib import Path
+from typing import Sequence
 
 from ba_dev.dataset import MammaliaDataImage
 from ba_dev.datamodule import MammaliaDataModule
@@ -19,6 +20,86 @@ def print_banner(text, width=80, border_char='-'):
     print(f"+{line}+")
     print(f"| {centered} |")
     print(f"+{line}+")
+
+
+def read_config_yaml(config_path):
+    try:
+        with open(config_path) as f:
+            return yaml.load(f, Loader=yaml.FullLoader)
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            f"Config file not found at {config_path}. Please provide a valid path."
+            )
+    except yaml.YAMLError as e:
+        raise ValueError(
+            f"Error parsing YAML file at {config_path}: {e}"
+            )
+
+
+def set_up_image_pipeline(cfg):
+    pre_ops = []
+    if cfg['to_rgb']:
+        pre_ops.append(('to_rgb', {}))
+    if cfg['crop_by_bb']:
+        pre_ops.append(('crop_by_bb', {'crop_shape': cfg['crop_by_bb']}))
+
+    ops = []
+    if cfg['to_tensor']:
+        ops.append([
+            v2.ToImage(),
+            v2.ToDtype(torch.float32, scale=True)
+            ])
+
+    resize = cfg['resize']
+    if resize:
+        if isinstance(resize, int):
+            ops.append(v2.Resize((resize, resize)))
+        elif isinstance(resize, Sequence) and len(resize) == 2:
+            ops.append(v2.Resize((resize)))
+        else:
+            raise ValueError(
+                f"Invalid resize value: {resize}. Must be int or Sequence of two ints."
+                )
+
+    norm = cfg['normalize']
+    if norm:
+        if isinstance(norm, dict):
+            mean = norm['mean']
+            std = norm['std']
+        elif isinstance(norm, str):
+            if norm.lower() == 'imagenet':
+                mean = [0.485, 0.456, 0.406]
+                std = [0.229, 0.224, 0.225]
+            else:
+                stats = torch.load(norm)
+                mean = stats['mean']
+                std = stats['std']
+        ops.append(v2.Normalize(mean=mean, std=std))
+
+    image_pipeline = ImagePipeline(
+        pre_ops=pre_ops,
+        transform=v2.Compose(ops)
+        )
+
+    augment = cfg['augmentation']
+    if not augment:
+        augmented_image_pipeline = None
+    else:
+        ops_aug = list(ops)
+
+        for entry in augment:
+            name, params = next(iter(entry.items()))
+            Op = getattr(v2, name, None)
+            if Op is None:
+                raise ValueError(f"Unknown transform: {name!r}")
+            ops_aug.append(Op(**(params or {})))
+
+        augmented_image_pipeline = ImagePipeline(
+                    pre_ops=pre_ops,
+                    transform=v2.Compose(ops_aug)
+                    )
+
+    return image_pipeline, augmented_image_pipeline
 
 
 if __name__ == '__main__':
@@ -39,37 +120,15 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if not Path(args.config_path).exists():
-        raise FileNotFoundError(f"Config file {args.config_path} does not exist.")
-    with open("config.yaml") as f:
-        cfg = yaml.load(f, Loader=yaml.FullLoader)
+    cfg = read_config_yaml(args.config_path)
 
     if args.dev_run:
         print_banner("!!!   Running in dev mode   !!!", width=80)
 
-
     # setting up image pipeline
+    image_pipeline, augmented_image_pipeline = set_up_image_pipeline(cfg['image_pipeline'])
 
-    if cfg['feature_stats'] is 
 
-
-    stats = torch.load(paths['feature_stats'])
-
-    image_pipeline = ImagePipeline(
-            pre_ops=[
-                if cfg['to_rgb']: ('to_rgb', {}),
-                ('crop_by_bb', {'crop_shape': 1.0})
-                ],
-            transform=v2.Compose([
-                v2.ToImage(),
-                v2.ToDtype(torch.float32, scale=True),
-                v2.Resize((224, 224)),
-                v2.Normalize(
-                    mean=stats['mean'],
-                    std=stats['std']
-                    )
-                ])
-            )
 
     dataset_kwargs = {
             'path_labelfiles': paths['test_labels'],
@@ -83,7 +142,7 @@ if __name__ == '__main__':
                     n_folds=5,
                     test_fold=0,
                     image_pipeline=image_pipeline,
-                    augmented_image_pipeline=None,
+                    augmented_image_pipeline=augmented_image_pipeline,
                     batch_size=32,
                     num_workers=1,
                     pin_memory=True,

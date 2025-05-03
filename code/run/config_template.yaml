@@ -1,18 +1,25 @@
 ### experiment config file
 experiment_name: 'test'
+log_dir:
 
-### source path setup
-dataset: /cfs/earth/scratch/kraftjul/BA/data/dataset
-labels: /cfs/earth/scratch/kraftjul/BA/data/dataset/info/labels
-test_labels: /cfs/earth/scratch/kraftjul/BA/data/test_set_large
-md_output: /cfs/earth/scratch/kraftjul/BA/data/dataset/info/md_output
+paths:
+  dataset: /cfs/earth/scratch/kraftjul/BA/data/dataset
+  labels: /cfs/earth/scratch/kraftjul/BA/data/dataset/info/labels
+  test_labels: /cfs/earth/scratch/kraftjul/BA/data/test_set_large
+  md_output: /cfs/earth/scratch/kraftjul/BA/data/dataset/info/md_output
 
-### image pipeline
-to_rgb: true
-# can be a path to a .pt file to load stats, can be 'imagenet' to use the image net stats
-# or a dict with mean and std values fot each channel. if false it will not normalize
-feature_stats: /cfs/earth/scratch/kraftjul/BA/data/feature_stats.pt
-
+image_pipeline:
+  to_rgb: true
+  crop_by_bb: 1
+  to_tensor: true
+  resize: [224, 224]
+  # can be a path to a .pt file to load stats, can be 'imagenet' to use the image net stats
+  # or a dict with mean and std values fot each channel. if false it will not normalize
+  normalize: /cfs/earth/scratch/kraftjul/BA/data/feature_stats.pt
+  augmentation: null
+  # augmentation:
+  # - RandomHorizontalFlip: { p: 0.5 }
+  # - ColorJitter:      { brightness: 0.2, contrast: 0.2 }
 
 
 ### model config
