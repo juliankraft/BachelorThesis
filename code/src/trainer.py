@@ -16,8 +16,11 @@ class MammaliaTrainer(L.Trainer):
             patience: int = 5,
             log_every_n_steps: int = 1,
             max_epochs: int | None = None,
-            trainer_kwargs: dict[str, Any] = {}
+            trainer_kwargs: dict[str, Any] | None = None
             ):
+
+        if trainer_kwargs is None:
+            trainer_kwargs = {}
 
         tb_logger = TensorBoardLogger(
             save_dir=log_dir,
