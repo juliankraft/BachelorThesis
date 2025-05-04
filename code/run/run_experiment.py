@@ -1,17 +1,18 @@
 import yaml
 import shutil
 import torch
-import pandas as pd
+from time import time
 from argparse import ArgumentParser
 from torchvision.transforms import v2
 from pathlib import Path
 from typing import Sequence
 
-from ba_dev.dataset import MammaliaDataImage
-from ba_dev.datamodule import MammaliaDataModule
-from ba_dev.transform import ImagePipeline
-from ba_dev.model import LightningModelImage
-from ba_dev.trainer import MammaliaTrainer
+from ba_stable.dataset import MammaliaDataImage
+from ba_stable.datamodule import MammaliaDataModule
+from ba_stable.transform import ImagePipeline
+from ba_stable.model import LightningModelImage
+from ba_stable.trainer import MammaliaTrainer
+from ba_stable.utils import count_parameters
 
 
 def print_banner(text, width=80, border_char='-'):
@@ -118,7 +119,7 @@ if __name__ == '__main__':
         help='Run a quick dev run to test the experiment setup.'
         )
     parser.add_argument(
-        '--output_dir',
+        '--log_dir',
         type=str,
         default=None,
         help='Path to the output directory.'
@@ -129,21 +130,22 @@ if __name__ == '__main__':
     if args.dev_run:
         print_banner('!!!   Running in dev mode   !!!', width=80)
 
-    output_dir = Path(args.output_dir)
     config_path = Path(args.config_path)
+    log_dir = Path(args.log_dir)
+    experiment_info_path = log_dir / 'experiment_info.yaml'
 
-    if not output_dir.exists():
+    if not log_dir.exists():
         raise FileNotFoundError(
-            f'Output directory {output_dir} does not exist. Please provide a valid path.'
+            f'Output directory {log_dir} does not exist. Please provide a valid path.'
         )
 
     cfg = read_config_yaml(config_path)
 
     try:
-        shutil.copy2(config_path, output_dir / 'experiment_config.yaml')
+        shutil.copy2(config_path, experiment_info_path)
     except Exception as e:
         raise RuntimeError(
-            f"Failed to copy config file to {output_dir}: {e}"
+            f"Failed to copy config file to {experiment_info_path}: {e}"
             )
 
     # setting up image pipeline
@@ -214,65 +216,67 @@ if __name__ == '__main__':
     test_fold = cfg['cross_val']['test_fold']
 
     if cross_val:
-        folds = range(n_folds)
+        if args.dev_run:
+            folds = range(2)
+        else:
+            folds = range(n_folds)
     else:
         folds = [test_fold]
 
-    log_dir = output_dir / 'logs'
+    run_params = {}
+    if cross_val:
+        run_params['folds'] = {}
 
-    all_test_metrics = []
     first_pass = True
 
     # running the experiment
     for fold in folds:
+
+        fold_params = {}
+
         if cross_val:
             trainer_log_dir = log_dir / f'fold_{fold}'
-            print_statement = f'Running cross-validation fold {fold+1}/{n_folds}'
+            print_statement = f'Running cross-validation fold {fold+1}/{len(folds)}'
+            trainer_log_dir.mkdir(parents=True)
         else:
             trainer_log_dir = log_dir
             print_statement = f'Running Experiment with test fold = {test_fold}'
 
         print_banner(print_statement, width=80)
-        trainer_log_dir.mkdir(parents=True)
 
-        cfg = datamodule_cfg.copy()
-        cfg['dataset_kwargs'] = dataset_kwargs.copy()
+        dm_cfg = datamodule_cfg.copy()
+        dm_cfg['dataset_kwargs'] = dataset_kwargs.copy()
         datamodule = MammaliaDataModule(
                         n_folds=5,
                         test_fold=fold,
-                        **cfg,
+                        **dm_cfg,
                         )
 
-        if first_pass:
-            dataset = datamodule.get_dataset('pred')
-            df = dataset.get_ds_with_folds()
-            df.to_csv(log_dir / 'dataset.csv', index=False)
-            del dataset, df
-
-        cfg = model_cfg.copy()
+        m_cfg = model_cfg.copy()
         model = LightningModelImage(
                         num_classes=datamodule.num_classes,
                         class_weights=datamodule.class_weights,
-                        **cfg
+                        **m_cfg
                         )
 
-        cfg = trainer_cfg.copy()
+        t_cfg = trainer_cfg.copy()
         trainer = MammaliaTrainer(
                         log_dir=trainer_log_dir,
-                        **cfg
+                        **t_cfg
                         )
 
+        t0 = time()
         trainer.fit(
             model=model,
             datamodule=datamodule
             )
+        fold_params['training_time'] = round(time() - t0, 0)
+        fold_params['epochs_trained'] = trainer.current_epoch
 
         test_metrics = trainer.test(
             model=model,
             datamodule=datamodule
             )
-
-        all_test_metrics.append(test_metrics[0])
 
         if trainer_do_predict:
             best_ckpt = trainer_log_dir / 'checkpoints' / 'best.ckpt'
@@ -283,9 +287,28 @@ if __name__ == '__main__':
                 return_predictions=False
                 )
 
-        first_pass = False
+        fold_params['test_metrics'] = test_metrics[0]
+        fold_params['class_weights'] = datamodule.class_weights.tolist()
+
+        if first_pass:
+            dataset = datamodule.get_dataset('pred')
+            df = dataset.get_ds_with_folds()
+            df.to_csv(log_dir / 'dataset.csv', index=False)
+            run_params['model_parameters'] = count_parameters(model)
+            run_params['label_decoder'] = dataset.label_decoder
+            run_params['num_classes'] = datamodule.num_classes
+            del dataset, df
+            first_pass = False
+
+        if cross_val:
+            fold_params['test_fold'] = fold
+            run_params['folds'][fold] = fold_params
+        else:
+            run_params.update(fold_params)
+
+    run_output = {'output': run_params}
+    with open(experiment_info_path, "a") as f:
+        f.write("\n")
+        yaml.dump(run_output, f, default_flow_style=False)
 
     print_banner('Experiment completed!', width=80)
-
-    df = pd.DataFrame(all_test_metrics)
-    df.to_csv(log_dir / "test_metrics.csv", index=False)
