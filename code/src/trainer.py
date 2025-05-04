@@ -1,5 +1,5 @@
 import pytorch_lightning as L
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint, LearningRateMonitor
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint, LearningRateMonitor, RichProgressBar
 from pytorch_lightning.loggers import TensorBoardLogger, CSVLogger
 from typing import Literal, Sequence, Any
 from pathlib import Path
@@ -36,6 +36,9 @@ class MammaliaTrainer(L.Trainer):
         loggers = [tb_logger, csv_logger]
 
         callbacks = [
+            RichProgressBar(
+                refresh_rate=1
+                ),
             ModelCheckpoint(
                 filename='best',
                 save_last=True,
