@@ -48,7 +48,6 @@ class MammaliaData(Dataset):
             test_fold: int = 0,
             mode: str = 'train',
             image_pipeline: ImagePipeline | None = None,
-            sample_size: int | None = None
             ):
 
         if type(self) is MammaliaData:
@@ -57,7 +56,6 @@ class MammaliaData(Dataset):
         super().__init__()
 
         self.image_pipeline = image_pipeline
-        self.sample_size = sample_size
 
         self.random_seed = random_seed
         self.extra_test_set = extra_test_set
