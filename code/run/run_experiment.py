@@ -47,10 +47,8 @@ def set_up_image_pipeline(cfg):
 
     ops = []
     if cfg['to_tensor']:
-        ops.append([
-            v2.ToImage(),
-            v2.ToDtype(torch.float32, scale=True)
-            ])
+        ops.append(v2.ToImage())
+        ops.append(v2.ToDtype(torch.float32, scale=True))
 
     resize = cfg['resize']
     if resize:
@@ -165,7 +163,6 @@ if __name__ == '__main__':
     datamodule_raw = cfg.get('data_module') or {}
     datamodule_cfg = {
         'dataset_cls': MammaliaDataImage,
-        'dataset_kwargs': dataset_kwargs,
         'image_pipeline': image_pipeline,
         'augmented_image_pipeline': augmented_image_pipeline,
         **datamodule_raw
@@ -224,7 +221,7 @@ if __name__ == '__main__':
     log_dir = output_dir / 'logs'
 
     all_test_metrics = []
-    save_ds = True
+    first_pass = True
 
     # running the experiment
     for fold in folds:
@@ -236,30 +233,33 @@ if __name__ == '__main__':
             print_statement = f'Running Experiment with test fold = {test_fold}'
 
         print_banner(print_statement, width=80)
-        log_dir.mkdir(parents=True)
+        trainer_log_dir.mkdir(parents=True)
 
+        cfg = datamodule_cfg.copy()
+        cfg['dataset_kwargs'] = dataset_kwargs.copy()
         datamodule = MammaliaDataModule(
                         n_folds=5,
-                        test_fold=0,
-                        **datamodule_cfg,
+                        test_fold=fold,
+                        **cfg,
                         )
 
-        if save_ds:
+        if first_pass:
             dataset = datamodule.get_dataset('pred')
             df = dataset.get_ds_with_folds()
             df.to_csv(log_dir / 'dataset.csv', index=False)
             del dataset, df
-            save_ds = False
 
+        cfg = model_cfg.copy()
         model = LightningModelImage(
                         num_classes=datamodule.num_classes,
                         class_weights=datamodule.class_weights,
-                        **model_cfg
+                        **cfg
                         )
 
+        cfg = trainer_cfg.copy()
         trainer = MammaliaTrainer(
                         log_dir=trainer_log_dir,
-                        **trainer_cfg
+                        **cfg
                         )
 
         trainer.fit(
@@ -282,6 +282,8 @@ if __name__ == '__main__':
                 ckpt_path=best_ckpt,
                 return_predictions=False
                 )
+
+        first_pass = False
 
     print_banner('Experiment completed!', width=80)
 

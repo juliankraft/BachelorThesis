@@ -9,7 +9,7 @@ paths:
 
 image_pipeline:
   to_rgb: true
-  crop_by_bb: 1
+  crop_by_bb: 1.0
   to_tensor: true
   resize: [224, 224]
   # can be a path to a .pt file to load stats, can be 'imagenet' to use the image net stats
@@ -34,7 +34,7 @@ data_module:
   pin_memory: true
 
 cross_val:
-  apply: false
+  apply: true
   n_folds: 5
   test_fold: 0
 
@@ -45,8 +45,8 @@ model:
 
   optimizer_name: AdamW
   optimizer_kwargs:
-    lr: 1e-3
-    weight_decay: 1e-5
+    lr: 0.001
+    weight_decay: 0.00001
     amsgrad: false
 
   scheduler_name: CosineAnnealingLR
