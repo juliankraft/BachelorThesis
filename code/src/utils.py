@@ -15,8 +15,19 @@ from matplotlib.axes import Axes
 BBox = Sequence[float]
 
 
-def count_trainable_parameters(model: torch.nn.Module) -> int:
-    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+def count_parameters(model: torch.nn.Module) -> dict[str, int]:
+    trainable = 0
+    non_trainable = 0
+    for p in model.parameters():
+        if p.requires_grad:
+            trainable += p.numel()
+        else:
+            non_trainable += p.numel()
+    return {
+        'trainable': trainable,
+        'non_trainable': non_trainable,
+        'total': trainable + non_trainable
+    }
 
 
 def load_path_yaml(path_to_config):
