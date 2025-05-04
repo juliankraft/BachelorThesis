@@ -71,4 +71,3 @@ trainer:
   trainer_kwargs: null
 
   do_predict: true
-
