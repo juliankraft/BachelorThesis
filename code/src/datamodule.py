@@ -98,6 +98,7 @@ class MammaliaDataModule(L.LightningDataModule):
         self.num_classes = init_dataset.get_num_classes()
         self.label_encoder = init_dataset.get_label_encoder()
         self.label_decoder = init_dataset.get_label_decoder()
+        self.init_dataset = init_dataset.get_ds_with_folds()
 
         self.batch_size = batch_size
         self.num_workers = num_workers
