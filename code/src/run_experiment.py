@@ -280,13 +280,10 @@ if __name__ == '__main__':
         fold_params['class_weights'] = datamodule.class_weights.tolist()
 
         if first_pass:
-            dataset = datamodule.get_dataset('pred')
-            df = dataset.get_ds_with_folds()
-            df.to_csv(log_dir / 'dataset.csv', index=False)
+            datamodule.dataframe.to_csv(log_dir / 'dataset.csv', index=False)
             run_params['model_parameters'] = count_parameters(model)
-            run_params['label_decoder'] = dataset.label_decoder
+            run_params['label_decoder'] = datamodule.label_decoder
             run_params['num_classes'] = datamodule.num_classes
-            del dataset, df
             first_pass = False
 
         if cross_val:

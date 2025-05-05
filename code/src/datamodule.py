@@ -1,4 +1,5 @@
 import torch
+import pandas as pd
 import pytorch_lightning as L
 from torch.utils.data import DataLoader
 from ba_dev.dataset import MammaliaData
@@ -98,7 +99,7 @@ class MammaliaDataModule(L.LightningDataModule):
         self.num_classes = init_dataset.get_num_classes()
         self.label_encoder = init_dataset.get_label_encoder()
         self.label_decoder = init_dataset.get_label_decoder()
-        self.init_dataset = init_dataset.get_ds_with_folds()
+        self.dataframe = init_dataset.get_ds_with_folds()
 
         self.batch_size = batch_size
         self.num_workers = num_workers
@@ -108,6 +109,9 @@ class MammaliaDataModule(L.LightningDataModule):
             'num_workers': self.num_workers,
             'pin_memory': self.pin_memory
             }
+
+    def get_dataframe(self) -> pd.DataFrame:
+        return self.dataframe
 
     def get_num_classes(self) -> int:
         return self.num_classes
