@@ -253,5 +253,13 @@ class ProgressTracker(L.Callback):
     def __init__(self):
         super().__init__()
 
-    def on_train_batch_end(self):
+    def on_train_batch_end(
+            self,
+            trainer: L.Trainer,
+            pl_module: L.LightningModule,
+            outputs: Any,
+            batch: Any,
+            batch_idx: int,
+            dataloader_idx: int | None = None
+            ) -> None:
         pass
