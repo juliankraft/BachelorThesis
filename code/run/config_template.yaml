@@ -1,36 +1,33 @@
 ### experiment config file
-experiment_name: 'test'
+experiment_name: 'efficientnet_b0_v2'
+dev_run: true
 
 paths:
   dataset: /cfs/earth/scratch/kraftjul/BA/data/dataset
   labels: /cfs/earth/scratch/kraftjul/BA/data/dataset/info/labels
   test_labels: /cfs/earth/scratch/kraftjul/BA/data/test_set_large
   md_output: /cfs/earth/scratch/kraftjul/BA/data/dataset/info/md_output
+  output_path: /cfs/earth/scratch/kraftjul/BA/output/runs
 
 image_pipeline:
   to_rgb: true
   crop_by_bb: 1.0
   to_tensor: true
   resize: [224, 224]
-  # can be a path to a .pt file to load stats, can be 'imagenet' to use the image net stats
-  # or a dict with mean and std values fot each channel. if false it will not normalize
   normalize: /cfs/earth/scratch/kraftjul/BA/data/feature_stats.pt
   augmentation: null
-  # augmentation:
-  # - RandomHorizontalFlip: { p: 0.5 }
-  # - ColorJitter:      { brightness: 0.2, contrast: 0.2 }
 
 dataset:
   categories_to_drop: ['other', 'glis_glis']
   detector_model: null
-  applied_detection_confidence: 0.25
+  applied_detection_confidence: 0.5
   available_detection_confidence: 0.25
   random_seed: 55
   extra_test_set: null
 
 data_module:
-  batch_size: 32
-  num_workers: 4
+  batch_size: 64
+  num_workers: 8
   pin_memory: true
 
 cross_val:
@@ -45,13 +42,13 @@ model:
 
   optimizer_name: AdamW
   optimizer_kwargs:
-    lr: 0.001
+    lr: 0.0001
     weight_decay: 0.00001
     amsgrad: false
 
   scheduler_name: CosineAnnealingLR
   scheduler_kwargs:
-    T_max: 5
+    T_max: 50
   
 trainer:
   base_args:
@@ -61,14 +58,14 @@ trainer:
       - pred_id
       - probs
     pred_writer_prob_precision: 4
-    accelerator: cpu
+    accelerator: gpu
     patience: 5
 
   not_dev:
-    log_every_n_steps: 10
-    max_epochs: 1000
+    log_every_n_steps: 1
+    max_epochs: 50
 
   trainer_kwargs:
-    enable_progress_bar: false
+    enable_progress_bar: true
 
   do_predict: true
