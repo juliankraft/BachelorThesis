@@ -113,48 +113,37 @@ if __name__ == '__main__':
         default=None,
         help='Path to the config yaml file.'
         )
-    parser.add_argument(
-        '--dev_run',
-        action='store_true',
-        help='Run a quick dev run to test the experiment setup.'
-        )
-    parser.add_argument(
-        '--log_dir',
-        type=str,
-        default=None,
-        help='Path to the output directory.'
-        )
 
     args = parser.parse_args()
-
-    if args.dev_run:
-        print_banner('!!!   Running in dev mode   !!!', width=80)
-
     config_path = Path(args.config_path)
-    log_dir = Path(args.log_dir)
-    experiment_info_path = log_dir / 'experiment_info.yaml'
-
-    if not log_dir.exists():
-        raise FileNotFoundError(
-            f'Output directory {log_dir} does not exist. Please provide a valid path.'
-        )
 
     cfg = read_config_yaml(config_path)
+    dev_run = cfg['dev_run']
+    paths = {key: Path(value) for key, value in cfg['paths'].items()}
 
-    try:
-        shutil.copy2(config_path, experiment_info_path)
-    except Exception as e:
-        raise RuntimeError(
-            f"Failed to copy config file to {experiment_info_path}: {e}"
-            )
+    if dev_run:
+        print_banner('!!!   Running in dev mode   !!!', width=80)
+        log_dir = paths['output_path'] / f'{cfg["experiment_name"]}_dev'
+        if log_dir.exists():
+            shutil.rmtree(log_dir)
+    else:
+        print_banner('!!!   Running Experiment   !!!', width=80)
+        log_dir = paths['output_path'] / f'{cfg["experiment_name"]}'
+        if log_dir.exists():
+            raise FileExistsError(
+                f'Output directory {log_dir} already exists. Please provide a different name.'
+                )
+    log_dir.mkdir(parents=True)
+
+    experiment_info_path = log_dir / 'experiment_info.yaml'
+    shutil.copy2(config_path, experiment_info_path)
 
     # setting up image pipeline
     image_pipeline, augmented_image_pipeline = set_up_image_pipeline(cfg['image_pipeline'])
 
     # setting up datamodule config
-    label_key = 'test_labels' if args.dev_run else 'labels'
+    label_key = 'test_labels' if dev_run else 'labels'
     dataset_raw = cfg.get('dataset') or {}
-    paths = cfg['paths']
     dataset_kwargs = {
         'path_labelfiles': paths[label_key],
         'path_to_dataset': paths['dataset'],
@@ -185,7 +174,7 @@ if __name__ == '__main__':
         'log_every_n_steps': 10,
         }
 
-    if args.dev_run:
+    if dev_run:
         dev_run_args = {
             'limit_train_batches': 1,
             'limit_val_batches': 1,
@@ -216,7 +205,7 @@ if __name__ == '__main__':
     test_fold = cfg['cross_val']['test_fold']
 
     if cross_val:
-        if args.dev_run:
+        if dev_run:
             folds = range(2)
         else:
             folds = range(n_folds)
