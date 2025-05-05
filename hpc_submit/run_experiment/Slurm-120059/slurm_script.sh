@@ -27,7 +27,7 @@ eval "$("/cfs/earth/scratch/${USER}/bin/micromamba" shell hook -s posix)"
 
 # ## setup
 CONFIG_PATH="/cfs/earth/scratch/kraftjul/BA/hpc_submit/run_experiment/experiment_config.yaml"
-LOG_DIR="/cfs/earth/scratch/kraftjul/BA/output/runs/efficient_v2"
+LOG_DIR="/cfs/earth/scratch/kraftjul/BA/output/efficient_v1"
 rm -rf ${LOG_DIR} || true
 mkdir -p ${LOG_DIR}
 

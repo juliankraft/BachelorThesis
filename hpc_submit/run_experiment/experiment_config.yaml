@@ -1,5 +1,5 @@
 ### experiment config file
-experiment_name: 'first_try_efficientnet_b0'
+experiment_name: 'efficientnet_b0_v2'
 
 paths:
   dataset: /cfs/earth/scratch/kraftjul/BA/data/dataset
@@ -46,7 +46,7 @@ model:
 
   scheduler_name: CosineAnnealingLR
   scheduler_kwargs:
-    T_max: 10
+    T_max: 50
   
 trainer:
   base_args:

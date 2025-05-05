@@ -247,3 +247,11 @@ class PredictionWriter(L.Callback):
             reconstructed.append(filtered)
 
         return reconstructed
+
+
+class ProgressTracker(L.Callback):
+    def __init__(self):
+        super().__init__()
+
+    def on_train_batch_end(self):
+        pass
