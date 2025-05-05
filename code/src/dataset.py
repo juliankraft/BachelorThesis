@@ -363,10 +363,8 @@ class MammaliaData(Dataset):
             self,
             ) -> torch.Tensor:
 
-        if self.mode != 'init':
-            raise ValueError('Class weights can only be computed in init mode.')
-
-        y = self.ds['class_id'].to_numpy()
+        ds = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.train_seq_ids)].reset_index(drop=True)
+        y = ds.to_numpy()
         classes = np.unique(y)
 
         weights = compute_class_weight(
