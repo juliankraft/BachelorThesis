@@ -15,7 +15,7 @@ from ba_dev.trainer import MammaliaTrainer
 from ba_dev.utils import count_parameters
 
 
-def print_banner(text, width=80, border_char='-'):
+def print_banner(text, width=89, border_char='-'):
     inner_width = width - 4
     line = border_char * (width - 2)
     centered = text.center(inner_width)
@@ -122,12 +122,12 @@ if __name__ == '__main__':
     paths = {key: Path(value) for key, value in cfg['paths'].items()}
 
     if dev_run:
-        print_banner('!!!   Running in dev mode   !!!', width=80)
+        print_banner('!!!   Running in dev mode   !!!', width=89)
         log_dir = paths['output_path'] / f'{cfg["experiment_name"]}_dev'
         if log_dir.exists():
             shutil.rmtree(log_dir)
     else:
-        print_banner('!!!   Running Experiment   !!!', width=80)
+        print_banner('!!!   Running Experiment   !!!', width=89)
         log_dir = paths['output_path'] / f'{cfg["experiment_name"]}'
         if log_dir.exists():
             raise FileExistsError(
@@ -137,6 +137,7 @@ if __name__ == '__main__':
 
     experiment_info_path = log_dir / 'experiment_info.yaml'
     shutil.copy2(config_path, experiment_info_path)
+    print(f'Config file copied to {experiment_info_path}')
 
     # setting up image pipeline
     image_pipeline, augmented_image_pipeline = set_up_image_pipeline(cfg['image_pipeline'])
@@ -217,6 +218,7 @@ if __name__ == '__main__':
         run_params['folds'] = {}
 
     first_pass = True
+    print('Configuration complete...')
 
     # running the experiment
     for fold in folds:
@@ -231,7 +233,7 @@ if __name__ == '__main__':
             trainer_log_dir = log_dir
             print_statement = f'Running Experiment with test fold = {test_fold}'
 
-        print_banner(print_statement, width=80)
+        print_banner(print_statement, width=89)
 
         dm_cfg = datamodule_cfg.copy()
         dm_cfg['dataset_kwargs'] = dataset_kwargs.copy()
@@ -297,4 +299,4 @@ if __name__ == '__main__':
         f.write("\n")
         yaml.dump(run_output, f, default_flow_style=False)
 
-    print_banner('Experiment completed!', width=80)
+    print_banner('Experiment completed!', width=89)
