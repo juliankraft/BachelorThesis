@@ -256,8 +256,7 @@ class ValidationPrinter(L.Callback):
     def on_validation_epoch_end(
             self,
             trainer: L.Trainer,
-            pl_module: L.LightningModule,
-            outputs: list[dict[str, Any]]
+            pl_module: L.LightningModule
             ):
 
         print("Validation metrics:")
