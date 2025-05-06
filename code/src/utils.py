@@ -249,26 +249,9 @@ class PredictionWriter(L.Callback):
         return reconstructed
 
 
-class ProgressTracker(L.Callback):
+class ValidationPrinter(L.Callback):
     def __init__(self):
         super().__init__()
-
-    def on_train_epoch_start(
-            self,
-            trainer: L.Trainer,
-            pl_module: L.LightningModule
-            ):
-        print(f"Epoch {trainer.current_epoch} started.")
-        print(f"Current LR: {trainer.optimizers[0].param_groups[0]['lr']:.6f}")
-
-    def on_train_epoch_end(
-            self,
-            trainer: L.Trainer,
-            pl_module: L.LightningModule,
-            outputs: list[dict[str, Any]]
-            ):
-        print(f"Epoch {trainer.current_epoch} ended.")
-        print("Starting validation...")
 
     def on_validation_epoch_end(
             self,
@@ -277,9 +260,9 @@ class ProgressTracker(L.Callback):
             outputs: list[dict[str, Any]]
             ):
 
+        print("Validation metrics:")
+
         for name, value in trainer.callback_metrics.items():
             if name.startswith("val_"):
                 # value is a tensor or float
                 print(f"{name}: {value:.4f}")
-        print("Validation ended.")
-        print(80 * "-"+"\n")
