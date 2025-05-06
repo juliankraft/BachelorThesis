@@ -37,7 +37,7 @@ echo
 nvidia-smi
 echo
 echo 'Working directory:'
-cd /cfs/earth/scratch/kraftjul/BA_package/ba_dev
+cd /cfs/earth/scratch/kraftjul/BA_package/ba_stable
 pwd
 echo
 echo

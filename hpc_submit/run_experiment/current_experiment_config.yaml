@@ -1,5 +1,5 @@
 ### experiment config file
-experiment_name: 'efficientnet_b0_v2'
+experiment_name: 'efficientnet_b0_v3_from_scratch'
 dev_run: true
 
 paths:
