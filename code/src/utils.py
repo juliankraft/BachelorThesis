@@ -247,21 +247,3 @@ class PredictionWriter(L.Callback):
             reconstructed.append(filtered)
 
         return reconstructed
-
-
-class ValidationPrinter(L.Callback):
-    def __init__(self):
-        super().__init__()
-
-    def on_validation_epoch_end(
-            self,
-            trainer: L.Trainer,
-            pl_module: L.LightningModule
-            ):
-
-        print("Validation metrics:")
-
-        for name, value in trainer.callback_metrics.items():
-            if name.startswith("val_"):
-                # value is a tensor or float
-                print(f"{name}: {value:.4f}")

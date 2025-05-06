@@ -4,7 +4,7 @@ from pytorch_lightning.loggers import TensorBoardLogger, CSVLogger
 from typing import Literal, Sequence, Any
 from pathlib import Path
 
-from ba_dev.utils import PredictionWriter, ValidationPrinter
+from ba_dev.utils import PredictionWriter
 
 
 class MammaliaTrainer(L.Trainer):
@@ -57,8 +57,7 @@ class MammaliaTrainer(L.Trainer):
                 output_path=log_dir,
                 log_keys=pred_writer_log_keys,
                 prob_precision=pred_writer_prob_precision
-                ),
-            ValidationPrinter()
+                )
             ]
 
         super().__init__(
