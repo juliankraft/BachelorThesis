@@ -6,9 +6,9 @@ sandbox/
 output/
 data/*
 !data/feature_stats.pt
+Slurm-*/
 
 # exclude files
-
 path_config.yml
 
 # excluded for LaTeX

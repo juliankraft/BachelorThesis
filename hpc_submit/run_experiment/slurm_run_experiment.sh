@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=jk_BA
 #SBATCH --mail-type=fail,end
-#SBATCH --time=00-12:00:00
+#SBATCH --time=01-00:00:00
 #SBATCH --qos=earth-4.4d
 #SBATCH --partition=earth-4
 #SBATCH --constraint=rhel8
@@ -27,23 +27,23 @@ eval "$("/cfs/earth/scratch/${USER}/bin/micromamba" shell hook -s posix)"
 
 # ## setup
 ENV_NAME="mega"
-PYTHON_SCRIPT="/cfs/earth/scratch/kraftjul/BA_package/ba_dev/run_experiment.py"
-CONFIG_PATH="/cfs/earth/scratch/kraftjul/BA/hpc_submit/run_experiment/current_experiment_config.yaml"
+PYTHON_SCRIPT="/cfs/earth/scratch/kraftjul/BA_package/ba_stable/run_experiment.py"
+CONFIG_PATH="/cfs/earth/scratch/kraftjul/BA/hpc_submit/run_experiment/experiment_config.yaml"
 
 echo '#########################################################################################'
 echo '### Setup: ##############################################################################'
 echo '#########################################################################################'
 echo
-echo " Running on host: $(hostname)"
+echo "Running on host: $(hostname)"
 echo
 nvidia-smi
 echo
-echo " Using env:"
-echo "  ${ENV_NAME}"
-echo " Script:"
-echo "  ${PYTHON_SCRIPT}"
-echo " Config:"
-echo "  ${CONFIG_PATH}"
+echo "Using env:"
+echo " ${ENV_NAME}"
+echo "Script:"
+echo " ${PYTHON_SCRIPT}"
+echo "Config:"
+echo " ${CONFIG_PATH}"
 echo
 echo '#########################################################################################'
 echo '### Running script ######################################################################'

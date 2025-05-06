@@ -37,7 +37,7 @@ cross_val:
 
 model:
   backbone_name: efficientnet_b0
-  backbone_pretrained: true
+  backbone_pretrained: false
   backbone_weights: DEFAULT
 
   optimizer_name: AdamW
@@ -48,7 +48,7 @@ model:
 
   scheduler_name: CosineAnnealingLR
   scheduler_kwargs:
-    T_max: 50
+    T_max: 200
   
 trainer:
   base_args:
@@ -59,11 +59,11 @@ trainer:
       - probs
     pred_writer_prob_precision: 4
     accelerator: gpu
-    patience: 5
+    patience: 20
 
   not_dev:
-    log_every_n_steps: 1
-    max_epochs: 50
+    log_every_n_steps: 10
+    max_epochs: 200
 
   trainer_kwargs:
     enable_progress_bar: true
