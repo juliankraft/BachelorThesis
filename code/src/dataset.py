@@ -364,7 +364,7 @@ class MammaliaData(Dataset):
             ) -> torch.Tensor:
 
         ds = self.ds_filtered[self.ds_filtered['seq_id'].isin(self.train_seq_ids)].reset_index(drop=True)
-        y = ds.to_numpy()
+        y = ds['class_id'].to_numpy()
         classes = np.unique(y)
 
         weights = compute_class_weight(
