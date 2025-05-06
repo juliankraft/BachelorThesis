@@ -26,28 +26,31 @@ export MAMBA_ROOT_PREFIX="/cfs/earth/scratch/${USER}/.conda/"
 eval "$("/cfs/earth/scratch/${USER}/bin/micromamba" shell hook -s posix)"
 
 # ## setup
+ENV_NAME="mega"
+PYTHON_SCRIPT="/cfs/earth/scratch/kraftjul/BA_package/ba_dev/run_experiment.py"
 CONFIG_PATH="/cfs/earth/scratch/kraftjul/BA/hpc_submit/run_experiment/current_experiment_config.yaml"
 
 echo '#########################################################################################'
-echo '### Host info: ##########################################################################'
+echo '### Setup: ##############################################################################'
+echo '#########################################################################################'
 echo
-echo 'Running on host:'
-hostname
+echo " Running on host: $(hostname)"
 echo
 nvidia-smi
 echo
-echo 'Working directory:'
-cd /cfs/earth/scratch/kraftjul/BA_package/ba_dev
-pwd
-echo
+echo " Using env:"
+echo "  ${ENV_NAME}"
+echo " Script:"
+echo "  ${PYTHON_SCRIPT}"
+echo " Config:"
+echo "  ${CONFIG_PATH}"
 echo
 echo '#########################################################################################'
 echo '### Running script ######################################################################'
 echo '#########################################################################################'
 echo
-micromamba run -n mega python run_experiment.py \
-    --config_path "${CONFIG_PATH}" \
-
+micromamba run -n "${ENV_NAME}" python "${PYTHON_SCRIPT}" \
+    --config_path "${CONFIG_PATH}"
 echo
 echo '#########################################################################################'
 echo '### Completed script ####################################################################'
