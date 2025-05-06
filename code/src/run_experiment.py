@@ -137,7 +137,6 @@ if __name__ == '__main__':
 
     experiment_info_path = log_dir / 'experiment_info.yaml'
     shutil.copy2(config_path, experiment_info_path)
-    print(f'Config file copied to {experiment_info_path}')
 
     # setting up image pipeline
     image_pipeline, augmented_image_pipeline = set_up_image_pipeline(cfg['image_pipeline'])
@@ -219,6 +218,7 @@ if __name__ == '__main__':
 
     first_pass = True
     print('Configuration complete...')
+    print('Configuration file copied to output directory.')
 
     # running the experiment
     for fold in folds:
