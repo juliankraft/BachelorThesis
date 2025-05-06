@@ -180,7 +180,7 @@ if __name__ == '__main__':
             'limit_val_batches': 1,
             'limit_test_batches': 1,
             'limit_predict_batches': 1,
-            'max_epochs': 1,
+            'max_epochs': 2,
             'log_every_n_steps': 1
             }
     else:

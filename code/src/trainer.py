@@ -37,7 +37,8 @@ class MammaliaTrainer(L.Trainer):
 
         callbacks = [
             RichProgressBar(
-                refresh_rate=1
+                refresh_rate=1,
+                leave=True,
                 ),
             ModelCheckpoint(
                 filename='best',
