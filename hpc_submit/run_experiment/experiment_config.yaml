@@ -1,5 +1,5 @@
 ### experiment config file
-experiment_name: 'efficientnet_b0_v3_from_scratch'
+experiment_name: 'efficientnet_b0_cross_val'
 dev_run: true
 
 paths:
@@ -31,7 +31,7 @@ data_module:
   pin_memory: true
 
 cross_val:
-  apply: false
+  apply: true
   n_folds: 5
   test_fold: 0
 
