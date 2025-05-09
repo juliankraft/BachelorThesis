@@ -235,7 +235,8 @@ class MammaliaData(Dataset):
         if drop_nan:
             ds_filtered = ds_filtered.dropna(subset=['class_label'])
 
-        ds_filtered = ds_filtered[~ds_filtered['class_label'].isin(categories_to_drop)]
+        mask = ~ds_filtered['class_label'].isin(categories_to_drop)
+        ds_filtered = ds_filtered.loc[mask]
 
         if exclude_no_detections_sequences:
             detect_seq_ids, no_detect_seq_ids = self.check_seq_for_detections(
