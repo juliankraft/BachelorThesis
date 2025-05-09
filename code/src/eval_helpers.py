@@ -1,5 +1,6 @@
 
 import ast
+import json
 import yaml
 import pandas as pd
 import numpy as np
@@ -16,6 +17,22 @@ from typing import Dict, Any
 
 from ba_dev.dataset import MammaliaDataImage
 from ba_dev.utils import BBox
+
+
+def set_custom_plot_style():
+    plt.rcParams['axes.titlesize'] = 10  # Adjust the size of the title
+    plt.rcParams['axes.labelsize'] = 8  # Adjust the size of the axis labels
+    plt.rcParams['xtick.labelsize'] = 6  # Adjust the size of the x-axis tick labels
+    plt.rcParams['ytick.labelsize'] = 6  # Adjust the size of the y-axis tick labels
+    plt.rcParams['font.size'] = 8  # General font size for all text elements
+    plt.rcParams['legend.fontsize'] = 6  # Font size for legend text
+
+    # Set global line width for axes and ticks
+    plt.rcParams['axes.linewidth'] = 0.2  # Adjust the thickness of the axes frame lines
+    plt.rcParams['xtick.major.width'] = 0.1  # Adjust the thickness of the major tick lines on the x-axis
+    plt.rcParams['ytick.major.width'] = 0.1  # Adjust the thickness of the major tick lines on the y-axis
+    plt.rcParams['xtick.minor.width'] = 0.05  # Adjust the thickness of the minor tick lines on the x-axis
+    plt.rcParams['ytick.minor.width'] = 0.05  # Adjust the thickness of the minor tick lines on the y-axis
 
 
 def plot_image_with_bbox(
@@ -106,22 +123,6 @@ def draw_bbox_on_ax(
             clip_on=False
         )
     ax.axis('off')
-
-
-def set_custom_plot_style():
-    plt.rcParams['axes.titlesize'] = 10  # Adjust the size of the title
-    plt.rcParams['axes.labelsize'] = 8  # Adjust the size of the axis labels
-    plt.rcParams['xtick.labelsize'] = 6  # Adjust the size of the x-axis tick labels
-    plt.rcParams['ytick.labelsize'] = 6  # Adjust the size of the y-axis tick labels
-    plt.rcParams['font.size'] = 8  # General font size for all text elements
-    plt.rcParams['legend.fontsize'] = 6  # Font size for legend text
-
-    # Set global line width for axes and ticks
-    plt.rcParams['axes.linewidth'] = 0.2  # Adjust the thickness of the axes frame lines
-    plt.rcParams['xtick.major.width'] = 0.1  # Adjust the thickness of the major tick lines on the x-axis
-    plt.rcParams['ytick.major.width'] = 0.1  # Adjust the thickness of the major tick lines on the y-axis
-    plt.rcParams['xtick.minor.width'] = 0.05  # Adjust the thickness of the minor tick lines on the x-axis
-    plt.rcParams['ytick.minor.width'] = 0.05  # Adjust the thickness of the minor tick lines on the y-axis
 
 
 def smooth_data(data, window_size=5):
@@ -227,6 +228,32 @@ class LoadRun:
 
         self.ds_path = Path(self.info['paths']['dataset'])
         self.run_dataset = self.get_run_dataset()
+
+    def get_bb_for_file(
+            self,
+            idx: int
+            ):
+
+        seq_id = self.run_dataset.iloc[idx]['seq_id']
+        file_name = Path(self.run_dataset.iloc[idx]['file_path']).name
+
+        path_to_detection_results = Path(self.info['paths']['md_out']) / f"{seq_id}.json"
+        with open(path_to_detection_results, 'r') as f:
+            data = json.load(f)
+
+        for entry in data:
+            if entry['file_name'] == file_name:
+                detections = entry['detections']
+
+        pairs = [
+                (det['bbox'], det['conf'])
+                for det in detections
+                if det['category'] == 1
+                ]
+
+        pairs_sorted = sorted(pairs, key=lambda x: x[1], reverse=True)
+
+        return pairs_sorted
 
     def get_dataset(
             self,
