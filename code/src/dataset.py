@@ -269,22 +269,16 @@ class MammaliaData(Dataset):
 
         for _, row in in_df.iterrows():
 
-            used_files = set()
-
             bb_data = self.get_bb_list_for_seq(
                         seq_id=row['seq_id'],
                         confidence=self.applied_detection_confidence,
+                        only_one_bb_per_image=only_one_bb_per_image
                         )
 
             row_info = {key: row[key] for key in original_keys_to_keep}
             directory = Path(row['Directory'])
 
             for file_name, bbox, conf in zip(bb_data['file'], bb_data['bbox'], bb_data['conf']):
-
-                if only_one_bb_per_image and file_name in used_files:
-                    continue
-
-                used_files.add(file_name)
 
                 new_row = row_info.copy()
                 new_row['file_path'] = directory / file_name
