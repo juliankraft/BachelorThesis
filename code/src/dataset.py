@@ -308,7 +308,7 @@ class MammaliaData(Dataset):
             for seq_id in seq_ids:
                 if seq_id not in fold_map:
                     fold_map[seq_id] = fold_idx
-        df = self.ds.copy()
+        df = self.ds_filtered.copy()
         df['fold'] = df['seq_id'].map(fold_map).fillna(-1).astype(int)
         return df
 
