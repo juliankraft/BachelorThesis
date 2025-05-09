@@ -248,7 +248,7 @@ class LoadRun:
         pairs = [
                 (det['bbox'], det['conf'])
                 for det in detections
-                if det['category'] == 1
+                if int(det['category']) == 1
                 ]
 
         pairs_sorted = sorted(pairs, key=lambda x: x[1], reverse=True)
