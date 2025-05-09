@@ -242,7 +242,7 @@ class LoadRun:
             data = json.load(f)
 
         for entry in data:
-            if entry['file_name'] == file_name:
+            if entry['file'] == file_name:
                 detections = entry['detections']
 
         pairs = [
