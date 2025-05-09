@@ -237,7 +237,7 @@ class LoadRun:
         seq_id = self.run_dataset.iloc[idx]['seq_id']
         file_name = Path(self.run_dataset.iloc[idx]['file_path']).name
 
-        path_to_detection_results = Path(self.info['paths']['md_out']) / f"{seq_id}.json"
+        path_to_detection_results = Path(self.info['paths']['md_output']) / f"{seq_id}.json"
         with open(path_to_detection_results, 'r') as f:
             data = json.load(f)
 
