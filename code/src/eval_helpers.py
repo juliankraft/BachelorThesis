@@ -134,6 +134,7 @@ def plot_model_metrics(
         metrics: PathLike | pd.DataFrame,
         title: str | None = None,
         type: str = 'valid',
+        balanced_accuracy: bool = True,
         step: bool = False,
         image_size_cm: list[int] = [14, 7],
         window_size: int = 5
@@ -147,6 +148,7 @@ def plot_model_metrics(
         run (str): Run name.
         type (str): Type of metrics ('train', 'valid'). Default is 'valid'.
         step (bool): for type 'train', plot step instead of epoch. Default is False.
+        balanced_accuracy (bool): If True, plot balanced accuracy. Default is True.
         image_size_cm (list): Size of the output image in cm.
         window_size (int): Size of the smoothing window. Default is 5.
 
@@ -154,18 +156,25 @@ def plot_model_metrics(
     if isinstance(metrics, PathLike):
         metrics = pd.read_csv(metrics)
 
+    if balanced_accuracy:
+        acc_type = 'bal_acc'
+        acc_label = 'Balanced Accuracy'
+    else:
+        acc_type = 'acc'
+        acc_label = 'Accuracy'
+
     if type == 'valid':
         loss = 'val_loss'
-        acc = 'val_acc'
-        label = ['Validation Loss', 'Validation Accuracy']
+        acc = 'val_' + acc_type
+        label = ['Validation Loss', 'Validation ' + acc_label]
     elif type == 'train':
-        label = ['Training Loss', 'Training Accuracy']
+        label = ['Training Loss', 'Training ' + acc_label]
         if step:
             loss = 'train_loss_step'
-            acc = 'train_acc_step'
+            acc = 'train_' + acc_type + '_step'
         else:
             loss = 'train_loss_epoch'
-            acc = 'train_acc_epoch'
+            acc = 'train_' + acc_type + '_epoch'
 
     validation_data = metrics[~metrics[loss].isnull()]
 
