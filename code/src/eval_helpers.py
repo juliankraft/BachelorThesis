@@ -6,10 +6,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import sklearn.metrics as skm
+import matplotlib.patches as patches
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
-import matplotlib.patches as patches
+from IPython.display import display
 from PIL import Image
 from pathlib import Path
 from os import PathLike
@@ -229,6 +230,61 @@ class LoadRun:
         self.ds_path = Path(self.info['paths']['dataset'])
         self.run_dataset = self.get_run_dataset()
 
+    def show_sample(
+            self,
+            idx: int,
+            info_to_print: str | list[str] | None = None
+            ) -> Figure:
+
+        sample = self.get_sample(idx=idx)
+
+        if isinstance(info_to_print, str):
+            info_to_print = [info_to_print]
+
+        if info_to_print:
+            for info in info_to_print:
+                if info in sample:
+                    print(f"{info}: {sample[info]}")
+                else:
+                    print(f"Info '{info}' not an available key.")
+
+        figure = plot_image_with_bbox(
+                image=Image.open(sample['path']),
+                bbox=sample['bbox'],
+                conf=sample['conf']
+                )
+
+        return figure
+
+    def show_all_bboxes_for_image(
+            self,
+            idx: int,
+            first_n: int = -1,
+            show_figures: bool = True
+            ) -> list[Figure]:
+
+        sample = self.get_sample(idx=idx)
+        detections = self.get_bb_for_file(idx=idx)
+        if not first_n == -1:
+            detections = detections[:first_n]
+        image = Image.open(sample['path'])
+
+        figures = []
+
+        for det in detections:
+            figure = plot_image_with_bbox(
+                    image=image,
+                    bbox=det[0],
+                    conf=det[1]
+                    )
+
+            if show_figures:
+                display(figure)
+
+            figures.append(figure)
+
+        return figures
+
     def get_bb_for_file(
             self,
             idx: int
@@ -328,6 +384,8 @@ class LoadRun:
     def get_predictions(
             self,
             fold: int | None = None,
+            filter_by: str | None = None,
+            sort: str | None = None
             ) -> pd.DataFrame:
 
         prediction_path = self._handle_crossval_or_not('predictions', fold)
@@ -343,6 +401,18 @@ class LoadRun:
                 prob_list[pred]
                 for prob_list, pred in zip(df['probs'], df['pred_id'])
             ]
+
+        if filter_by:
+            if filter_by == 'correct':
+                df = df[df['correct']]
+            elif filter == 'incorrect':
+                df = df[~df['correct']]
+            else:
+                raise ValueError("Filter must be either 'correct' or 'incorrect'")
+
+        if sort:
+            if sort == 'probs_max':
+                df = df.sort_values(by='probs_max', ascending=False)
 
         return df
 
