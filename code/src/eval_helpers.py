@@ -405,10 +405,10 @@ class LoadRun:
         if filter_by:
             if filter_by == 'correct':
                 df = df[df['correct']]
-            elif filter == 'incorrect':
+            elif filter_by == 'incorrect':
                 df = df[~df['correct']]
             else:
-                raise ValueError("Filter must be either 'correct' or 'incorrect'")
+                raise ValueError("filter_by must be either 'correct' or 'incorrect'")
 
         if sort:
             if sort == 'probs_max':
