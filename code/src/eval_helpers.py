@@ -209,7 +209,7 @@ def plot_model_metrics(
     # Plot unsmoothed valid_acc on the secondary y-axis
     ax2.plot(validation_data['epoch'], validation_data[acc], color='#FB9A99', label='', linewidth=1, alpha=0.5)
     # Plot smoothed valid_acc on the secondary y-axis
-    ax2.plot(epochs, smoothed_val_acc, color='#E31A1C', label=label[0], linewidth=0.5)
+    ax2.plot(epochs, smoothed_val_acc, color='#E31A1C', label=label[1], linewidth=0.5)
     ax2.set_ylabel(label[1])
     ax2.tick_params(axis='y')
 
