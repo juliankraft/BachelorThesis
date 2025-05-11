@@ -233,7 +233,8 @@ class LoadRun:
     def show_sample(
             self,
             idx: int,
-            info_to_print: str | list[str] | None = None
+            info_to_print: str | list[str] | None = None,
+            show_figures: bool = True
             ) -> Figure:
 
         sample = self.get_sample(idx=idx)
@@ -253,6 +254,9 @@ class LoadRun:
                 bbox=sample['bbox'],
                 conf=sample['conf']
                 )
+
+        if show_figures:
+            display(figure)
 
         return figure
 
