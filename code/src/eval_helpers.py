@@ -239,6 +239,8 @@ class LoadRun:
         self.ds_path = Path(self.info['paths']['dataset'])
         self.run_dataset = self.get_run_dataset()
 
+        self.decoder = self.info['output']['label_decoder']
+
     def show_sample(
             self,
             idx: int,
