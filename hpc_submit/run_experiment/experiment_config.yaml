@@ -1,6 +1,6 @@
 ### experiment config file
-experiment_name: 'efficientnet_b0_cross_val'
-dev_run: true
+experiment_name: 'efficientnet_b0_v3_from_scratch'
+dev_run: false
 
 paths:
   dataset: /cfs/earth/scratch/kraftjul/BA/data/dataset
@@ -48,7 +48,7 @@ model:
 
   scheduler_name: CosineAnnealingLR
   scheduler_kwargs:
-    T_max: 200
+    T_max: 50
   
 trainer:
   base_args:
@@ -63,7 +63,7 @@ trainer:
 
   not_dev:
     log_every_n_steps: 10
-    max_epochs: 200
+    max_epochs: 100
 
   trainer_kwargs:
     enable_progress_bar: true
