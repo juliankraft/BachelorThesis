@@ -1,5 +1,5 @@
 ### experiment config file
-experiment_name: 'efficientnet_b0_v3_from_scratch'
+experiment_name: 'efficientnet_b0_v4_pretrained_cross_val'
 dev_run: false
 
 paths:
@@ -37,7 +37,7 @@ cross_val:
 
 model:
   backbone_name: efficientnet_b0
-  backbone_pretrained: false
+  backbone_pretrained: true
   backbone_weights: DEFAULT
 
   optimizer_name: AdamW
@@ -48,7 +48,7 @@ model:
 
   scheduler_name: CosineAnnealingLR
   scheduler_kwargs:
-    T_max: 50
+    T_max: 10
   
 trainer:
   base_args:
@@ -59,11 +59,11 @@ trainer:
       - probs
     pred_writer_prob_precision: 4
     accelerator: gpu
-    patience: 20
+    patience: 5
 
   not_dev:
-    log_every_n_steps: 10
-    max_epochs: 100
+    log_every_n_steps: 100
+    max_epochs: 10
 
   trainer_kwargs:
     enable_progress_bar: true
