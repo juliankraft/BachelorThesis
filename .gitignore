@@ -29,6 +29,7 @@ path_config.yml
 *.synctex.gz
 *.fls
 *.fdb_latexmk
+*ERROR
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
