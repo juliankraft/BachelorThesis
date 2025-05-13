@@ -21,19 +21,18 @@ from ba_dev.utils import BBox
 
 
 def set_custom_plot_style():
-    plt.rcParams['axes.titlesize'] = 10  # Adjust the size of the title
-    plt.rcParams['axes.labelsize'] = 8  # Adjust the size of the axis labels
-    plt.rcParams['xtick.labelsize'] = 6  # Adjust the size of the x-axis tick labels
-    plt.rcParams['ytick.labelsize'] = 6  # Adjust the size of the y-axis tick labels
-    plt.rcParams['font.size'] = 8  # General font size for all text elements
-    plt.rcParams['legend.fontsize'] = 6  # Font size for legend text
+    plt.rcParams['axes.titlesize'] = 10
+    plt.rcParams['axes.labelsize'] = 8
+    plt.rcParams['xtick.labelsize'] = 6
+    plt.rcParams['ytick.labelsize'] = 6
+    plt.rcParams['font.size'] = 8
+    plt.rcParams['legend.fontsize'] = 6
 
-    # Set global line width for axes and ticks
-    plt.rcParams['axes.linewidth'] = 0.2  # Adjust the thickness of the axes frame lines
-    plt.rcParams['xtick.major.width'] = 0.1  # Adjust the thickness of the major tick lines on the x-axis
-    plt.rcParams['ytick.major.width'] = 0.1  # Adjust the thickness of the major tick lines on the y-axis
-    plt.rcParams['xtick.minor.width'] = 0.05  # Adjust the thickness of the minor tick lines on the x-axis
-    plt.rcParams['ytick.minor.width'] = 0.05  # Adjust the thickness of the minor tick lines on the y-axis
+    plt.rcParams['axes.linewidth'] = 0.2
+    plt.rcParams['xtick.major.width'] = 0.1
+    plt.rcParams['ytick.major.width'] = 0.1
+    plt.rcParams['xtick.minor.width'] = 0.05
+    plt.rcParams['ytick.minor.width'] = 0.05
 
 
 def plot_image_with_bbox(
@@ -345,6 +344,7 @@ class LoadRun:
     def calculate_metrics(
             self,
             metric: str,
+            set_selection: list[str] | str = 'test',
             **kwargs
             ):
 
@@ -360,11 +360,11 @@ class LoadRun:
         if self.cross_val:
             results = []
             for fold in self.folds:
-                df_pred = self.get_predictions(fold=fold)
+                df_pred = self.get_predictions(fold=fold, set_selection=set_selection)
                 results.append(compute(df_pred))
             return results
         else:
-            df_pred = self.get_predictions()
+            df_pred = self.get_predictions(set_selection=set_selection)
             return compute(df_pred)
 
     def get_sample(
@@ -399,9 +399,18 @@ class LoadRun:
     def get_predictions(
             self,
             fold: int | None = None,
+            set_selection: list[str] | str | None = None,
             filter_by: str | None = None,
             sort: str | None = None
             ) -> pd.DataFrame:
+        
+        if set_selection:
+            if isinstance(set_selection, str):
+                set_selection = [set_selection]
+            
+            for set_sel in set_selection:
+                if set_sel not in ['train', 'val', 'test']:
+                    raise ValueError("set_selection must be 'train', 'val', or 'test'")
 
         prediction_path = self._handle_crossval_or_not('predictions', fold)
 
@@ -410,6 +419,10 @@ class LoadRun:
         df['correct'] = df['class_id'] == df['pred_id']
 
         df = self._enforce_dtypes_and_idx(df)
+        
+        if set_selection:
+            mask = df['set'].isin(set_selection)
+            df = df[mask]
 
         if 'probs' in df.columns:
             df['probs_max'] = [
