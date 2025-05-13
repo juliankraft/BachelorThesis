@@ -1,0 +1,38 @@
+% Indicate the main file. Must go at the beginning of the file.
+% !TEX root = ../main.tex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 03_methods
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Methods}
+\label{methods}
+
+    \subsection{Dataset}
+
+    \subsection{Preprocessing}
+
+        \subsubsection{Detection and Selection}
+        Prior to feeding the images into the model, the relevant areas are detected utilizing the Megadetector (MD) \autocite{morrisEfficientPipelineCamera2025}. 
+        This tool is used to identify regions of interest (ROI) for each image, providing bounding boxes (BBox) with corresponding labels and confidence scores.
+        From the provided labels -- \textit{animal}, \textit{human} and \textit{vehicle} -- only the \textit{animal} label is retained.
+        This detection is performed on the original images for the whole dataset and storred as a json file per sequence for easy access during training.
+        For the training only the BBox with the highest confidence score per image is selected and there is a minimal confidence score to actually concider an image was set to 0.5.
+        % add figure for conf score selection
+        
+
+        \subsubsection{Image Preprocessing}
+        To process the images a custom transformation pipline was implemented using transform version 2 from the torchvision library and a custom crop function.
+        Cropping was done using the BBoxes from the MD detection extending the BBox in order to cut the ratio expected by the model applied.
+        In the case that the extended BBox surpasses the image border the image is padded with black pixels.
+        After cropping the image is resized to the expected input size of the model.
+        The images are then converted to a tensor and normalized using the mean and standard deviation calculated on the dataset itself.
+        To calculate mean and standard deviation the whole dataset was used since it is quite resource intensive to calculate and the same values are used for all folds.
+        To create the most accurate mean and standard deviation for the actual model input only the best BBox area per image is used.
+        Data augmentation was implemented and considered as an option but not actually used in the end.
+
+    \subsection{Model Architecture}
+
+    \subsection{Training Pipeline}
+
+    \subsection{Evaluation Pipeline}
