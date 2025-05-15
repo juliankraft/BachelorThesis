@@ -10,9 +10,42 @@
 
     \subsection{Dataset}
 
+    As part of the Wildlife@Campus project, a labeled dataset was created to train a deep learning algorithm.
+    The dataset is divided into seven sessions.
+    The images are grouped into sequences, each representing a sightin of an animal.
+    The sequences are not standardized in length and range from 1 to 915 images per sequence.
+    It is worth noting that in future use cases, the sequence length will likely be more standardized.
+    The actual length will depend on the camera settings -- common settings such as 1, 3, 5, or 10 images per trigger -- which can be extracted from the EXIF information of the images.
+    The dataset provides two types of labels -- the first one is not standardized and can vary between the sessions.
+    For example scientific names and common names are used interchangeably, and there are different spellings.
+    The second type is a simplified and standardized version with some visually not distinguishable species grouped together.
+    For this project, only the simplified labels will be used.
+    The distribution of available sequences per label is shown in \autoref{fig:sequenceperlabel}.
+    The category \texttt{other} represents sequences containing more than one species, and the category \texttt{NaN} represents sequences without a label -- both will be excluded from the from the dataset.
+    The category \texttt{glis\_glis} is represented in only four sequences, which poses a challenge to be addressed.
+    20\% of the sequences will be set aside for testing.
+    A stratified split with a fixed seed will be used to ensure reproducibility.
+
+    \begin{figure}[ht]
+    \centering
+    \includegraphics{figures/label2_session.pdf}
+    \caption{Available sequences per label colored by session.}
+    \label{fig:sequenceperlabel}
+    \end{figure}
+
+
     \subsection{Preprocessing}
 
         \subsubsection{Detection and Selection}
+
+        The Microsoft MegaDetector (MD) is a well-established model for detecting animals in camera trap images \autocite{hernandezPytorchWildlifeCollaborativeDeep2024a, velezChoosingAppropriatePlatform2022, schneiderRecognitionEuropeanMammals2024}.
+        In this project, MD will be used to detect animals in all images of each sequence. 
+        MD outputs a list of bounding boxes for detected animals, humans, and vehicles along with corresponding confidence scores. 
+        All animal bounding boxes with a confidence score above a certain threshold -- possibly 0.5 -- will be extracted and used for classification. 
+        These n images or rather areas of images will be resized to a fixed size, working for the model used for feature extraction. 
+        For training, the data will be augmented using random rotation and random flipping -- arguably the simplest augmentation techniques for images. 
+        This is a common approach to increase the variety of the training data and improve the model's generalization \autocite{shortenSurveyImageData2019}.
+
         Prior to feeding the images into the model, the relevant areas are detected utilizing the Megadetector (MD) \autocite{morrisEfficientPipelineCamera2025}. 
         This tool is used to identify regions of interest (ROI) for each image, providing bounding boxes (BBox) with corresponding labels and confidence scores.
         From the provided labels -- \textit{animal}, \textit{human} and \textit{vehicle} -- only the \textit{animal} label is retained.
@@ -31,8 +64,8 @@
         To create the most accurate mean and standard deviation for the actual model input only the best BBox area per image is used.
         Data augmentation was implemented and considered as an option but not actually used in the end.
 
-    \subsection{Model Architecture}
+        \subsection{Model Architecture}
 
-    \subsection{Training Pipeline}
+        \subsection{Training Pipeline}
 
-    \subsection{Evaluation Pipeline}
+        \subsection{Evaluation Pipeline}
