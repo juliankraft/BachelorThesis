@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=jk_BA
 #SBATCH --mail-type=fail,end
-#SBATCH --time=01-00:00:00
+#SBATCH --time=03-00:00:00
 #SBATCH --qos=earth-4.4d
 #SBATCH --partition=earth-4
 #SBATCH --constraint=rhel8
