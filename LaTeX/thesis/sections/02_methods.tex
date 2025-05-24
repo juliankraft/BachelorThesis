@@ -12,6 +12,7 @@
 
     As part of the Wildlife@Campus project, a labeled dataset was created to train a deep learning algorithm.
     The dataset is divided into seven sessions.
+    The sessions are an indication of the project stage where the data was added to the dataset.
     The images are grouped into sequences, each representing a sightin of an animal.
     The sequences are not standardized in length and range from 1 to 915 images per sequence.
     It is worth noting that in future use cases, the sequence length will likely be more standardized.
@@ -22,7 +23,8 @@
     For this project, only the simplified labels will be used.
     The distribution of available sequences per label is shown in \autoref{fig:sequenceperlabel}.
     The category \texttt{other} represents sequences containing more than one species, and the category \texttt{NaN} represents sequences without a label -- both will be excluded from the from the dataset.
-    The category \texttt{glis\_glis} is represented in only four sequences, which poses a challenge to be addressed.
+    The category \texttt{glis\_glis} is represented in only four sequences, which is simply not enough to actually train the model to detect it.
+    For this reason, it will be excluded from the dataset as well.
     20\% of the sequences will be set aside for testing.
     A stratified split with a fixed seed will be used to ensure reproducibility.
 
@@ -34,7 +36,11 @@
     \end{figure}
 
 
-    \subsection{Preprocessing}
+    \subsection{Processing}
+
+    The processing of the images is divided into two main steps: 
+    In a first step a detector is applied to identify the regions of interest (ROI) in the images, and to select which images are actually used for training.
+    In a second step, the ROIs are processed to feed them into the model.
 
         \subsubsection{Detection and Selection}
 
@@ -64,10 +70,14 @@
         To create the most accurate mean and standard deviation for the actual model input only the best BBox area per image is used.
         Data augmentation was implemented and considered as an option but not actually used in the end.
 
-        \subsection{Model Architecture}
+    \subsection{Model}
+    - how the models where adapted for the task (tool to detect type of last layer and rebuild it to fit the num classes)
 
-        \subsection{Training Pipeline}
+    \subsection{Training Pipeline}
+    - description of the training pipline using the PyTorch Lightning framework
 
-        \subsection{Sequence Classification}
+    \subsection{Sequence Classification}
+    - how the selection on a sequence level is derived from the image level classification
 
-        \subsection{Evaluation Pipeline}
+    \subsection{Evaluation Pipeline}
+    - description of the used metrics to describe the model performance
