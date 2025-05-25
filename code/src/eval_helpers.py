@@ -231,7 +231,7 @@ class LoadRun:
         self.info = self.get_experiment_info()
         self.cross_val = self.info['cross_val']['apply']
         if self.cross_val:
-            self.folds = range(2 if self.info.get('dev_run', False) else self.info['cross_val']['n_splits'])
+            self.folds = range(2 if self.info.get('dev_run', False) else self.info['cross_val']['n_folds'])
         else:
             self.folds = [None]
 
