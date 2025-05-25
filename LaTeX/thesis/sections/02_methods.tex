@@ -45,9 +45,11 @@
         \subsubsection{Detection and Selection}
 
         The Microsoft MegaDetector (MD) is a well-established model for detecting animals in camera trap images \autocite{hernandezPytorchWildlifeCollaborativeDeep2024a, velezChoosingAppropriatePlatform2022, schneiderRecognitionEuropeanMammals2024}.
-        In this project, MD will be used to detect animals in all images of each sequence. 
+        In this project, MD will be used to detect animals in all images of each sequence.
+        An example of how this detections look like is shown in \autoref{fig:detection_example}.
         MD outputs a list of bounding boxes for detected animals, humans, and vehicles along with corresponding confidence scores. 
-        All animal bounding boxes with a confidence score above a certain threshold -- possibly 0.5 -- will be extracted and used for classification. 
+        All animal bounding boxes with a confidence score above a threshold of 0.5 will be extracted and used for classification.
+        The images lost due to the detection process are shown in \autoref{fig:lost_images}.
         These n images or rather areas of images will be resized to a fixed size, working for the model used for feature extraction. 
         For training, the data will be augmented using random rotation and random flipping -- arguably the simplest augmentation techniques for images. 
         This is a common approach to increase the variety of the training data and improve the model's generalization \autocite{shortenSurveyImageData2019}.
@@ -57,8 +59,20 @@
         From the provided labels -- \textit{animal}, \textit{human} and \textit{vehicle} -- only the \textit{animal} label is retained.
         This detection is performed on the original images for the whole dataset and storred as a json file per sequence for easy access during training.
         For the training only the BBox with the highest confidence score per image is selected and there is a minimal confidence score to actually concider an image was set to 0.5.
-        % add figure for conf score selection
-        
+
+        \begin{figure}[ht]
+        \centering
+        \includegraphics{figures/detections_on_a_sequence.pdf}
+        \caption{Example of how the detections look like. The bounding boxes are the highest confidence detections for the sequence 1001824 a sample from the \textit{apodemus\_sp} category.}
+        \label{fig:detection_example}
+        \end{figure}
+
+        \begin{figure}[ht]
+        \centering
+        \includegraphics{figures/discarded_img_by_conf.pdf}
+        \caption{Fraction of images lost per category for a detection confidence threshold of 0.5.}
+        \label{fig:lost_images}
+        \end{figure}
 
         \subsubsection{Image Preprocessing}
         To process the images a custom transformation pipline was implemented using transform version 2 from the torchvision library and a custom crop function.
