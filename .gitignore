@@ -10,6 +10,7 @@ Slurm-*/
 
 # exclude files
 path_config.yml
+rsync_command.sh
 
 # excluded for LaTeX
 *.pdf
