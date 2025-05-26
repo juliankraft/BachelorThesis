@@ -345,8 +345,16 @@ class LoadRun:
             self,
             metric: str,
             set_selection: list[str] | str = 'test',
+            scope: str = 'img',
             **kwargs
             ):
+        
+        if scope == 'img':
+            get_df = self.get_predictions
+        elif scope == 'seq':
+            get_df = self.get_predictions_for_seq
+        else:
+            raise ValueError("Scope must be either 'img' or 'seq'")
 
         func = getattr(skm, metric, None)
         if func is None:
@@ -360,11 +368,11 @@ class LoadRun:
         if self.cross_val:
             results = []
             for fold in self.folds:
-                df_pred = self.get_predictions(fold=fold, set_selection=set_selection)
+                df_pred = get_df(fold=fold, set_selection=set_selection)
                 results.append(compute(df_pred))
             return results
         else:
-            df_pred = self.get_predictions(set_selection=set_selection)
+            df_pred = get_df(fold=None, set_selection=set_selection)
             return compute(df_pred)
 
     def get_sample(
@@ -415,6 +423,8 @@ class LoadRun:
         prediction_path = self._handle_crossval_or_not('predictions', fold)
 
         df = pd.read_csv(prediction_path)
+        ds = self.get_run_dataset()
+        df['seq_id'] = ds['seq_id']
 
         df['correct'] = df['class_id'] == df['pred_id']
 
@@ -443,6 +453,41 @@ class LoadRun:
                 df = df.sort_values(by='probs_max', ascending=False)
 
         return df
+    
+    def get_predictions_for_seq(
+            self,
+            fold: int | None = None,
+            set_selection: list[str] | str | None = None,
+            ) -> pd.DataFrame:
+        
+        df = self.get_predictions(
+                fold=fold,
+                set_selection=set_selection
+                )
+        
+        def agg_probs(ps):
+            summed = [sum(col) for col in zip(*ps)]
+            total = sum(summed)
+            return [v/total for v in summed]
+
+        aggregated = (
+            df
+            .groupby('seq_id')
+            .agg(
+                class_id = ('class_id', 'first'),
+                set = ('set', 'first'),
+                count = ('pred_id', 'size'),
+                pred_id_majority = ('pred_id', lambda x: x.mode()),
+                probs   = ('probs',   agg_probs)
+            )
+            .reset_index()
+        )
+
+        aggregated['prob_max'] = aggregated['probs'].apply(max)
+        aggregated['pred_id'] = aggregated['probs'].apply(lambda p: p.index(max(p)))
+
+        return aggregated
+
 
     def get_metrics(
             self,
