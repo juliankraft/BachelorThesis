@@ -1,5 +1,5 @@
 ### experiment config file
-experiment_name: 'densenet169_v1_no_pretrained_cross_val'
+experiment_name: 'efficientnet_b0_v4_pretrained_cross_val'
 dev_run: false
 
 paths:
@@ -36,8 +36,8 @@ cross_val:
   test_fold: 0
 
 model:
-  backbone_name: densenet169
-  backbone_pretrained: false
+  backbone_name: efficientnet_b0
+  backbone_pretrained: true
   backbone_weights: DEFAULT
 
   optimizer_name: AdamW
