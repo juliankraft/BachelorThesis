@@ -58,6 +58,7 @@ class LightningModelImage(L.LightningModule):
         self.test_metrics = self.make_metrics('test')
 
     def _swap_head(self):
+        # CNN‐style fc
         if hasattr(self.backbone, 'fc'):
             if isinstance(self.backbone.fc, torch.nn.Linear):
                 in_features = self.backbone.fc.in_features
@@ -65,6 +66,7 @@ class LightningModelImage(L.LightningModule):
             else:
                 raise AttributeError("The backbone's 'fc' layer is not a torch.nn.Linear module.")
 
+        # CNN‐style classifier
         elif hasattr(self.backbone, 'classifier'):
             cls = self.backbone.classifier
 
@@ -87,6 +89,21 @@ class LightningModelImage(L.LightningModule):
                 raise ValueError(
                     f"Unexpected classifier structure: {type(cls)}"
                     )
+            
+        # VisionTransformer: replace self.heads    
+        elif hasattr(self.backbone, 'heads'):
+            cls_heads = self.backbone.heads
+            if isinstance(cls_heads, nn.Sequential):
+                *body, last = list(cls_heads.children())
+                if isinstance(last, nn.Linear):
+                    in_features = last.in_features
+                    body.append(nn.Linear(in_features, self.num_classes))
+                    self.backbone.heads = nn.Sequential(*body)
+                else:
+                    raise ValueError(f"Expected final head to be nn.Linear, got {type(last)}")
+            else:
+                raise ValueError(f"Unexpected heads module type: {type(cls_heads)}")
+            
         else:
             raise ValueError(
                 f"Cannot find a head to replace on model {type(self.backbone)}"
