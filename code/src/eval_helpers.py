@@ -221,6 +221,80 @@ def plot_model_metrics(
 
     return fig
 
+def find_nested_diffs(dicts, parent_key=()):
+
+    if not dicts:
+        return {}
+
+    if not all(isinstance(d, dict) for d in dicts):
+        vals = [(i, d) for i, d in enumerate(dicts)]
+        first_val = dicts[0]
+        if any(d != first_val for d in dicts[1:]):
+            return {parent_key: vals}
+        else:
+            return {}
+
+    all_keys = set().union(*dicts)
+    diffs = {}
+
+    for key in all_keys:
+        subset = [d.get(key) for d in dicts]
+        branch = find_nested_diffs(subset, parent_key + (key,))
+        diffs.update(branch)
+
+    return diffs
+
+def evaluate_all_runs(
+        path_to_runs: PathLike,
+        metrics: str | list[str] | dict[str, dict]
+        ) -> pd.DataFrame:
+
+    path_to_runs = Path(path_to_runs)
+    run_paths = list(path_to_runs.glob('*/'))
+
+    if isinstance(metrics, dict):
+        metric_items = metrics.items()
+    else:
+        if isinstance(metrics, str):
+            metrics = [metrics]
+        metric_items = ((m, {}) for m in metrics)
+
+    all_items = []
+
+    for run_path in run_paths:
+        model = LoadRun(log_path=run_path)
+
+        model_name = model.info['model']['backbone_name']
+        pretrained = model.info['model']['backbone_pretrained']
+        trainable_params = model.info['output']['model_parameters']['trainable']
+        
+        for metric, m_kwargs in metric_items:
+
+            img_scores = model.calculate_metrics(
+                metric=metric,
+                set_selection='test',
+                scope='img',
+                **m_kwargs
+                )
+            seq_scores = model.calculate_metrics(
+                metric=metric,
+                set_selection='test',
+                scope='seq',
+                **m_kwargs
+                )
+            for fold_idx, (img, seq) in enumerate(zip(img_scores, seq_scores)):
+                all_items.append({
+                    'model_name': model_name,
+                    'pretrained': pretrained,
+                    'trainable_params': trainable_params,
+                    'metric': metric,
+                    'fold': fold_idx,
+                    'img_score': img,
+                    'seq_score': seq,
+                    })
+
+    return pd.DataFrame(all_items)
+
 
 class LoadRun:
     def __init__(
