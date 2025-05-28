@@ -264,10 +264,6 @@ def evaluate_all_runs(
     for run_path in run_paths:
 
         model = LoadRun(log_path=run_path)
-
-        model_name = model.info['model']['backbone_name']
-        pretrained = model.info['model']['backbone_pretrained']
-        trainable_params = model.info['output']['model_parameters']['trainable']
         
         for metric, m_kwargs in metric_items:
 
@@ -288,12 +284,13 @@ def evaluate_all_runs(
             if not isinstance(img_scores, list):
                 img_scores = [img_scores]
                 seq_scores = [seq_scores]
-                
+
             for fold_idx, (img, seq) in enumerate(zip(img_scores, seq_scores)):
                 all_items.append({
-                    'model_name': model_name,
-                    'pretrained': pretrained,
-                    'trainable_params': trainable_params,
+                    'model_name': model.info['model']['backbone_name'],
+                    'pretrained': model.info['model']['backbone_pretrained'],
+                    'experiment_name': model.info['experiment_name'],
+                    'trainable_params': model.info['output']['model_parameters']['trainable'],
                     'metric': metric,
                     'fold': fold_idx,
                     'img_score': img,
