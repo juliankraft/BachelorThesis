@@ -1,5 +1,5 @@
 ### experiment config file
-experiment_name: 'vit_b_16_v1_pretrained_cross_val'
+experiment_name: 'vit_b_16_v1_no_pretrained_cross_val'
 dev_run: false
 
 paths:
@@ -37,7 +37,7 @@ cross_val:
 
 model:
   backbone_name: vit_b_16
-  backbone_pretrained: true
+  backbone_pretrained: false
   backbone_weights: DEFAULT
 
   optimizer_name: AdamW
