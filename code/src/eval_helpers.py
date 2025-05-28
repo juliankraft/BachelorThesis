@@ -253,15 +253,16 @@ def evaluate_all_runs(
     run_paths = list(path_to_runs.glob('*/'))
 
     if isinstance(metrics, dict):
-        metric_items = metrics.items()
+        metric_items = list(metrics.items())
     else:
         if isinstance(metrics, str):
             metrics = [metrics]
-        metric_items = ((m, {}) for m in metrics)
+        metric_items = [(m, {}) for m in metrics]
 
     all_items = []
 
     for run_path in run_paths:
+
         model = LoadRun(log_path=run_path)
 
         model_name = model.info['model']['backbone_name']
@@ -276,12 +277,18 @@ def evaluate_all_runs(
                 scope='img',
                 **m_kwargs
                 )
+
             seq_scores = model.calculate_metrics(
                 metric=metric,
                 set_selection='test',
                 scope='seq',
                 **m_kwargs
                 )
+            
+            if not isinstance(img_scores, list):
+                img_scores = [img_scores]
+                seq_scores = [seq_scores]
+                
             for fold_idx, (img, seq) in enumerate(zip(img_scores, seq_scores)):
                 all_items.append({
                     'model_name': model_name,
