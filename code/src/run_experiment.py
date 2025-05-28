@@ -294,9 +294,15 @@ if __name__ == '__main__':
         else:
             run_params.update(fold_params)
 
+        temp_info_path = log_dir / 'temp_experiment_info.yaml'
+        with open(temp_info_path, "w") as f:
+            yaml.dump(run_params, f, default_flow_style=False)
+
     run_output = {'output': run_params}
     with open(experiment_info_path, "a") as f:
         f.write("\n")
         yaml.dump(run_output, f, default_flow_style=False)
+    
+    temp_info_path.unlink(missing_ok=True)
 
     print_banner('Experiment completed!', width=89)
