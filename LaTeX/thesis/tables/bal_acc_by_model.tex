@@ -1,0 +1,17 @@
+\begin{table}
+\caption{Balanced accuracy by model and pretraining arrangad by image score.}
+\label{tab:bal_acc_by_model}
+\begin{tabular}{l c r c c c c}
+\toprule
+Model & Pretrained & Params (M) & $\mu_{\mathrm{img}}$ & $\sigma_{\mathrm{img}}$ & $\mu_{\mathrm{seq}}$ & $\sigma_{\mathrm{seq}}$ \\
+\midrule
+efficientnet_b0 & Yes & 4 & 0.9921 & 0.0037 & 0.9947 & 0.0022 \\
+densenet169 & Yes & 12 & 0.9904 & 0.0044 & 0.9939 & 0.0016 \\
+resnet50 & Yes & 23 & 0.9899 & 0.0036 & 0.9934 & 0.0019 \\
+vit_b_16 & Yes & 85 & 0.9885 & 0.0052 & 0.9933 & 0.0023 \\
+densenet169 & No & 12 & 0.9863 & 0.0059 & 0.9899 & 0.0017 \\
+efficientnet_b0 & No & 4 & 0.9856 & 0.0049 & 0.9898 & 0.0026 \\
+resnet50 & No & 23 & 0.9850 & 0.0035 & 0.9888 & 0.0033 \\
+\bottomrule
+\end{tabular}
+\end{table}
