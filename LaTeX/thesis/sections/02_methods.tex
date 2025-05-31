@@ -51,20 +51,21 @@
 
         \begin{figure}[ht]
         \centering
+        \includegraphics{figures/discarded_img_by_conf.pdf}
+        \caption{Fraction of images discarded per category for a detection confidence threshold of 0.5.}
+        \label{fig:lost_images}
+        \end{figure}
+
+        \begin{figure}[ht]
+        \centering
         \includegraphics{figures/detections_on_a_sequence.pdf}
         \caption{Example of how the detections look like. The bounding boxes are the highest confidence detections for the sequence 1001824 a sample from the \textit{apodemus\_sp} category.}
         \label{fig:detection_example}
         \end{figure}
 
-        \begin{figure}[ht]
-        \centering
-        \includegraphics{figures/discarded_img_by_conf.pdf}
-        \caption{Fraction of images lost per category for a detection confidence threshold of 0.5.}
-        \label{fig:lost_images}
-        \end{figure}
-
         \subsubsection{Image Preprocessing}
         To process the images a custom transformation pipline was implemented using transform version 2 from the torchvision library and a custom crop function.
+        This transformation is applied on the fly by the PyTorch DataLoader.
         Cropping was done using the BBoxes from the MD detection extending the BBox in order to cut the ratio expected by the model applied.
         In the case that the extended BBox surpasses the image border the image is padded with black pixels.
         After cropping the image is resized to the expected input size of the model.
@@ -73,13 +74,31 @@
         To create the most accurate mean and standard deviation for the actual model input only the best BBox area per image is used.
         Data augmentation a well established way to improve model's generalization \autocite{shortenSurveyImageData2019} was implemented and considered as an option but not actually used in the end.
 
+    \subsection{Data Splitting}
+
+    The dataset is split into five folds using a stratified split based on the classes.
+    A custom helper function was implemented to ensure the splits are done on a sequence level, meaning no sequence is ever split between folds, while still maintaining a balanced distribution of images across the folds.
+    For each class in the dataset, all the sequences are shuffled using a fixed seed for reproducibility resulting in two lists: one with the sequence ids and one with the corresponding sequence lengths.
+    To build five stratified folds, it steps through the shuffled list of sequence-lengths and chooses cut-points so that each fold's sum of images is as close as possible to one-fifth of that class's total images.
+    In this way, every fold ends up with roughly the same number of images per class, and no sequence is ever split between folds.
+
     \subsection{Model}
     - how the models where adapted for the task (tool to detect type of last layer and rebuild it to fit the num classes)
 
     - description of the used models
 
     \subsection{Training}
-    - description of the training using the PyTorch Lightning framework
+
+    The training was implemented using the PyTorch Lightning framework \autocite{falconPyTorchLightning2025}.
+    The training process is divided into four main steps:
+    \begin{enumerate}
+        \item Loading the dataset and applying the preprocessing steps described above.
+        \item Initializing the model with the appropriate architecture and the number of classes.
+        \item Training the model using the training set and validating it using the validation set.
+        \item Testing the model on the test set to evaluate its performance.
+    \end{enumerate}
+
+    - description of the training using the PyTorch Lightning framework 
 
     - used parameters
 
