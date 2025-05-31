@@ -11,22 +11,22 @@
     \subsection{Dataset}
 
     As part of the Wildlife@Campus project, a labeled dataset was created to train a deep learning algorithm.
-    The dataset is divided into seven sessions.
-    The sessions are an indication of the project stage where the data was added to the dataset.
-    The images are grouped into sequences, each representing a sightin of an animal.
-    The sequences are not standardized in length and range from 1 to 915 images per sequence.
+    This dataset is divided into seven sessions -- indicating the project stage where the data was added to the dataset.
+    The images are grouped into sequences, each sequence representing a sightin of an animal.
+    Somehow the sequences are not standardized in length and range from 1 to 915 images per sequence.
     It is worth noting that in future use cases, the sequence length will likely be more standardized.
     The actual length will depend on the camera settings -- common settings such as 1, 3, 5, or 10 images per trigger -- which can be extracted from the EXIF information of the images.
-    The dataset provides two types of labels -- the first one is not standardized and can vary between the sessions.
+    For this project, the sequences will be used as they are, and the length will not be standardized.
+    The dataset provides two types of labels: the first one is not yet standardized troughout the sessions and contains a variety of labels for the same species.
     For example scientific names and common names are used interchangeably, and there are different spellings.
     The second type is a simplified and standardized version with some visually not distinguishable species grouped together.
     For this project, only the simplified labels will be used.
-    The distribution of available sequences per label is shown in \autoref{fig:sequenceperlabel}.
-    The category \texttt{other} represents sequences containing more than one species, and the category \texttt{NaN} represents sequences without a label -- both will be excluded from the from the dataset.
+    To get an overview of the available sequences per label, refere to \autoref{fig:sequenceperlabel}.
+    The category \texttt{other} represents sequences containing more than one species, this is a result of the process creating the sequences.
+    Furthermore the category \texttt{NaN} represents sequences not labeled -- both will be excluded from the from the dataset.
     The category \texttt{glis\_glis} is represented in only four sequences, which is simply not enough to actually train the model to detect it.
     For this reason, it will be excluded from the dataset as well.
-    20\% of the sequences will be set aside for testing.
-    A stratified split with a fixed seed will be used to ensure reproducibility.
+    This leaves four categories for the classification task: \texttt{apodemus\_sp}, \texttt{cricetidae}, \texttt{soricidae}, and \texttt{mustela\_erminea}.
 
     \begin{figure}[ht]
     \centering
@@ -35,30 +35,19 @@
     \label{fig:sequenceperlabel}
     \end{figure}
 
-
     \subsection{Processing}
 
     The processing of the images is divided into two main steps: 
-    In a first step a detector is applied to identify the regions of interest (ROI) in the images, and to select which images are actually used for training.
-    In a second step, the ROIs are processed to feed them into the model.
+    In a first step a detector is applied to identify the regions of interest (ROI) for the images, and to select which images are actually used for training.
+    In a second step, the ROIs are processed to be feed into the model.
 
         \subsubsection{Detection and Selection}
-
-        The Microsoft MegaDetector (MD) is a well-established model for detecting animals in camera trap images \autocite{hernandezPytorchWildlifeCollaborativeDeep2024a, velezChoosingAppropriatePlatform2022, schneiderRecognitionEuropeanMammals2024}.
-        In this project, MD will be used to detect animals in all images of each sequence.
+        
+        In this project, the Megadetector (MD) \autocite{morrisEfficientPipelineCamera2025} is used to identify regions of interest (ROI) on all the images.
+        The MD outputs a list of bounding boxe (BBox) for detected objects labeled \textit{animal}, \textit{human} or \textit{vehicle} with a corresponding confidence value.
+        For each image only the BBox with the highest confidence score -- above a threshold of 0.5 -- for the label \textit{animal} is considered.
+        The percentage of images discarded dew to this process is  shown per sequence in \autoref{fig:lost_images}.
         An example of how this detections look like is shown in \autoref{fig:detection_example}.
-        MD outputs a list of bounding boxes for detected animals, humans, and vehicles along with corresponding confidence scores. 
-        All animal bounding boxes with a confidence score above a threshold of 0.5 will be extracted and used for classification.
-        The images lost due to the detection process are shown in \autoref{fig:lost_images}.
-        These n images or rather areas of images will be resized to a fixed size, working for the model used for feature extraction. 
-        For training, the data will be augmented using random rotation and random flipping -- arguably the simplest augmentation techniques for images. 
-        This is a common approach to increase the variety of the training data and improve the model's generalization \autocite{shortenSurveyImageData2019}.
-
-        Prior to feeding the images into the model, the relevant areas are detected utilizing the Megadetector (MD) \autocite{morrisEfficientPipelineCamera2025}. 
-        This tool is used to identify regions of interest (ROI) for each image, providing bounding boxes (BBox) with corresponding labels and confidence scores.
-        From the provided labels -- \textit{animal}, \textit{human} and \textit{vehicle} -- only the \textit{animal} label is retained.
-        This detection is performed on the original images for the whole dataset and storred as a json file per sequence for easy access during training.
-        For the training only the BBox with the highest confidence score per image is selected and there is a minimal confidence score to actually concider an image was set to 0.5.
 
         \begin{figure}[ht]
         \centering
@@ -82,18 +71,24 @@
         The images are then converted to a tensor and normalized using the mean and standard deviation calculated on the dataset itself.
         To calculate mean and standard deviation the whole dataset was used since it is quite resource intensive to calculate and the same values are used for all folds.
         To create the most accurate mean and standard deviation for the actual model input only the best BBox area per image is used.
-        Data augmentation was implemented and considered as an option but not actually used in the end.
+        Data augmentation a well established way to improve model's generalization \autocite{shortenSurveyImageData2019} was implemented and considered as an option but not actually used in the end.
 
     \subsection{Model}
     - how the models where adapted for the task (tool to detect type of last layer and rebuild it to fit the num classes)
 
-    \subsection{Training Pipeline}
-    - description of the training pipline using the PyTorch Lightning framework
+    - description of the used models
+
+    \subsection{Training}
+    - description of the training using the PyTorch Lightning framework
+
+    - used parameters
 
     \subsection{Sequence Classification}
     - how the selection on a sequence level is derived from the image level classification
 
-    \subsection{Evaluation Pipeline}
+    - could possibly be included under evaluation
+
+    \subsection{Evaluation}
     - description of the used metrics to describe the model performance
 
     - question to clarify: what is this balanced accuracy actually?
