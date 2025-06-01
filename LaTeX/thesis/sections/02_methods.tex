@@ -90,22 +90,28 @@
     \subsection{Training}
 
     The training was implemented using the PyTorch Lightning framework \autocite{falconPyTorchLightning2025}.
-    The training process is divided into four main steps:
+    The training process is divided into four main steps repeated for each fold of the cross-validation:
     \begin{enumerate}
         \item Loading the dataset and applying the preprocessing steps described above.
-        \item Initializing the model with the appropriate architecture and the number of classes.
-        \item Training the model using the training set and validating it using the validation set.
-        \item Testing the model on the test set to evaluate its performance.
+        \item Initializing the model with the appropriate architecture and adapting the last layer to match the classes.
+        \item Training the model for the current fold using the training set only keeping the last and the best version of the model.
+        \item The best version of the model is loaded to predict the whole dataset for later evaluation.
     \end{enumerate}
 
-    - description of the training using the PyTorch Lightning framework 
-
-    - used parameters
+    During training, the loss is calculated using the cross-entropy loss function with the class weights calculated on the current training set.
+    To adjust the model parameters, the AdamW optimizer \autocite{loshchilovDecoupledWeightDecay2019} is used with a weight decay of $10^{-5}$ and an initial learning rate of $10^{-4}$.
+    The learning rate is adjusted using a cosine annealing scheduler \autocite{loshchilovSGDRStochasticGradient2017} over 50 epochs.
+    A maximum of 50 epochs where trained, but an early stopping callback was implemented monitoring the validation loss with a patience of 10 epochs.
+    The logging is done using the tensorboard logger, which is integrated into PyTorch Lightning and an additional custom CSV logger for easier log access for evaluation.
+    A batch size of 64 was used for training -- and doubled for validation and prediction.
+    Predicting the whole dataset the predicted class for each sample and the confidence scores per class where saved to a CSV file for later evaluation
 
     \subsection{Sequence Classification}
-    - how the selection on a sequence level is derived from the image level classification
-
-    - could possibly be included under evaluation
+    Since the data is grouped into sequences and the classification is done per image, an additional step is performed to classify the sequences.
+    This step is only performed after the model has been trained and the predictions for the whole dataset are available.
+    To classify the sequences, the image-level predictions are aggregated by sequence ID and the confidence scores for each class are summed across all images in the sequence.
+    To normalize this summed confidences, they each are divided by the total sum of all summed confidences in that sequence.
+    From this normalized confidences, the class with the highest confidence is selected as the predicted class for the sequence.
 
     \subsection{Evaluation}
     - description of the used metrics to describe the model performance
