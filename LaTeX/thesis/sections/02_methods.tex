@@ -154,14 +154,19 @@
     This project was processed on the IUNR HPC cluster using node 301, an HPE Apollo 6500 Gen10+ node running Rocky Linux 8. 
     The node is equipped with 8 NVIDIA L40S GPUs (48 GB each), dual AMD EPYC 7742 processors, 512 cores, and 5800 GB of storage, providing the computational power needed for high-performance tasks.
 
-    The software environment includes:
-    
-    \begin{itemize} 
-        \item Python 3.10
-        \item PyTorch 2.1.0
-        \item PyTorch Lightning 2.5.1 \autocite{falconPyTorchLightning2025}
-        \item sklearn
-    \end{itemize} \todo{This list needs to be updated with the actual versions used.}
+    The software environment was set up using micromamba, a lightweight version of conda, to manage the dependencies and packages required for the project.
+    A \textit{environment.yml} file is provided in the GitHub repository to reproduce the environment.
+    The Python version and used packages are as follows:
 
-    On the GitHub repository a yaml file is provided to reproduce the environment using conda.
+    \begin{itemize}
+        \item Python 3.10.16
+        \item NumPy 2.2.4
+        \item pandas 2.2.3
+        \item Matplotlib 3.10.1
+        \item scikit-learn 1.6.1
+        \item PyTorch 2.5.1
+        \item PyTorch Lightning 2.5.1
+        \item Pillow 9.4.0
+    \end{itemize}
+
 
