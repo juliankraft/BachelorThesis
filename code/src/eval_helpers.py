@@ -221,6 +221,7 @@ def plot_model_metrics(
 
     return fig
 
+
 def find_nested_diffs(dicts, parent_key=()):
 
     if not dicts:
@@ -244,6 +245,7 @@ def find_nested_diffs(dicts, parent_key=()):
 
     return diffs
 
+
 def evaluate_all_runs(
         path_to_runs: PathLike,
         metrics: str | list[str] | dict[str, dict]
@@ -264,7 +266,7 @@ def evaluate_all_runs(
     for run_path in run_paths:
 
         model = LoadRun(log_path=run_path)
-        
+
         for metric, m_kwargs in metric_items:
 
             img_scores = model.calculate_metrics(
@@ -280,7 +282,7 @@ def evaluate_all_runs(
                 scope='seq',
                 **m_kwargs
                 )
-            
+
             if not isinstance(img_scores, list):
                 img_scores = [img_scores]
                 seq_scores = [seq_scores]
@@ -426,7 +428,7 @@ class LoadRun:
             scope: str = 'img',
             **kwargs
             ):
-        
+
         if scope == 'img':
             get_df = self.get_predictions
         elif scope == 'seq':
@@ -489,11 +491,11 @@ class LoadRun:
             filter_by: str | None = None,
             sort: str | None = None
             ) -> pd.DataFrame:
-        
+
         if set_selection:
             if isinstance(set_selection, str):
                 set_selection = [set_selection]
-            
+
             for set_sel in set_selection:
                 if set_sel not in ['train', 'val', 'test']:
                     raise ValueError("set_selection must be 'train', 'val', or 'test'")
@@ -507,7 +509,7 @@ class LoadRun:
         df['correct'] = df['class_id'] == df['pred_id']
 
         df = self._enforce_dtypes_and_idx(df)
-        
+
         if set_selection:
             mask = df['set'].isin(set_selection)
             df = df[mask]
@@ -531,18 +533,18 @@ class LoadRun:
                 df = df.sort_values(by='probs_max', ascending=False)
 
         return df
-    
+
     def get_predictions_for_seq(
             self,
             fold: int | None = None,
             set_selection: list[str] | str | None = None,
             ) -> pd.DataFrame:
-        
+
         df = self.get_predictions(
                 fold=fold,
                 set_selection=set_selection
                 )
-        
+
         def agg_probs(ps):
             summed = [sum(col) for col in zip(*ps)]
             total = sum(summed)
@@ -552,11 +554,11 @@ class LoadRun:
             df
             .groupby('seq_id')
             .agg(
-                class_id = ('class_id', 'first'),
-                set = ('set', 'first'),
-                count = ('pred_id', 'size'),
-                pred_id_majority = ('pred_id', lambda x: x.mode()),
-                probs   = ('probs',   agg_probs)
+                class_id=('class_id', 'first'),
+                set=('set', 'first'),
+                count=('pred_id', 'size'),
+                pred_id_majority=('pred_id', lambda x: x.mode()),
+                probs=('probs',   agg_probs)
             )
             .reset_index()
         )
@@ -565,7 +567,6 @@ class LoadRun:
         aggregated['pred_id'] = aggregated['probs'].apply(lambda p: p.index(max(p)))
 
         return aggregated
-
 
     def get_metrics(
             self,

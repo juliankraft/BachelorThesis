@@ -35,7 +35,7 @@
     \label{fig:sequenceperlabel}
     \end{figure}
 
-    \subsection{Processing}
+    \subsection{Data Processing}
 
     The processing of the images is divided into two main steps: 
     In a first step a detector is applied to identify the regions of interest (ROI) for the images, and to select which images are actually used for training.
@@ -59,11 +59,11 @@
         \begin{figure}[ht]
         \centering
         \includegraphics{figures/detections_on_a_sequence.pdf}
-        \caption{Example of how the detections look like. The bounding boxes are the highest confidence detections for the sequence 1001824 a sample from the \textit{apodemus\_sp} category.}
+        \caption{Example of how the detections look like. The bounding boxes are the six highest confidence detections for the sequence 1001824 a sample from the \textit{apodemus\_sp} category.}
         \label{fig:detection_example}
         \end{figure}
 
-        \subsubsection{Image Preprocessing}
+        \subsubsection{Image Processing}
         To process the images a custom transformation pipline was implemented using transform version 2 from the torchvision library and a custom crop function.
         This transformation is applied on the fly by the PyTorch DataLoader.
         Cropping was done using the BBoxes from the MD detection extending the BBox in order to cut the ratio expected by the model applied.
@@ -74,40 +74,99 @@
         To create the most accurate mean and standard deviation for the actual model input only the best BBox area per image is used.
         Data augmentation a well established way to improve model's generalization \autocite{shortenSurveyImageData2019} was implemented and considered as an option but not actually used in the end.
 
-    \subsection{Data Splitting}
+        \subsubsection{Data Splitting}
 
-    The dataset is split into five folds using a stratified split based on the classes.
-    A custom helper function was implemented to ensure the splits are done on a sequence level, meaning no sequence is ever split between folds, while still maintaining a balanced distribution of images across the folds.
-    For each class in the dataset, all the sequences are shuffled using a fixed seed for reproducibility resulting in two lists: one with the sequence ids and one with the corresponding sequence lengths.
-    To build five stratified folds, it steps through the shuffled list of sequence-lengths and chooses cut-points so that each fold's sum of images is as close as possible to one-fifth of that class's total images.
-    In this way, every fold ends up with roughly the same number of images per class, and no sequence is ever split between folds.
+        The dataset is split into five folds using a stratified split based on the classes.
+        A custom helper function was implemented to ensure the splits are done on a sequence level, meaning no sequence is ever split between folds, while still maintaining a balanced distribution of images across the folds.
+        For each class in the dataset, all the sequences are shuffled using a fixed seed for reproducibility resulting in two lists: one with the sequence ids and one with the corresponding sequence lengths.
+        To build five stratified folds, it steps through the shuffled list of sequence-lengths and chooses cut-points so that each fold's sum of images is as close as possible to one-fifth of that class's total images.
+        In this way, every fold ends up with roughly the same number of images per class, and no sequence is ever split between folds.
 
     \subsection{Model}
-    - how the models where adapted for the task (tool to detect type of last layer and rebuild it to fit the num classes)
 
-    - description of the used models
+    In this project, a selection of models from the torchvision library was tested to classify the images. 
+    Every model was both trained from scratch and fine-tuned using the weights of a model pre-trained on ImageNet \autocite{dengImageNetLargescaleHierarchical2009}.
+    A custom helper function was implemented to adapt the last layer of the model to fit the number of classes in the dataset when the model is loaded.
+    The models used in this project are:
+
+    \begin{itemize}
+        \item \textbf{EfficientNet-B0} \autocite{tanEfficientNetRethinkingModel2019}:  
+        A Convolutional Neural Network architecture that uses a compound scaling method to uniformly scale network width, depth, and resolution.  
+        The B0 variant is the baseline model from which larger EfficientNets are derived.  
+
+        \item \textbf{DenseNet-169} \autocite{huangDenselyConnectedConvolutional2017}:  
+        A densely connected convolutional network with 169 layers in which each layer receives feature-maps from all preceding layers, fostering feature reuse and improved gradient flow.  
+
+        \item \textbf{ResNet-50} \autocite{heDeepResidualLearning2016}:  
+        A 50‐layer Residual Network that introduces skip connections (residual blocks) to alleviate the vanishing-gradient problem, enabling training of very deep models.  
+
+        \item \textbf{ViT-B\_16} \autocite{dosovitskiyImageWorth16x162021}:  
+        The “Base” Vision Transformer model which splits an image into \(16\times 16\) patches, linearly embeds them, and processes the resulting sequence with a standard Transformer encoder.  
+    \end{itemize}
 
     \subsection{Training}
 
-    The training was implemented using the PyTorch Lightning framework \autocite{falconPyTorchLightning2025}.
-    The training process is divided into four main steps:
+    The training process is divided into four main steps repeated for each fold of the cross-validation:
     \begin{enumerate}
         \item Loading the dataset and applying the preprocessing steps described above.
-        \item Initializing the model with the appropriate architecture and the number of classes.
-        \item Training the model using the training set and validating it using the validation set.
-        \item Testing the model on the test set to evaluate its performance.
+        \item Initializing the model with the appropriate architecture and adapting the last layer to match the classes.
+        \item Training the model for the current fold using the training set only keeping the last and the best version of the model.
+        \item The best version of the model is loaded to predict the whole dataset for later evaluation.
     \end{enumerate}
 
-    - description of the training using the PyTorch Lightning framework 
-
-    - used parameters
+    During training, the loss is calculated using the cross-entropy loss function with the class weights calculated on the current training set.
+    To adjust the model parameters, the AdamW optimizer \autocite{loshchilovDecoupledWeightDecay2019} is used with a weight decay of $10^{-5}$ and an initial learning rate of $10^{-4}$.
+    The learning rate is adjusted using a cosine annealing scheduler \autocite{loshchilovSGDRStochasticGradient2017} over 50 epochs.
+    A maximum of 50 epochs where trained, but an early stopping callback was implemented monitoring the validation loss with a patience of 10 epochs.
+    The logging is done using the tensorboard logger, which is integrated into PyTorch Lightning and an additional custom CSV logger for easier log access for evaluation.
+    A batch size of 64 was used for training -- and doubled for validation and prediction.
+    Predicting the whole dataset the predicted class for each sample and the confidence scores per class where saved to a CSV file for later evaluation
 
     \subsection{Sequence Classification}
-    - how the selection on a sequence level is derived from the image level classification
-
-    - could possibly be included under evaluation
+    Since the data is grouped into sequences and the classification is done per image, an additional step is performed to classify the sequences.
+    This step is only performed after the model has been trained and the predictions for the whole dataset are available.
+    To classify the sequences, the image-level predictions are aggregated by sequence ID and the confidence scores for each class are summed across all images in the sequence.
+    To normalize this summed confidences, they each are divided by the total sum of all summed confidences in that sequence.
+    From this normalized confidences, the class with the highest confidence is selected as the predicted class for the sequence.
 
     \subsection{Evaluation}
-    - description of the used metrics to describe the model performance
 
-    - question to clarify: what is this balanced accuracy actually?
+    The evaluation is done using the predictions created by the best version of every model for each fold.
+    Both the image-level and sequence-level predictions are evaluated using the balanced accuracy score \autocite{brodersenBalancedAccuracyIts2010} as the main metric.
+    The balanced accuracy score is calculated using the following formula:
+    \begin{equation}
+    \text{Balanced Accuracy}
+    \;=\;
+    \frac{1}{K} \sum_{c=1}^{K}
+        \frac{TP_{c}}{\,TP_{c} + FN_{c}\,}
+    \end{equation}
+
+    \noindent where:
+    \begin{description}
+    \item[$K$] is the total number of classes.
+    \item[$TP_{c}$] (true positives for class $c$) is the count of samples whose true label is $c$ and whose predicted label is also $c$.
+    \item[$FN_{c}$] (false negatives for class $c$) is the count of samples whose true label is $c$ but whose predicted label is not $c$.
+    \end{description}
+
+
+    \subsection{Hardware and Software}
+
+    This project was processed on the IUNR HPC cluster using node 301, an HPE Apollo 6500 Gen10+ node running Rocky Linux 8. 
+    The node is equipped with 8 NVIDIA L40S GPUs (48 GB each), dual AMD EPYC 7742 processors, 512 cores, and 5800 GB of storage, providing the computational power needed for high-performance tasks.
+
+    The software environment was set up using micromamba, a lightweight version of conda, to manage the dependencies and packages required for the project.
+    A \textit{environment.yml} file is provided in the GitHub repository to reproduce the environment.
+    The Python version and used packages are as follows:
+
+    \begin{itemize}
+        \item Python 3.10.16
+        \item NumPy 2.2.4
+        \item pandas 2.2.3
+        \item Matplotlib 3.10.1
+        \item scikit-learn 1.6.1
+        \item PyTorch 2.5.1
+        \item PyTorch Lightning 2.5.1
+        \item Pillow 9.4.0
+    \end{itemize}
+
+
