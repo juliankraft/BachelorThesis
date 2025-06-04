@@ -16,9 +16,17 @@
 
     \subsection{Classification Performance}
 
-    - Table with all the models and their performance (Balanced Accuracy for the image and sequence level)
+    All classification models did perform well on the respective test sets.
+    The balanced accuracy scores for each model are shown in \autoref{tab:bal_acc_by_model}.
+    The pretrained models did perform better than the models trained from scratch which is demonstrated in \autoref{fig:bal_acc_img}.
+    Generally the smaller models did perform a little better than the larger models but the differences are within the standard deviation.
+    The pretrained EfficientNetB0 model achieved the highest balanced accuracy of 0.992 and a standard deviation of 0.004.
+    The sequence classification applied to the image classification output did improve the balanced accuracy in all cases.
+    Anyhow the improvement was in the range of 0.001 to 0.005 which is again within the standard deviation.
 
-    - what models still to test? Does it make sense to do the not pretrained versions?
+    %==== table: overview_dataset ====%
+    \input{tables/bal_acc_by_model.tex}
+    %=================================%
 
     \begin{figure}[ht]
     \centering
@@ -26,6 +34,7 @@
     \caption{Balanced accuracy per model on the image level.}
     \label{fig:bal_acc_img}
     \end{figure}
+
 
     \subsection{Best Model}
 

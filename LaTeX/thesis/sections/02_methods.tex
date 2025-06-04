@@ -111,7 +111,7 @@
         A densely connected convolutional network with 169 layers in which each layer receives feature-maps from all preceding layers, fostering feature reuse and improved gradient flow.  
 
         \item \textbf{ResNet-50} \autocite{heDeepResidualLearning2016}:  
-        A 50‐layer Residual Network that introduces skip connections (residual blocks) to alleviate the vanishing-gradient problem, enabling training of very deep models.  
+        A 50-layer Residual Network that introduces skip connections (residual blocks) to alleviate the vanishing-gradient problem, enabling training of very deep models.  
 
         \item \textbf{ViT-B\_16} \autocite{dosovitskiyImageWorth16x162021}:  
         The “Base” Vision Transformer model which splits an image into \(16\times 16\) patches, linearly embeds them, and processes the resulting sequence with a standard Transformer encoder.  
@@ -143,32 +143,32 @@
     To normalize this summed confidences, they each were divided by their sum of confidence scores.
     From this normalized confidences, the class with the highest confidence was selected as the predicted class for the sequence.
     
-    \begin{equation}
-        S_{s,c} \;=\; \sum_{i \in s} p_{i,c}
-        \quad,\quad
-        \hat{S}_{s,c} \;=\; \frac{S_{s,c}}{\sum_{d=1}^{K} S_{s,d}}
-        \quad,\quad
-        \text{predicted\_class}(s) \;=\; \arg\max_{c}\,\hat{S}_{s,c}
-    \end{equation}
+    % \begin{equation}
+    %     S_{s,c} \;=\; \sum_{i \in s} p_{i,c}
+    %     \quad,\quad
+    %     \hat{S}_{s,c} \;=\; \frac{S_{s,c}}{\sum_{d=1}^{K} S_{s,d}}
+    %     \quad,\quad
+    %     \text{predicted\_class}(s) \;=\; \arg\max_{c}\,\hat{S}_{s,c}
+    % \end{equation}
 
-    \noindent where:
-    \begin{description}
-    \item[$s$] is a sequence index.
-    \item[$i \in s$] iterates over all images in sequence $s$.
-    \item[$K$] is the total number of classes.
-    \item[$p_{i,c}$] is the model's confidence (probability) for class $c$ on image $i$.
-    \item[$S_{s,c}$] is the summed confidence for class $c$ over all images in sequence $s$.
-    \item[$\hat{S}_{s,c}$] is the normalized summed confidence for class $c$ in sequence $s$.
-    \item[$\text{predicted\_class}(s)$] is the class with the highest normalized summed confidence for sequence $s$.
-    \end{description}
+    % \noindent where:
+    % \begin{description}
+    % \item[$s$] is a sequence index.
+    % \item[$i \in s$] iterates over all images in sequence $s$.
+    % \item[$K$] is the total number of classes.
+    % \item[$p_{i,c}$] is the model's confidence (probability) for class $c$ on image $i$.
+    % \item[$S_{s,c}$] is the summed confidence for class $c$ over all images in sequence $s$.
+    % \item[$\hat{S}_{s,c}$] is the normalized summed confidence for class $c$ in sequence $s$.
+    % \item[$\text{predicted\_class}(s)$] is the class with the highest normalized summed confidence for sequence $s$.
+    % \end{description}
 
     \subsection{Evaluation}
 
     The evaluation is done using the predictions created by the best version of every model for each fold.
-    Both the image-level and sequence-level predictions are evaluated using the balanced accuracy score \autocite{brodersenBalancedAccuracyIts2010} as the main metric.
-    The balanced accuracy score is calculated using the following formula:
+    Both the image-level and sequence-level predictions are evaluated using the balanced accuracy (BA) score \autocite{brodersenBalancedAccuracyIts2010} as the main metric.
+    The BA score is calculated using the following formula:
     \begin{equation}
-    \text{Balanced Accuracy}
+    \text{BA}
     \;=\;
     \frac{1}{K} \sum_{c=1}^{K}
         \frac{TP_{c}}{\,TP_{c} + FN_{c}\,}
