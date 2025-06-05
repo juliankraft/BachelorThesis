@@ -484,6 +484,26 @@ class LoadRun:
         df = pd.read_csv(csv_path)
         return self._enforce_dtypes_and_idx(df)
 
+    def get_all_test_sets(self) -> pd.DataFrame:
+
+        if not self.cross_val:
+            raise ValueError("This method is only applicable for cross-validation runs.")
+
+        n_folds = self.info['cross_val']['n_folds']
+        all_testsets = pd.DataFrame()
+
+        for fold in range(n_folds):
+            new_data = self.get_predictions(
+                set_selection='test',
+                fold=fold
+                )
+
+            new_data['fold'] = fold
+
+            all_testsets = pd.concat([all_testsets, new_data], ignore_index=True)
+
+        return all_testsets
+
     def get_predictions(
             self,
             fold: int | None = None,
