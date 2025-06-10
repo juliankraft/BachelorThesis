@@ -164,8 +164,9 @@
 
     \subsection{Evaluation}
 
-    The evaluation is done using the predictions created by the best version of every model for each fold.
-    Both the image-level and sequence-level predictions are evaluated using the balanced accuracy (BA) score \autocite{brodersenBalancedAccuracyIts2010} as the main metric.
+    The evaluation is done using the predictions created by the best version of every model for each fold which where saved at the end of the training process.
+    To compare models, both the image-level and sequence-level predictions are evaluated using the balanced accuracy (BA) score \autocite{brodersenBalancedAccuracyIts2010} as the main metric.
+    For every model the BA is calculated for each fold and than averaged over all folds.
     The BA score is calculated using the following formula:
     \begin{equation}
     \text{BA}
@@ -181,6 +182,10 @@
     \item[$FN_{c}$] (false negatives for class $c$) is the count of samples whose true label is $c$ but whose predicted label is not $c$.
     \end{description}
 
+    To further evaluate the best performing model some additional metrics where computed on the full dataset by combining the predictions from each cross-validation fold testset.
+    The metrics include the confusion matrix (CM), precision, recall, and F1-score for each class.
+    This metrics where all calculated using the \texttt{classification\_report} function and the \texttt{confusion\_matrix} function from the \texttt{sklearn} library \autocite{pedregosaScikitlearnMachineLearning2011}.
+    \todo{Describe whats actually used here}
 
     \subsection{Hardware and Software}
 
