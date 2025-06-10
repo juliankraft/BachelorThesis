@@ -20,8 +20,6 @@ from typing import Dict, Any
 from ba_dev.dataset import MammaliaDataImage
 from ba_dev.utils import BBox
 
-a = 5
-
 
 def set_custom_plot_style():
     plt.rcParams['axes.titlesize'] = 10
