@@ -2,6 +2,7 @@
 import ast
 import json
 import yaml
+import re
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -177,11 +178,9 @@ def plot_model_metrics(
 
     validation_data = metrics[~metrics[loss].isnull()]
 
-    # Smooth the data
     smoothed_val_loss = smooth_data(validation_data[loss], window_size=window_size)
     smoothed_val_acc = smooth_data(validation_data[acc], window_size=window_size)
 
-    # Adjust the epoch range to match the length of the smoothed data
     epochs = validation_data['epoch'][len(validation_data['epoch']) - len(smoothed_val_loss):]
 
     fig, ax1 = plt.subplots(figsize=(image_size_cm[0]/2.54, image_size_cm[1]/2.54))
@@ -189,12 +188,9 @@ def plot_model_metrics(
     if title:
         plt.title(title)
 
-    # Plot unsmoothed valid_loss on the primary y-axis
     ax1.plot(validation_data['epoch'], validation_data[loss], color='#A6CEE3', label='', linewidth=1, alpha=0.5)
-    # Plot smoothed valid_loss on the primary y-axis
     ax1.plot(epochs, smoothed_val_loss, color='#1F78B4', label=label[0], linewidth=0.5)
 
-    # Adjust y-axis limits for loss
     loss_min = float(validation_data[loss].min())
     loss_max = float(validation_data[loss].max())
     ax1.set_ylim(loss_min * 0.87, loss_max * 1)
@@ -203,16 +199,12 @@ def plot_model_metrics(
     ax1.set_ylabel(label[0])
     ax1.tick_params(axis='y')
 
-    # Create a secondary y-axis to plot valid_acc
     ax2 = ax1.twinx()
-    # Plot unsmoothed valid_acc on the secondary y-axis
     ax2.plot(validation_data['epoch'], validation_data[acc], color='#FB9A99', label='', linewidth=1, alpha=0.5)
-    # Plot smoothed valid_acc on the secondary y-axis
     ax2.plot(epochs, smoothed_val_acc, color='#E31A1C', label=label[1], linewidth=0.5)
     ax2.set_ylabel(label[1])
     ax2.tick_params(axis='y')
 
-    # Combine legends from both axes
     lines_1, labels_1 = ax1.get_legend_handles_labels()
     lines_2, labels_2 = ax2.get_legend_handles_labels()
     fig.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower center', bbox_to_anchor=(0.5, 0.2), ncol=2)
@@ -300,6 +292,29 @@ def evaluate_all_runs(
                     })
 
     return pd.DataFrame(all_items)
+
+
+def escape_latex(text: str) -> str:
+    """
+    Escape LaTeX special characters in a string by prefixing them with a backslash.
+    Characters escaped: # $ % & ~ _ ^ \\ { }
+    """
+    special_chars = {
+        '&': r'\&',
+        '%': r'\%',
+        '$': r'\$',
+        '#': r'\#',
+        '_': r'\_',
+        '{': r'\{',
+        '}': r'\}',
+        '~': r'\textasciitilde{}',
+        '^': r'\textasciicircum{}',
+        '\\': r'\textbackslash{}',
+    }
+
+    pattern = re.compile('|'.join(re.escape(ch) for ch in special_chars))
+
+    return pattern.sub(lambda m: special_chars[m.group()], text)
 
 
 class LoadRun:
