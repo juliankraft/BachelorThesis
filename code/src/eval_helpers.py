@@ -2,7 +2,6 @@
 import ast
 import json
 import yaml
-import re
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -294,27 +293,21 @@ def evaluate_all_runs(
     return pd.DataFrame(all_items)
 
 
-def escape_latex(text: str) -> str:
-    """
-    Escape LaTeX special characters in a string by prefixing them with a backslash.
-    Characters escaped: # $ % & ~ _ ^ \\ { }
-    """
-    special_chars = {
-        '&': r'\&',
-        '%': r'\%',
-        '$': r'\$',
-        '#': r'\#',
-        '_': r'\_',
-        '{': r'\{',
-        '}': r'\}',
-        '~': r'\textasciitilde{}',
-        '^': r'\textasciicircum{}',
-        '\\': r'\textbackslash{}',
-    }
+def place_table(
+        latex_table: str,
+        center: bool = True,
+        placement: str | None = None,
+        ) -> str:
 
-    pattern = re.compile('|'.join(re.escape(ch) for ch in special_chars))
+    lines = latex_table.splitlines()
 
-    return pattern.sub(lambda m: special_chars[m.group()], text)
+    if placement:
+        lines[0] = f'\\begin{{table}}[{placement}]'
+
+    if center:
+        lines.insert(1, r'\centering')
+
+    return '\n'.join(lines)
 
 
 class LoadRun:
