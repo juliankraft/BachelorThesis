@@ -24,9 +24,9 @@
     Applying sequence-level classification to the image-level predictions improved balanced accuracy for every model, but only by \(0.001\) to \(0.005\), which again falls within a single standard deviation.  
 
 
-    %==== table: overview_dataset ====%
+    % table
     \input{tables/bal_acc_by_model.tex}
-    %=================================%
+
 
     \begin{figure}[ht]
     \centering
@@ -35,7 +35,16 @@
     \label{fig:bal_acc_img}
     \end{figure}
 
-
     \subsection{Best Model}
 
     - More information on the best model including CM
+
+    % table
+    \input{tables/precision_recall_fscore_support.tex}
+
+    \begin{figure}[ht]
+    \centering
+    \includegraphics{figures/conf_matrix_best.pdf}
+    \caption{Confusion Matrix for the best model.}
+    \label{fig:conf_matrix_best}
+    \end{figure}
