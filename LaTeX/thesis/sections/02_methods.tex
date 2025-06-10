@@ -64,9 +64,10 @@
         \end{figure}
 
         \subsubsection{Selection}
-        Only images with a detection labeled \textit{animal} and a confidence score above a threshold of 0.5 where used.
-        The percentage of images discarded dew to this process is shown per category in \autoref{fig:lost_images}.
-        For images with multiple detections, only the BBox with the highest confidence score was considered.
+        Only images with a detection labeled \textit{animal} and a confidence score above the threshold were retained.  
+        The percentage of images discarded per category due to this threshold was determined by inspecting Figure \autoref{fig:lost_images}.  
+        A semi-conservative threshold of 0.5 was chosen, which discarded less than 3\% of the images in the most affected category.  
+        For images with multiple detections, only the bounding box with the highest confidence score was kept.
 
         \begin{figure}[ht]
         \centering
@@ -183,7 +184,9 @@
     \end{description}
 
     To further evaluate the best performing model some additional metrics where computed on the full dataset by combining the predictions from each cross-validation fold testset.
-    The metrics include the confusion matrix (CM), precision, recall, and F1-score for each class.
+    On this data, precision, recall, F1-score and support for each class where computed.
+    In the way the data is combined support (true positives per class) is the same as available samples per class in the whole dataset.
+    Additionally the normalized confusion matrix (CM) was calculated to visualize the performance of the model across all classes.
     This metrics where all calculated using the \texttt{precision\_recall\_fscore\_support} and the \texttt{confusion\_matrix} function from the \texttt{sklearn} library \autocite{pedregosaScikitlearnMachineLearning2011}.
     \todo{this was added}
 
