@@ -483,7 +483,7 @@ class MammaliaData(Dataset):
             'bbox': bbox_list,
             'conf': conf_list
         }
-    
+
     def get_ds_with_folds(self) -> pd.DataFrame:
         raise NotImplementedError(
             f"{self.__class__.__name__}.get_ds_with_folds() must be implemented by the subclass"
@@ -596,7 +596,7 @@ class MammaliaDataSequence(MammaliaData):
 
         pos = int(np.flatnonzero(mask.to_numpy())[0])
         return pos
-    
+
     def get_ds_with_folds(self) -> pd.DataFrame:
         """
         Return a copy of self.ds with an extra column 'fold':
@@ -766,7 +766,7 @@ class MammaliaDataImage(MammaliaData):
                 )
 
         self.row_map = self.ds.index.tolist()
-    
+
     def get_ds_with_folds(self) -> pd.DataFrame:
         """
         Return a copy of self.ds with an extra column 'fold':
@@ -785,7 +785,7 @@ class MammaliaDataImage(MammaliaData):
                 in_df=self.ds_filtered,
                 only_one_bb_per_image=True,
                 )
-        
+
         df['fold'] = df['seq_id'].map(fold_map).fillna(-1).astype(int)
         return df
 
