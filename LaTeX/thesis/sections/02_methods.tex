@@ -10,7 +10,7 @@
 
     \subsection{Dataset}
 
-    As part of the Wildlife@Campus project, a labeled dataset was created to train a deep learning algorithm.
+    As part of the Wildlife@Campus project, a labeled dataset was created to train a deep learning algorithm
     The information about the dataset is derived from the dataset itself and a progress report available on GitHub \autocite{ratnaweeraWildlifeCampusProgressReports2021}.
     This dataset is divided into seven sessions --- indicating the source of the images --- the sessions and their origin are listed in \autoref{tab:session_info}.
     The dataset provides two kinds of labels: the original annotations from each session, and a standardized version created when the sessions were integrated into the dataset.
@@ -49,25 +49,25 @@
     Further more a custom data splitting was implemented to create five stratified folds for cross-validation.
     While the detection was performed once for the whole dataset, the selection, image processing, and data splitting were implemented to be done on the fly.
 
-        \subsubsection{Detection}
+        \subsubsection{Detection and Selection}\todo{Is this okay?}
     
         In this project, the Megadetector (MD) \autocite{morrisEfficientPipelineCamera2025} is used to identify regions of interest (ROI) on all the images.
         The MD outputs a list of bounding boxe (BBox) for detected objects labeled \textit{animal}, \textit{human} or \textit{vehicle} with a corresponding confidence value.
-        An example of how this detections look like is shown in \autoref{fig:detection_example}.
+        Only BBoxes with a confidence score above \(0.25\) where storred for further processing.
         This detection step was done sequence wise and the outputs were saved to json files for each sequence.
+        An example of how this detections look like is shown in \autoref{fig:detection_example}.
+        Only images with a detection labeled \textit{animal} and a confidence score above a certain threshold were retained.  
+        The percentage of images discarded per category due to this threshold was determined by inspecting Figure \autoref{fig:lost_images}.  
+        In order to reduce noise in the data and eliminate blank inputs to the model, a threshold of \(0.5\) was chosen.
+        The trade of was to discard around \(20\%\) of the images for the \textit{soricidae} and \textit{mustela\_erminea} categories.
+        For images with multiple detections, only the bounding box with the highest confidence score was kept.
 
-        \begin{figure}[ht]
+        \begin{figure}[]
         \centering
         \includegraphics{figures/detections_on_a_sequence.pdf}
         \caption{Example of how the detections look like. The bounding boxes are the six highest confidence detections for the sequence 1001824 a sample from the \textit{apodemus\_sp} category.}
         \label{fig:detection_example}
         \end{figure}
-
-        \subsubsection{Selection}
-        Only images with a detection labeled \textit{animal} and a confidence score above the threshold were retained.  
-        The percentage of images discarded per category due to this threshold was determined by inspecting Figure \autoref{fig:lost_images}.  
-        A semi-conservative threshold of 0.5 was chosen, which discarded less than 3\% of the images in the most affected category.  
-        For images with multiple detections, only the bounding box with the highest confidence score was kept.
 
         \begin{figure}[ht]
         \centering
