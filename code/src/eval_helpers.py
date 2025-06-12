@@ -1,5 +1,6 @@
 
 import ast
+import os
 import json
 import yaml
 import pandas as pd
@@ -308,6 +309,29 @@ def place_table(
         lines.insert(1, r'\centering')
 
     return '\n'.join(lines)
+
+
+def get_conf_values(
+        seq_id: int,
+        files_list: list,
+        md_output_dir: Path
+        ) -> tuple[list[float], float]:
+
+    json_path = os.path.join(md_output_dir, f"{seq_id}.json")
+    try:
+        with open(json_path, 'r') as f:
+            data = json.load(f)
+
+        file_to_conf = {item['file']: item.get('max_detection_conf', 0) for item in data}
+
+    except FileNotFoundError:
+        print(f"JSON file for sequence {seq_id} not found at {json_path}.")
+        file_to_conf = {}
+
+    conf_values = [file_to_conf.get(fname, 0) for fname in files_list]
+    max_conf = max(conf_values)
+
+    return conf_values, max_conf
 
 
 class LoadRun:
