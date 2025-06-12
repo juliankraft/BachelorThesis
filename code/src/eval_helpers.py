@@ -311,6 +311,46 @@ def place_table(
     return '\n'.join(lines)
 
 
+def file_count(
+        df: pd.DataFrame,
+        threshold: float
+        ):
+
+    keys = df.columns.tolist()
+    if 'max_conf' in keys:
+        apply_to = 'max_conf'
+    elif 'conf_value' in keys:
+        apply_to = 'conf_value'
+    else:
+        raise ValueError("DataFrame must contain 'max_conf' or 'conf_value' column.")
+
+    counts = (
+        df[df[apply_to] >= threshold]
+        .groupby('class_label')
+        .size()
+        .reset_index(name='count')
+        )
+
+    return counts
+
+
+def count_vs_threshold(df, thresholds=(0.25, 0.5, 0.75), base_name="all"):
+
+    total = f'{base_name}_avail'
+    result = file_count(df, 0).rename(columns={'count': total})
+
+    for t in thresholds:
+        avail = file_count(df, t)['count']
+        lost = result[total] - avail
+        frac = (lost / result[total]).round(2)
+
+        result[f'{base_name}_lost_{t}'] = lost
+        result[f'{base_name}_frac_{t}'] = frac
+        result[f'{base_name}_avail_{t}'] = avail
+
+    return result
+
+
 def get_md_info(
         seq_id: int,
         files_list: list,
