@@ -1,0 +1,17 @@
+name: BA
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pytorch
+  - jupyter
+  - pandas
+  - numpy
+  - seaborn
+  - tqdm
+  - pillow
+  - scikit-learn
+  - pip
+  - pip:
+      - megadetector
