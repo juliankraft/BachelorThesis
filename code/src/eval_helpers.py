@@ -311,27 +311,43 @@ def place_table(
     return '\n'.join(lines)
 
 
-def get_conf_values(
+def get_md_info(
         seq_id: int,
         files_list: list,
         md_output_dir: Path
-        ) -> tuple[list[float], float]:
+        ) -> tuple[list[float], list[list[float]], float]:
 
     json_path = os.path.join(md_output_dir, f"{seq_id}.json")
     try:
         with open(json_path, 'r') as f:
             data = json.load(f)
 
-        file_to_conf = {item['file']: item.get('max_detection_conf', 0) for item in data}
-
     except FileNotFoundError:
         print(f"JSON file for sequence {seq_id} not found at {json_path}.")
-        file_to_conf = {}
+        data = {}
 
-    conf_values = [file_to_conf.get(fname, 0) for fname in files_list]
-    max_conf = max(conf_values)
+    lookup = {item['file']: item.get('detections', []) for item in data}
 
-    return conf_values, max_conf
+    conf_values: list[float] = []
+    bboxes: list[list[float]] = []
+
+    for fname in files_list:
+        dets = lookup.get(fname, [])
+
+        if dets:
+            best = max(dets, key=lambda d: d.get('conf', 0))
+            conf = best.get('conf', 0.0)
+            bbox = best.get('bbox', [0.0, 0.0, 0.0, 0.0])
+        else:
+            conf = 0.0
+            bbox = [0.0, 0.0, 0.0, 0.0]
+
+        conf_values.append(conf)
+        bboxes.append(bbox)
+
+    max_conf = max(conf_values) if conf_values else 0.0
+
+    return conf_values, bboxes, max_conf
 
 
 class LoadRun:
