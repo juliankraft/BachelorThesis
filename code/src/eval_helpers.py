@@ -51,6 +51,7 @@ def plot_image_with_bbox(
         Figure: The matplotlib figure object.
     """
 
+
     fig, ax = plt.subplots()
     ax.imshow(image)
 
