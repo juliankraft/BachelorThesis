@@ -90,7 +90,7 @@ def plot_image_with_bbox(
 def draw_bbox_on_ax(
         ax: Axes,
         image: Image.Image,
-        bbox: BBox,
+        bbox: BBox | None = None,
         conf: float | None = None
         ) -> None:
     """
@@ -102,18 +102,25 @@ def draw_bbox_on_ax(
         bbox (BBox): Bounding box [x, y, w, h] in relative coords (0-1).
         conf (float, optional): Confidence score to annotate.
     """
-    width, height = image.size
-    x_abs, y_abs = bbox[0] * width, bbox[1] * height
-    w_abs, h_abs = bbox[2] * width, bbox[3] * height
 
     ax.imshow(image)
-    rect = patches.Rectangle(
-        (x_abs, y_abs), w_abs, h_abs,
-        linewidth=1, edgecolor='red', facecolor='none'
-    )
-    ax.add_patch(rect)
+    draw_bbox = False
+    
+    if bbox is not None and (bbox[2] > 0 and bbox[3] > 0):
+        draw_bbox = True
 
-    if conf is not None:
+    if draw_bbox and bbox is not None:
+        width, height = image.size
+        x_abs, y_abs = bbox[0] * width, bbox[1] * height
+        w_abs, h_abs = bbox[2] * width, bbox[3] * height
+
+        rect = patches.Rectangle(
+            (x_abs, y_abs), w_abs, h_abs,
+            linewidth=1, edgecolor='red', facecolor='none'
+        )
+        ax.add_patch(rect)
+
+    if conf is not None and draw_bbox:
         ax.annotate(
             f"conf = {conf:.2f}",
             xy=(x_abs, y_abs),
