@@ -61,14 +61,15 @@ def plot_image_with_bbox(
     fig, ax = plt.subplots()
     ax.imshow(image)
 
-    rect = patches.Rectangle(
-        (x_abs, y_abs), w_abs, h_abs,
-        linewidth=1, edgecolor='red', facecolor='none'
-    )
+    if w_abs > 0 and h_abs > 0:
+        rect = patches.Rectangle(
+            (x_abs, y_abs), w_abs, h_abs,
+            linewidth=1, edgecolor='red', facecolor='none'
+        )
 
     ax.add_patch(rect)
 
-    if conf is not None:
+    if conf is not None and conf > 0:
         ax.text(
             x_abs + 5, y_abs - 10,
             f"conf = {conf:.2f}",
