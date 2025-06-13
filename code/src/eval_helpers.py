@@ -3,6 +3,7 @@ import ast
 import os
 import json
 import yaml
+import string
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,6 +12,7 @@ import matplotlib.patches as patches
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
+from matplotlib.gridspec import GridSpec
 from IPython.display import display
 from PIL import Image
 from pathlib import Path
@@ -91,7 +93,8 @@ def draw_bbox_on_ax(
         ax: Axes,
         image: Image.Image,
         bbox: BBox | None = None,
-        conf: float | None = None
+        conf: float | None = None,
+        offset_margin_conf_annotation: int = 100
         ) -> None:
     """
     Draw an image with a bounding box onto an existing Axes.
@@ -105,7 +108,7 @@ def draw_bbox_on_ax(
 
     ax.imshow(image)
     draw_bbox = False
-    
+
     if bbox is not None and (bbox[2] > 0 and bbox[3] > 0):
         draw_bbox = True
 
@@ -120,19 +123,85 @@ def draw_bbox_on_ax(
         )
         ax.add_patch(rect)
 
-    if conf is not None and draw_bbox:
-        ax.annotate(
-            f"conf = {conf:.2f}",
-            xy=(x_abs, y_abs),
-            xytext=(2, 8),
-            textcoords="offset points",
-            ha="left", va="top",
-            fontsize=8,
-            color="white",
-            bbox=dict(facecolor="red", alpha=0.5, edgecolor="none", pad=1.5),
-            clip_on=False
-        )
+        if conf:
+
+            if x_abs + offset_margin_conf_annotation > width:
+                ha, offset = 'right', (-2, 8)
+                x = x_abs + w_abs
+
+            else:
+                ha, offset = 'left', (2, 8)
+                x = x_abs
+
+            ax.annotate(
+                f"conf = {conf:.2f}",
+                xy=(x, y_abs),
+                xytext=offset,
+                textcoords="offset points",
+                ha=ha, va="top",
+                fontsize=8, color="white",
+                bbox=dict(facecolor="red", alpha=0.5, edgecolor="none", pad=1.5),
+                clip_on=False
+            )
+
     ax.axis('off')
+
+
+def plot_series_of_images(
+        df: pd.DataFrame,
+        dataset_path: PathLike | str,
+        ncols: int = 3,
+        fig_width_cm: float = 24,
+        offset_margin_conf_annotation: int = 100
+        ) -> Figure:
+
+    dataset_path = Path(dataset_path)
+
+    fig_width = fig_width_cm / 2.54
+    nrows = (len(df) + ncols - 1) // ncols
+    labels = list(string.ascii_lowercase)
+
+    fig = plt.figure(figsize=(fig_width, fig_width * nrows / ncols * 3/4))
+    gs = GridSpec(
+        nrows=nrows, 
+        ncols=ncols,
+        figure=fig,
+        )
+
+    for idx, (_, row) in enumerate(df.iterrows()):
+
+        ax = fig.add_subplot(gs[idx // ncols, idx % ncols])
+
+        file_path = dataset_path / row['path']
+
+        img = Image.open(file_path)
+        bbox = row['bbox']
+        conf = row['conf_value']
+
+        ax.annotate(
+            f'({labels[idx]})',
+            xy=(0.01, 0.98),
+            xycoords=ax.transAxes,
+            fontsize=10,
+            color='red',
+            ha='left',
+            va='top',
+            bbox=dict(facecolor='white', edgecolor='none', alpha=0.6, pad=1.5)
+        )
+
+        draw_bbox_on_ax(
+            ax=ax, 
+            image=img, 
+            bbox=bbox, 
+            conf=conf,
+            offset_margin_conf_annotation=offset_margin_conf_annotation
+            )
+
+    plt.tight_layout()
+
+    plt.close(fig)
+
+    return fig
 
 
 def smooth_data(data, window_size=5):
