@@ -472,7 +472,7 @@ class LoadRun:
     def __init__(
         self,
         log_path: str | PathLike,
-        paths: Dict[str, str | PathLike] | None = None
+        paths: Dict | None = None
     ):
         self.log_path = Path(log_path)
         self.info = self.get_experiment_info()
