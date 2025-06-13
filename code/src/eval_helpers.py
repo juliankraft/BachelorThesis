@@ -38,11 +38,11 @@ def set_custom_plot_style():
 
 def plot_image_with_bbox(
         image: Image.Image,
-        bbox: BBox,
+        bbox: BBox | None = None,
         conf: float | None = None) -> Figure:
 
     """
-    Plot an image with a bounding box.
+    Plot an image with a bounding box if a BBox is provided.
     Args:
         image (Image.Image): The image to plot.
         bbox (BBox): The bounding box to plot, in the format [x, y, w, h].
@@ -51,32 +51,34 @@ def plot_image_with_bbox(
         Figure: The matplotlib figure object.
     """
 
-    width, height = image.size
-
-    x_abs = bbox[0] * width
-    y_abs = bbox[1] * height
-    w_abs = bbox[2] * width
-    h_abs = bbox[3] * height
-
     fig, ax = plt.subplots()
     ax.imshow(image)
 
-    if w_abs > 0 and h_abs > 0:
-        rect = patches.Rectangle(
-            (x_abs, y_abs), w_abs, h_abs,
-            linewidth=1, edgecolor='red', facecolor='none'
-        )
+    if bbox:
+        width, height = image.size
 
-    ax.add_patch(rect)
+        x_abs = bbox[0] * width
+        y_abs = bbox[1] * height
+        w_abs = bbox[2] * width
+        h_abs = bbox[3] * height
 
-    if conf is not None and conf > 0:
-        ax.text(
-            x_abs + 5, y_abs - 10,
-            f"conf = {conf:.2f}",
-            fontsize=8,
-            color='white',
-            bbox=dict(facecolor='red', alpha=0.5, edgecolor='none', pad=1.5)
-        )
+
+        if w_abs > 0 and h_abs > 0:
+            rect = patches.Rectangle(
+                (x_abs, y_abs), w_abs, h_abs,
+                linewidth=1, edgecolor='red', facecolor='none'
+            )
+
+        ax.add_patch(rect)
+
+        if conf is not None and conf > 0:
+            ax.text(
+                x_abs + 5, y_abs - 10,
+                f"conf = {conf:.2f}",
+                fontsize=8,
+                color='white',
+                bbox=dict(facecolor='red', alpha=0.5, edgecolor='none', pad=1.5)
+            )
 
     ax.axis('off')
     plt.tight_layout()
