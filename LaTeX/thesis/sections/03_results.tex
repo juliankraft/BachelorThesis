@@ -2,20 +2,44 @@
 % !TEX root = ../main.tex
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 04_results
+% 03_results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Results}
 \label{results}
 
-    \subsection{Detection}
-
-    - after detection how many sequences are excluded
-
-    - how many images are left per label
+    \subsection{Detection}\todo{Change Table - first image then sequence level, and make percent...}
+    One of the main goals of the initial detection trough the dataset was to identify, which images are suitable for the training routine.
+    The selection of images and the images discarded are shown in \autoref{tab:data_availability_after_md} the data is divided into the four categories.
+    The effect of the selection is displayed for a detection threshold of \(0.25\) and \(0.5\) with the later being the finally applied one.
+    On the image level the most effected category is \textit{soricidae} with \(23\%\) of the images being discarded followed by the \textit{mustela\_erminea} with \(20\%\).
+    The other categories \textit{apodemus\_sp} and \textit{cricetidae} were only affected by \(7\%\) and \(8\%\) respectively.
+    On the sequence level the situation is very different with only the \textit{mustela\_erminea} category being seriously effected with \(23\%\) of the sequences being discarded.
+    For the other categories only around \(1\%\) of the sequences were discarded.
+    The highest confidence value detections for the category \textit{mustela\_erminea} are shown in \autoref{fig:detection_mustela_best} --- all of the images display a properly detected animal.
+    However, there are also some images that were not detected with a confidence value of at least \(0.25\) as shown in \autoref{fig:detection_special_nodetect}.
+    Most of the images with no detection where actually empty of showed only the tip of the animal's tail as in examples 2 - 6.
+    Some did show some form of obstruction, like in the examples 0 and 1 with the dragged in tube as in 1 being a common one.
+    And there where quite some images with a \textit{mustela\_erminea} in the image but no detection, like in example 7 - 11.
+    This occurred far more often for white fur individuals than for brown fur individuals --- this information is not statistically evaluated but rather based on a visual inspection of the images.
 
     % table
     \input{tables/data_availability_after_md.tex}
+
+    \begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{figures/mustela_best.pdf}
+    \caption{Highest confidence value detections for the category \textit{mustela\_erminaea} category.}
+    \label{fig:detection_mustela_best}
+    \end{figure}
+
+    \begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{figures/mustela_special_nodetect.pdf}
+    \caption{Selection of interessting images of the \textit{mustela\_erminaea} category with no detection within a threshold of \(0.25\).}
+    \label{fig:detection_special_nodetect}
+    \end{figure}
+
 
     \subsection{Classification Performance}
 
