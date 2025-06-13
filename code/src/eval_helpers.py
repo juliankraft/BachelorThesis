@@ -62,7 +62,6 @@ def plot_image_with_bbox(
         w_abs = bbox[2] * width
         h_abs = bbox[3] * height
 
-
         if w_abs > 0 and h_abs > 0:
             rect = patches.Rectangle(
                 (x_abs, y_abs), w_abs, h_abs,
