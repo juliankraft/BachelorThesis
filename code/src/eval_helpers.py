@@ -471,7 +471,8 @@ def get_md_info(
 class LoadRun:
     def __init__(
         self,
-        log_path: str | PathLike
+        log_path: str | PathLike,
+        paths: Dict[str, str | PathLike] | None = None
     ):
         self.log_path = Path(log_path)
         self.info = self.get_experiment_info()
@@ -481,7 +482,15 @@ class LoadRun:
         else:
             self.folds = [None]
 
-        self.ds_path = Path(self.info['paths']['dataset'])
+        if paths:
+            self.path_dataset = Path(paths['dataset'])
+            self.path_md_output = Path(paths['md_output'])
+            self.path_labels = Path(paths['labels'])
+        else:
+            self.path_dataset = Path(self.info['paths']['dataset'])
+            self.path_md_output = Path(self.info['paths']['md_output'])
+            self.path_labels = Path(self.info['paths']['labels'])
+
         self.run_dataset = self.get_run_dataset()
 
         self.decoder = self.info['output']['label_decoder']
@@ -553,7 +562,7 @@ class LoadRun:
         seq_id = self.run_dataset.iloc[idx]['seq_id']
         file_name = Path(self.run_dataset.iloc[idx]['file_path']).name
 
-        path_to_detection_results = Path(self.info['paths']['md_output']) / f"{seq_id}.json"
+        path_to_detection_results = self.path_md_output / f"{seq_id}.json"
         with open(path_to_detection_results, 'r') as f:
             data = json.load(f)
 
@@ -577,9 +586,9 @@ class LoadRun:
             ) -> MammaliaDataImage:
 
         return MammaliaDataImage(
-            path_labelfiles=self.info['paths']['labels'],
-            path_to_dataset=self.info['paths']['dataset'],
-            path_to_detector_output=self.info['paths']['md_output'],
+            path_labelfiles=self.path_labels,
+            path_to_dataset=self.path_dataset,
+            path_to_detector_output=self.path_md_output,
             n_folds=self.info['cross_val']['n_folds'],
             test_fold=fold,
             mode='eval',
@@ -631,7 +640,7 @@ class LoadRun:
             'class_label': self.run_dataset.iloc[idx]['class_label'],
             'class_id': self.run_dataset.iloc[idx]['class_id'],
             'seq_id': self.run_dataset.iloc[idx]['seq_id'],
-            'path': self.ds_path / self.run_dataset.iloc[idx]['file_path'],
+            'path': self.path_dataset / self.run_dataset.iloc[idx]['file_path'],
             'bbox': self.run_dataset.iloc[idx]['bbox'],
             'conf': self.run_dataset.iloc[idx]['conf']
             }
