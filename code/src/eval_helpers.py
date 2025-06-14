@@ -953,8 +953,12 @@ class MammaliaEval:
                 self.force_metrics = True
 
         if self.force_metrics:
+            print("Calculating metrics for all runs...")
             metrics_df = self.evaluate_all_runs()
             metrics_df.to_csv(self.metric_file_path, index=False)
+        else:
+            print("Loading pre-calculated metrics from file...")
+            metrics_df = pd.read_csv(self.metric_file_path)
 
         return metrics_df
 
@@ -966,7 +970,9 @@ class MammaliaEval:
 
         all_items = []
 
-        for run_path in run_paths:
+        for i, run_path in enumerate(run_paths):
+
+            print(f'Evaluating run {i+1}/{len(run_paths)}: {run_path.name}')
 
             model = LoadRun(log_path=run_path)
 
