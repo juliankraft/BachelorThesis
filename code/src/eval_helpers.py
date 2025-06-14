@@ -91,29 +91,22 @@ def plot_image_with_bbox(
 
 def draw_bbox_on_ax(
         ax: Axes,
-        image: Image.Image,
-        bbox: BBox | None = None,
-        conf: float | None = None,
+        sample: Dict,
+        annotation_type: str = 'detection',
         offset_margin_conf_annotation: int = 100
         ) -> None:
-    """
-    Draw an image with a bounding box onto an existing Axes.
 
-    Args:
-        ax (Axes): The axes to draw into.
-        image (Image.Image): The image to plot.
-        bbox (BBox): Bounding box [x, y, w, h] in relative coords (0-1).
-        conf (float, optional): Confidence score to annotate.
-    """
+    img = sample['img']
+    bbox = sample.get('bbox', None)
 
-    ax.imshow(image)
+    ax.imshow(img)
     draw_bbox = False
 
     if bbox is not None and (bbox[2] > 0 and bbox[3] > 0):
         draw_bbox = True
 
     if draw_bbox and bbox is not None:
-        width, height = image.size
+        width, height = img.size
         x_abs, y_abs = bbox[0] * width, bbox[1] * height
         w_abs, h_abs = bbox[2] * width, bbox[3] * height
 
@@ -123,26 +116,33 @@ def draw_bbox_on_ax(
         )
         ax.add_patch(rect)
 
-        if conf:
+        if annotation_type != 'none':
 
             if x_abs + offset_margin_conf_annotation > width:
                 ha, offset = 'right', (-2, 8)
                 x = x_abs + w_abs
-
             else:
                 ha, offset = 'left', (2, 8)
                 x = x_abs
 
-            ax.annotate(
-                f"conf = {conf:.2f}",
-                xy=(x, y_abs),
-                xytext=offset,
-                textcoords="offset points",
-                ha=ha, va="top",
-                fontsize=8, color="white",
-                bbox=dict(facecolor="red", alpha=0.5, edgecolor="none", pad=1.5),
-                clip_on=False
-            )
+            if annotation_type == 'detection':
+                try:
+                    annotation_string = f"conf = {sample['conf']:.2f}"
+                except KeyError:
+                    print('no conf value found')
+                    annotation_string = None
+
+            if annotation_string:
+                ax.annotate(
+                    annotation_string,
+                    xy=(x, y_abs),
+                    xytext=offset,
+                    textcoords="offset points",
+                    ha=ha, va="top",
+                    fontsize=8, color="white",
+                    bbox=dict(facecolor="red", alpha=0.5, edgecolor="none", pad=1.5),
+                    clip_on=False
+                    )
 
     ax.axis('off')
 
@@ -150,6 +150,7 @@ def draw_bbox_on_ax(
 def plot_series_of_images(
         df: pd.DataFrame,
         dataset_path: PathLike | str,
+        annotation_type: str = 'detection',
         ncols: int = 3,
         fig_width_cm: float = 24,
         offset_margin_conf_annotation: int = 100
@@ -157,13 +158,16 @@ def plot_series_of_images(
 
     dataset_path = Path(dataset_path)
 
+    if annotation_type not in ['detection', 'classification', 'both', 'none']:
+        raise ValueError("Type must be 'detection', 'classification', 'both' or 'none'.")
+
     fig_width = fig_width_cm / 2.54
     nrows = (len(df) + ncols - 1) // ncols
     labels = list(string.ascii_lowercase)
 
     fig = plt.figure(figsize=(fig_width, fig_width * nrows / ncols * 3/4))
     gs = GridSpec(
-        nrows=nrows, 
+        nrows=nrows,
         ncols=ncols,
         figure=fig,
         )
@@ -172,11 +176,11 @@ def plot_series_of_images(
 
         ax = fig.add_subplot(gs[idx // ncols, idx % ncols])
 
-        file_path = dataset_path / row['path']
+        file_path = dataset_path / row['file_path']
 
-        img = Image.open(file_path)
-        bbox = row['bbox']
-        conf = row['conf_value']
+        sample = row.to_dict()
+
+        sample['img'] = Image.open(file_path)
 
         ax.annotate(
             f'({labels[idx]})',
@@ -187,13 +191,12 @@ def plot_series_of_images(
             ha='left',
             va='top',
             bbox=dict(facecolor='white', edgecolor='none', alpha=0.6, pad=1.5)
-        )
+            )
 
         draw_bbox_on_ax(
-            ax=ax, 
-            image=img, 
-            bbox=bbox, 
-            conf=conf,
+            ax=ax,
+            sample=sample,
+            annotation_type=annotation_type,
             offset_margin_conf_annotation=offset_margin_conf_annotation
             )
 
@@ -702,6 +705,7 @@ class LoadRun:
         df['seq_id'] = ds['seq_id']
 
         df['correct'] = df['class_id'] == df['pred_id']
+        df['pred_label'] = df['pred_id'].map(self.decoder)
 
         df = self._enforce_dtypes_and_idx(df)
 
