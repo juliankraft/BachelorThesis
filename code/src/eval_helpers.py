@@ -800,6 +800,33 @@ class LoadRun:
 
         return df
 
+    def get_all_testsets(
+            self
+            ) -> pd.DataFrame:
+
+        if not self.folds:
+            raise ValueError("This method is only applicable for cross-validation runs.")
+        else:
+
+            all_testsets = pd.DataFrame()
+
+            for fold in self.folds:
+                new_data = self.get_predictions(
+                    set_selection='test',
+                    fold=fold
+                    )
+
+                new_data['fold'] = fold
+
+                all_testsets = pd.concat([all_testsets, new_data], ignore_index=True)
+
+            common_cols = list(set(all_testsets.columns).intersection(self.run_dataset.columns) - {'idx'})
+            all_testsets_pruned = all_testsets.drop(columns=common_cols)
+
+            predicted_df = self.run_dataset.merge(all_testsets_pruned, on='idx')
+
+            return predicted_df
+
     def _handle_crossval_or_not(
             self,
             type: None | str = None,
