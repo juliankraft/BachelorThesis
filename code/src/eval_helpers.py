@@ -515,11 +515,11 @@ class LoadRun:
             self.path_md_output = Path(self.info['paths']['md_output'])
             self.path_labels = Path(self.info['paths']['labels'])
 
+        self.decoder = self.info['output']['label_decoder']
+
         self.run_dataset = self.get_run_dataset()
 
         self.full_predicted_set = self.get_full_predicted_set()
-
-        self.decoder = self.info['output']['label_decoder']
 
     def show_sample(
             self,
