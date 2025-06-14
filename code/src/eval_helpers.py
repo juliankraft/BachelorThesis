@@ -397,10 +397,10 @@ def file_count(
     keys = df.columns.tolist()
     if 'max_conf' in keys:
         apply_to = 'max_conf'
-    elif 'conf_value' in keys:
-        apply_to = 'conf_value'
+    elif 'conf' in keys:
+        apply_to = 'conf'
     else:
-        raise ValueError("DataFrame must contain 'max_conf' or 'conf_value' column.")
+        raise ValueError("DataFrame must contain 'max_conf' or 'conf' column.")
 
     counts = (
         df[df[apply_to] >= threshold]
