@@ -683,25 +683,32 @@ class LoadRun:
         df = pd.read_csv(csv_path)
         return self._enforce_dtypes_and_idx(df)
 
-    def get_all_test_sets(self) -> pd.DataFrame:
+    def get_all_test_sets(
+            self
+            ) -> pd.DataFrame:
 
-        if not self.cross_val:
+        if not self.folds:
             raise ValueError("This method is only applicable for cross-validation runs.")
+        else:
 
-        n_folds = self.info['cross_val']['n_folds']
-        all_testsets = pd.DataFrame()
+            all_testsets = pd.DataFrame()
 
-        for fold in range(n_folds):
-            new_data = self.get_predictions(
-                set_selection='test',
-                fold=fold
-                )
+            for fold in self.folds:
+                new_data = self.get_predictions(
+                    set_selection='test',
+                    fold=fold
+                    )
 
-            new_data['fold'] = fold
+                new_data['fold'] = fold
 
-            all_testsets = pd.concat([all_testsets, new_data], ignore_index=True)
+                all_testsets = pd.concat([all_testsets, new_data], ignore_index=True)
 
-        return all_testsets
+            common_cols = list(set(all_testsets.columns).intersection(self.run_dataset.columns) - {'idx'})
+            all_testsets_pruned = all_testsets.drop(columns=common_cols)
+
+            predicted_df = self.run_dataset.merge(all_testsets_pruned, on='idx')
+
+            return predicted_df
 
     def get_predictions(
             self,
@@ -799,33 +806,6 @@ class LoadRun:
         df = self._enforce_dtypes_and_idx(df)
 
         return df
-
-    def get_all_testsets(
-            self
-            ) -> pd.DataFrame:
-
-        if not self.folds:
-            raise ValueError("This method is only applicable for cross-validation runs.")
-        else:
-
-            all_testsets = pd.DataFrame()
-
-            for fold in self.folds:
-                new_data = self.get_predictions(
-                    set_selection='test',
-                    fold=fold
-                    )
-
-                new_data['fold'] = fold
-
-                all_testsets = pd.concat([all_testsets, new_data], ignore_index=True)
-
-            common_cols = list(set(all_testsets.columns).intersection(self.run_dataset.columns) - {'idx'})
-            all_testsets_pruned = all_testsets.drop(columns=common_cols)
-
-            predicted_df = self.run_dataset.merge(all_testsets_pruned, on='idx')
-
-            return predicted_df
 
     def _handle_crossval_or_not(
             self,
