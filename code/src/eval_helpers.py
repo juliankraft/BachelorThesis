@@ -20,7 +20,7 @@ from os import PathLike
 from typing import Dict, Any
 
 from ba_dev.dataset import MammaliaDataImage
-from ba_dev.utils import BBox
+from ba_dev.utils import BBox, load_path_yaml
 
 
 def set_custom_plot_style():
@@ -854,6 +854,176 @@ class LoadRun:
                 df[col] = df[col].apply(to_float_list)
 
         return df
+
+
+class MammaliaEval:
+    def __init__(
+            self,
+            path_config: str | PathLike,
+            metrics: str | list[str] | dict[str, dict] = 'balanced_accuracy_score',
+            force_metrics: bool = False
+            ):
+
+        self.paths = load_path_yaml(path_config)
+        self.label_files = self.paths['labels'].glob('*.csv')
+        self.metric_file_path = self.paths['output'] / 'eval_metrics.csv'
+
+        if isinstance(metrics, dict):
+            self.metrics = list(metrics.items())
+        else:
+            if isinstance(metrics, str):
+                metrics = [metrics]
+            self.metrics = [(m, {}) for m in metrics]
+
+        names = [name for name, _ in self.metrics]
+        if 'balanced_accuracy_score' not in names:
+            self.metrics.insert(0, ('balanced_accuracy_score', {}))
+
+        self.force_metrics = force_metrics
+
+        self.raw_df = self.get_raw_data()
+        self.sequence_df = self.get_sequence_df()
+        self.image_df = self.get_image_df()
+
+        self.metrics_df = self.calculate_metrics()
+
+        self.best_model = LoadRun(
+                log_path=self.paths['complete_models'] / self.get_best_model(),
+                paths=self.paths
+                )
+
+    def get_raw_data(self) -> pd.DataFrame:
+        raw_data = pd.DataFrame()
+        for label_file in self.label_files:
+            new_data = pd.read_csv(label_file)
+            raw_data = pd.concat([raw_data, new_data], ignore_index=True)
+
+        return raw_data
+
+    def get_sequence_df(self) -> pd.DataFrame:
+        keys_to_keep = ['session', 'seq_id', 'Directory', 'n_files', 'all_files', 'label2']
+        allowed_values = ['apodemus_sp', 'cricetidae', 'mustela_erminea', 'soricidae']
+
+        all_sequences = self.raw_df[keys_to_keep].rename(columns={'label2': 'class_label'})
+        filtered_sequences = all_sequences[all_sequences['class_label'].isin(allowed_values)].copy()
+        filtered_sequences['all_files'] = filtered_sequences['all_files'].str.split(',')
+        filtered_sequences[['conf_values', 'bboxes', 'max_conf']] = (
+            filtered_sequences
+            .apply(
+                lambda row: get_md_info(
+                    seq_id=row['seq_id'],
+                    files_list=row['all_files'],
+                    md_output_dir=self.paths['md_output']
+                ),
+                axis=1,
+                result_type='expand'
+            ))
+
+        return filtered_sequences
+
+    def get_image_df(self) -> pd.DataFrame:
+
+        image_df = (
+            self.sequence_df
+            .explode(['all_files', 'conf_values', 'bboxes'])
+            .rename(columns={
+                'all_files': 'file',
+                'conf_values': 'conf',
+                'bboxes': 'bbox'
+                })
+            .assign(file_path=lambda df: df['Directory'] + '/' + df['file'])
+            .drop(columns=['max_conf', 'Directory'])
+            .reset_index(drop=True)
+            )
+
+        return image_df
+
+    def calculate_metrics(
+            self
+            ) -> pd.DataFrame:
+
+        if not self.force_metrics:
+            if self.metric_file_path.exists():
+                metrics_df = pd.read_csv(self.metric_file_path)
+                metric_names = [name for name, _ in self.metrics]
+                for metric_name in metric_names:
+                    if metric_name not in metrics_df['metric'].values:
+                        self.force_metrics = True
+            else:
+                self.force_metrics = True
+
+        if self.force_metrics:
+            metrics_df = self.evaluate_all_runs()
+            metrics_df.to_csv(self.metric_file_path, index=False)
+
+        return metrics_df
+
+    def evaluate_all_runs(
+            self
+            ) -> pd.DataFrame:
+
+        run_paths = list(self.paths['complete_models'].glob('*/'))
+
+        all_items = []
+
+        for run_path in run_paths:
+
+            model = LoadRun(log_path=run_path)
+
+            for metric, m_kwargs in self.metrics:
+
+                img_scores = model.calculate_metrics(
+                    metric=metric,
+                    set_selection='test',
+                    scope='img',
+                    **m_kwargs
+                    )
+
+                seq_scores = model.calculate_metrics(
+                    metric=metric,
+                    set_selection='test',
+                    scope='seq',
+                    **m_kwargs
+                    )
+
+                if not isinstance(img_scores, list):
+                    img_scores = [img_scores]
+                    seq_scores = [seq_scores]
+
+                for fold_idx, (img, seq) in enumerate(zip(img_scores, seq_scores)):
+                    all_items.append({
+                        'model_name': model.info['model']['backbone_name'],
+                        'pretrained': model.info['model']['backbone_pretrained'],
+                        'experiment_name': model.info['experiment_name'],
+                        'trainable_params': model.info['output']['model_parameters']['trainable'],
+                        'metric': metric,
+                        'fold': fold_idx,
+                        'img_score': img,
+                        'seq_score': seq,
+                        })
+
+        return pd.DataFrame(all_items)
+
+    def get_best_model(
+            self,
+            metric: str = 'balanced_accuracy_score',
+            scope: str = 'img'
+            ) -> str:
+
+        if scope == 'img':
+            score_col = 'img_score'
+        elif scope == 'seq':
+            score_col = 'seq_score'
+        else:
+            raise ValueError(f"Invalid scope '{scope}'. Use 'img' or 'seq'.")
+
+        best_model = self.metrics_df.loc[
+            self.metrics_df['metric'] == metric
+        ].sort_values(by=score_col, ascending=False).iloc[0]
+
+        experiment_name = best_model['experiment_name']
+
+        return experiment_name
 
 
 class DFChunker:
