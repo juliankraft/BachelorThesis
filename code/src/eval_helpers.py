@@ -118,19 +118,39 @@ def draw_bbox_on_ax(
 
         if annotation_type != 'none':
 
-            if x_abs + offset_margin_conf_annotation > width:
-                ha, offset = 'right', (-2, 8)
-                x = x_abs + w_abs
-            else:
-                ha, offset = 'left', (2, 8)
-                x = x_abs
+            label_up = 8
 
             if annotation_type == 'detection':
                 try:
                     annotation_string = f"conf = {sample['conf']:.2f}"
                 except KeyError:
-                    print('no conf value found')
+                    print("'conf' not found in sample.")
                     annotation_string = None
+
+            if annotation_type == 'classification':
+                try:
+                    annotation_string = f"{sample['pred_label']}: {sample['probs_max']:.2f}"
+                except KeyError:
+                    print("'pred_label' or 'probs_max' not found in sample.")
+                    annotation_string = None
+            if annotation_type == 'both':
+                try:
+                    annotation_string = (
+                        f"detection: {sample['conf']:.2f}\n"
+                        f"{sample['pred_label']}: {sample['probs_max']:.2f}"
+                    )
+                except KeyError:
+                    print("'conf', 'pred_label' or 'probs_max' not found in sample.")
+                    annotation_string = None
+
+                label_up = 16
+
+            if x_abs + offset_margin_conf_annotation > width:
+                ha, offset = 'right', (-2, label_up)
+                x = x_abs + w_abs
+            else:
+                ha, offset = 'left', (2, label_up)
+                x = x_abs
 
             if annotation_string:
                 ax.annotate(
