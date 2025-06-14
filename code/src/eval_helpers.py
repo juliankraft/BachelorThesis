@@ -871,38 +871,46 @@ class DFChunker:
         self.df = df.reset_index(drop=True)
         self.chunk_size = chunk_size
         self.n_chunks = (len(self.df) + chunk_size - 1) // chunk_size
-        self.current_n = 0
+        self.current = 0
 
         print(f"DataFrame has {len(self.df)} rows,")
         print(f"will be split into {self.n_chunks} chunks of size {self.chunk_size}.")
 
-    def get_current_chunk(self, silent=False) -> pd.DataFrame:
-        if not silent:
-            print(f'Current chunk: {self.current_n} of {self.n_chunks}')
-        start = self.current_n * self.chunk_size
+    def __len__(self) -> int:
+        return self.n_chunks
+
+    def __getitem__(self, idx: int) -> pd.DataFrame:
+        if idx < 0:
+            idx = self.n_chunks + idx
+        if not (0 <= idx < self.n_chunks):
+            raise IndexError(f"Chunk index {idx} out of range [0..{self.n_chunks-1}]")
+
+        start = idx * self.chunk_size
         end = start + self.chunk_size
         return self.df.iloc[start:end]
 
-    def step(self) -> None:
-        if self.current_n >= self.n_chunks:
-            raise StopIteration("No more chunks available.")
-        self.current_n += 1
+    def get_current(self) -> pd.DataFrame:
+        return self[self.current]
 
-    def get_current_chunk_and_step(self, silent=False) -> pd.DataFrame:
-        if not silent:
-            print(f'Getting chunk {self.current_n+1} of {self.n_chunks} and stepping to the next one.')
-        chunk = self.get_current_chunk(silent=True)
-        self.step()
+    def get_current_and_advance(self) -> pd.DataFrame:
+        if self.current >= self.n_chunks:
+            raise StopIteration("No more chunks available.")
+        chunk = self[self.current]
+        self.current += 1
         return chunk
 
-    def reset(self, silent=False) -> None:
-        if not silent:
-            print("Resetting chunker to the first chunk.")
-        self.current_n = 0
+    def reset(self) -> None:
+        """Reset the cursor back to the first chunk."""
+        self.current = 0
 
     def __iter__(self):
-        self.reset(silent=True)
+        self.reset()
         return self
 
     def __next__(self) -> pd.DataFrame:
-        return self.get_current_chunk_and_step(silent=True)
+        return self.get_current_and_advance()
+
+    def __repr__(self):
+        return (
+            f"<DFChunker chunks={self.n_chunks}, size={self.chunk_size}, cursor={self.current}>"
+        )
