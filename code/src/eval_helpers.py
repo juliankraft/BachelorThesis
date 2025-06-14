@@ -517,6 +517,8 @@ class LoadRun:
 
         self.run_dataset = self.get_run_dataset()
 
+        self.full_predicted_set = self.get_full_predicted_set()
+
         self.decoder = self.info['output']['label_decoder']
 
     def show_sample(
@@ -683,7 +685,7 @@ class LoadRun:
         df = pd.read_csv(csv_path)
         return self._enforce_dtypes_and_idx(df)
 
-    def get_all_test_sets(
+    def get_full_predicted_set(
             self
             ) -> pd.DataFrame:
 
@@ -706,9 +708,9 @@ class LoadRun:
             common_cols = list(set(all_testsets.columns).intersection(self.run_dataset.columns) - {'idx'})
             all_testsets_pruned = all_testsets.drop(columns=common_cols)
 
-            predicted_df = self.run_dataset.merge(all_testsets_pruned, on='idx')
+            full_predicted_set = self.run_dataset.merge(all_testsets_pruned, on='idx')
 
-            return predicted_df
+            return full_predicted_set
 
     def get_predictions(
             self,
