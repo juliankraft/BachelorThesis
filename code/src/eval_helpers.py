@@ -1065,6 +1065,13 @@ class DFChunker:
         end = start + self.chunk_size
         return self.df.iloc[start:end]
 
+    def set_current(self, idx: int) -> None:
+        if idx < 0:
+            idx = self.n_chunks + idx
+        if not (0 <= idx < self.n_chunks):
+            raise IndexError(f"Chunk index {idx} out of range [0..{self.n_chunks-1}]")
+        self.current = idx
+
     def get_current(self) -> pd.DataFrame:
         return self[self.current]
 
