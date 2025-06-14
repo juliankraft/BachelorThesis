@@ -493,10 +493,11 @@ def get_md_info(
 
 class LoadRun:
     def __init__(
-        self,
-        log_path: str | PathLike,
-        paths: Dict | None = None
-    ):
+            self,
+            log_path: str | PathLike,
+            paths: Dict | None = None
+            ):
+
         self.log_path = Path(log_path)
         self.info = self.get_experiment_info()
         self.cross_val = self.info['cross_val']['apply']
@@ -844,3 +845,55 @@ class LoadRun:
                 df[col] = df[col].apply(to_float_list)
 
         return df
+
+
+class DFChunker:
+    def __init__(
+            self,
+            df: pd.DataFrame,
+            chunk_size: int
+            ):
+        """
+        Class to slice a DataFrame into chunks of a specified size.
+        Args:
+        df: the DataFrame to slice into chunks
+        chunk_size: number of rows per chunk
+        """
+        self.df = df.reset_index(drop=True)
+        self.chunk_size = chunk_size
+        self.n_chunks = (len(self.df) + chunk_size - 1) // chunk_size
+        self.current_n = 0
+
+        print(f"DataFrame has {len(self.df)} rows,")
+        print(f"will be split into {self.n_chunks} chunks of size {self.chunk_size}.")
+
+    def get_current_chunk(self, silent=False) -> pd.DataFrame:
+        if not silent:
+            print(f'Current chunk: {self.current_n} of {self.n_chunks}')
+        start = self.current_n * self.chunk_size
+        end = start + self.chunk_size
+        return self.df.iloc[start:end]
+
+    def step(self) -> None:
+        if self.current_n >= self.n_chunks:
+            raise StopIteration("No more chunks available.")
+        self.current_n += 1
+
+    def get_current_chunk_and_step(self, silent=False) -> pd.DataFrame:
+        if not silent:
+            print(f'Getting chunk {self.current_n+1} of {self.n_chunks} and stepping to the next one.')
+        chunk = self.get_current_chunk(silent=True)
+        self.step()
+        return chunk
+
+    def reset(self, silent=False) -> None:
+        if not silent:
+            print("Resetting chunker to the first chunk.")
+        self.current_n = 0
+
+    def __iter__(self):
+        self.reset(silent=True)
+        return self
+
+    def __next__(self) -> pd.DataFrame:
+        return self.get_current_chunk_and_step(silent=True)
