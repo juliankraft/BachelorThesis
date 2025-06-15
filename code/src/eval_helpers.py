@@ -797,7 +797,7 @@ class LoadRun:
 
         return aggregated
 
-    def get_metrics(
+    def get_training_metrics(
             self,
             fold: int | None = None,
             ) -> pd.DataFrame:
