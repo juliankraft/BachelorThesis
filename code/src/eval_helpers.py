@@ -17,7 +17,7 @@ from IPython.display import display
 from PIL import Image
 from pathlib import Path
 from os import PathLike
-from typing import Dict, Any
+from typing import Dict, Any, Callable
 
 from ba_dev.dataset import MammaliaDataImage
 from ba_dev.utils import BBox, load_path_yaml
@@ -800,6 +800,7 @@ class LoadRun:
     def get_training_metrics(
             self,
             fold: int | None = None,
+            process: Callable[[pd.DataFrame], pd.DataFrame] | None = None
             ) -> list[pd.DataFrame]:
 
         if not self.cross_val:
@@ -815,7 +816,10 @@ class LoadRun:
 
         metrics_list = []
         for path in training_metrics_paths:
-            metrics_list.append(pd.read_csv(path))
+            fold_metric = pd.read_csv(path)
+            if process:
+                fold_metric = process(fold_metric)
+            metrics_list.append(fold_metric)
 
         return metrics_list
 
