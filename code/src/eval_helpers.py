@@ -800,14 +800,24 @@ class LoadRun:
     def get_training_metrics(
             self,
             fold: int | None = None,
-            ) -> pd.DataFrame:
+            ) -> list[pd.DataFrame]:
 
-        metrics_path = self._handle_crossval_or_not('metrics', fold)
+        if not self.cross_val:
+            training_metrics_paths = [self._handle_crossval_or_not('metrics')]
 
-        df = pd.read_csv(metrics_path)
-        df = self._enforce_dtypes_and_idx(df)
+        else:
+            if fold is None:
+                training_metrics_paths = []
+                for n_fold in self.folds:
+                    training_metrics_paths.append(self._handle_crossval_or_not('metrics', n_fold))
+            else:
+                training_metrics_paths = [self._handle_crossval_or_not('metrics', fold)]
 
-        return df
+        metrics_list = []
+        for path in training_metrics_paths:
+            metrics_list.append(pd.read_csv(path))
+
+        return metrics_list
 
     def _handle_crossval_or_not(
             self,
@@ -822,14 +832,14 @@ class LoadRun:
         if self.cross_val:
             if fold is None:
                 raise ValueError("Fold number must be provided for cross-validation runs.")
-            predictions_path = self.log_path / f'fold_{fold}' / options[type]
+            object_path = self.log_path / f'fold_{fold}' / options[type]
         else:
-            predictions_path = self.log_path / options[type]
+            object_path = self.log_path / options[type]
 
-        if not predictions_path.exists():
-            raise FileNotFoundError(f"{type} file not found at {predictions_path}")
+        if not object_path.exists():
+            raise FileNotFoundError(f"{type} file not found at {object_path}")
 
-        return predictions_path
+        return object_path
 
     def _enforce_dtypes_and_idx(
             self,
