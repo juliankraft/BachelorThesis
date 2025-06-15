@@ -809,9 +809,9 @@ class LoadRun:
             if fold is None:
                 training_metrics_paths = []
                 for n_fold in self.folds:
-                    training_metrics_paths.append(self._handle_crossval_or_not('metrics', n_fold))
+                    training_metrics_paths.append(self._handle_crossval_or_not('metrics', fold=n_fold))
             else:
-                training_metrics_paths = [self._handle_crossval_or_not('metrics', fold)]
+                training_metrics_paths = [self._handle_crossval_or_not('metrics', fold=fold)]
 
         metrics_list = []
         for path in training_metrics_paths:
