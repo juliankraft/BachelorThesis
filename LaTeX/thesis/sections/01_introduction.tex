@@ -8,33 +8,35 @@
 \section{Introduction}
 \label{introduction}
 
-The loss of biodiversity is one of the most pressing issues of our time \autocite{cardinaleBiodiversityLossIts2012}.
-Agricultural expansion, urbanization, and climate change are just a few of the many factors that threaten biodiversity.
-For a better understanding of the impact of these factors and the development of effective conservation strategies or simply to track what is being lost it is crucial to monitor biodiversity.
-This task has traditionally been done by trained experts, who manually identify species in the field or in images.
-Accessible and cheap sensors as well as improved battery and storrage technology have made it possible to deploy large numbers of sensors in the field in order to create vast amounts of images.
-The use of Deep Learning (DL) methods to handle has become a standard approach.
+The ongoing loss of biodiversity is among the most urgent environmental issues globally \autocite{brondizioGlobalAssessmentReport2019, cardinaleBiodiversityLossIts2012}.
+Small mammals, despite their ecological importance, often receive limited attention in conservation research compared to birds and butterflies \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
+This disparity persists although small mammals significantly contribute to ecosystem functions such as seed dispersal and soil aeration.
+In Switzerland, of the approximately 30 native small mammal species, several are endangered and require targeted conservation strategies \autocite{bafuListeNationalPrioritaren2019}.
 
-    \subsection{Background}
-    Biodiversity in Switzerland faces significant pressure due to habitat loss and declining species numbers.
-    Particularly, small mammals have received comparatively less attention in conservation research and public perception, despite their crucial ecological roles.
-    Of the approximately 30 species of small mammals native to Switzerland, several are threatened and depend on targeted conservation measures.
-    Detecting and monitoring small mammals is inherently challenging because these animals are often nocturnal and elusive, dwelling predominantly in dense vegetation or underground burrows.
-    Traditional methods for small mammal detection, such as live trapping, are time-consuming, resource-intensive, and pose risks to animal welfare.
-    Recent advances in indirect detection methods, including camera traps and environmental DNA (eDNA), offer promising alternatives that are less invasive and potentially more efficient.
-    Camera trap systems, specifically optimized for small mammals, generate large volumes of image data, necessitating advanced automated image classification techniques to manage and analyze the data effectively.
-    However, distinguishing closely related species visually remains challenging, thereby necessitating complementary genetic identification through collected eDNA\@.
-    The integration of eDNA analysis and automated image processing within modular detection systems presents a robust approach to accurately monitor small mammal populations at a broader scale.
-    Thus, ongoing research and technological enhancements in both camera trap efficiency and genetic analysis methods are crucial for improving small mammal biodiversity assessments and informing conservation strategies.
+Monitoring small mammal populations traditionally involves labor-intensive methods like live trapping, which not only consume significant time and resources but also pose risks to animal welfare \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
+Therefore, innovative methods have emerged, particularly camera trapping combined with environmental DNA (eDNA) sampling, offering non-invasive and efficient alternatives for biodiversity assessment \autocite{aegerterMonitoringKleinmustelidenSchlaefern2019}.
 
-    \subsection{Problem Statement}
+\subsection{Background}
 
-    Breaking down the problem to be solved.
+In response to these challenges, the Wildlife@Campus project at the Zurich University of Applied Sciences (ZHAW) focuses on developing advanced methods to systematically detect and monitor small mammals.
+The project integrates optimized camera trap systems capable of capturing high-quality images and videos while simultaneously collecting eDNA samples, thereby overcoming the limitations inherent in traditional methods \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
+The collected data is subsequently analyzed using automated image classification algorithms, complemented by genetic analyses for precise species identification, particularly important when visual differentiation is insufficient \autocite{ratnaweeraWildlifeCampusProgressReports2021}.
 
-    \subsection{Related Work}
+Moreover, the project involves practical measures for habitat enhancement at the ZHAW campus, creating diverse habitats to support various species, thereby actively promoting biodiversity locally.
+These interventions are coupled with educational and communication strategies to raise awareness and engagement regarding the ecological roles and conservation needs of small mammals.
 
-    - Overview of related work in the field
+\subsection{Problem Statement}
 
-    - specifically the use of MD
-    The Microsoft MegaDetector (MD) is a well-established model for detecting animals in camera trap images \autocite{hernandezPytorchWildlifeCollaborativeDeep2024, velezChoosingAppropriatePlatform2022, schneiderRecognitionEuropeanMammals2024}.
+Despite significant advancements, accurately distinguishing visually similar small mammal species using camera traps alone remains challenging.
+Additionally, large volumes of image data generated necessitate efficient automated classification tools that can manage data effectively without compromising accuracy.
+Thus, the central problem of this thesis is to evaluate and improve deep learning models' effectiveness for small mammal classification from camera trap images, integrating eDNA analyses to validate and complement visual identifications.
 
+\subsection{Related Work}
+
+Deep learning methods, particularly Convolutional Neural Networks (CNNs), have revolutionized image classification tasks, showing significant promise for ecological monitoring.
+The MegaDetector \autocite{morrisEfficientPipelineCamera2025}, specifically developed for camera trap images, exemplifies successful application in biodiversity monitoring and provides a foundation for further optimization \autocite{hernandezPytorchWildlifeCollaborativeDeep2024, velezChoosingAppropriatePlatform2022, schneiderRecognitionEuropeanMammals2024}.
+Studies such as those by Vélez et al. (2022) and Schneider et al. (2024) demonstrate robust detection performance but highlight limitations in species-level classification, particularly for morphologically similar species.
+
+Integrating eDNA techniques alongside automated image analysis, as explored by recent initiatives, can substantially enhance the accuracy of small mammal detection, providing a more comprehensive and reliable monitoring approach.
+
+This thesis aims to advance these methodologies, contributing to more effective biodiversity conservation strategies.
