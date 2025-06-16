@@ -137,7 +137,7 @@
     A batch size of 64 was used for training --- and doubled for validation and prediction.
     Predicting the whole dataset the predicted class for each sample and the confidence scores per class were saved to a CSV file for later evaluation
 
-    \subsection{Sequence Classification}
+    \subsection{Sequence Classification} \todo{Is this illustration reasonable?}
     Since the data is grouped into sequences and the classification was done per image, an additional step was performed to classify the sequences.
     This step was only performed after the model has been trained and the predictions for the whole dataset were available.
 
@@ -173,7 +173,7 @@
     \hat{y} = \arg\max \left\{p_1,\; p_2,\; p_3,\; p_4\right\}
     \]
 
-    \subsection{Evaluation}
+    \subsection{Evaluation}\todo{this was signifficantly changed}
 
     The evaluation is done using the predictions created by the best version of every model for each fold which where saved at the end of the training process.
     To compare models, both the image-level and sequence-level predictions are evaluated using the balanced accuracy (BA) score \autocite{brodersenBalancedAccuracyIts2010} as the main metric.
@@ -198,7 +198,10 @@
     In the way the data is combined support (true positives per class) is the same as available samples per class in the whole dataset.
     Additionally the normalized confusion matrix (CM) was calculated to visualize the performance of the model across all classes.
     This metrics where all calculated using the \texttt{precision\_recall\_fscore\_support} and the \texttt{confusion\_matrix} function from the \texttt{sklearn} library \autocite{pedregosaScikitlearnMachineLearning2011}.
-    \todo{this was added}
+
+    To evaluate whether there is a correlation between detection confidence and classification confidence, Spearman's rank correlation test was used. 
+    A significance level of \( \alpha = 0.05 \) was applied to determine statistical significance.
+    
 
     \subsection{Hardware and Software}
 
