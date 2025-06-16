@@ -173,7 +173,8 @@ def plot_series_of_images(
         annotation_type: str = 'detection',
         ncols: int = 3,
         fig_width_cm: float = 24,
-        offset_margin_conf_annotation: int = 100
+        offset_margin_conf_annotation: int = 100,
+        print_idx: bool = False
         ) -> Figure:
 
     dataset_path = Path(dataset_path)
@@ -192,9 +193,9 @@ def plot_series_of_images(
         figure=fig,
         )
 
-    for idx, (_, row) in enumerate(df.iterrows()):
+    for i, (_, row) in enumerate(df.iterrows()):
 
-        ax = fig.add_subplot(gs[idx // ncols, idx % ncols])
+        ax = fig.add_subplot(gs[i // ncols, i % ncols])
 
         file_path = dataset_path / row['file_path']
 
@@ -202,8 +203,13 @@ def plot_series_of_images(
 
         sample['img'] = Image.open(file_path)
 
+        if print_idx:
+            subfigure_label = f"idx: {sample['idx']}"
+        else:
+            subfigure_label = f'({labels[i]})'
+
         ax.annotate(
-            f'({labels[idx]})',
+            subfigure_label,
             xy=(0.01, 0.98),
             xycoords=ax.transAxes,
             fontsize=10,
