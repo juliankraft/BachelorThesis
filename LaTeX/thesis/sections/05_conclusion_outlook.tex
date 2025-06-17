@@ -11,10 +11,11 @@
 
 \subsection{Conclusion}
 
-This thesis demonstrated the effectiveness of deep learning models for classifying small mammals from camera trap images.
+This thesis demonstrated the effectiveness of deep learning models for detecting and classifying small mammals from camera trap images.
 The pretrained EfficientNet-B0 model provided superior classification accuracy, quickly converging and demonstrating robustness across validation folds.
-The integration of automated detections via MegaDetector, while beneficial, revealed critical limitations, particularly concerning misclassifications and missed detections for visually similar or partially obscured species.
-Despite these limitations, the applied approach substantially reduces manual effort in ecological monitoring, making it a promising tool for biodiversity conservation.
+The integration of automated detections utilizing MegaDetector, while beneficial, revealed some room for improvement, particularly concerning misdetections and missed out detections.
+It was found that some finetuning of the MegaDetector to the specific MammaliaBox camera trap setup could improve the results.
+Despite these limitations, the processing pipeline and the trained models provide a promissing start for developing a applicable tool and a workflow to reduce the manual effort.
 
 
 \subsection{Outlook}

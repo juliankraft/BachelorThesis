@@ -26,14 +26,14 @@ Some of these images were empty or contained no animal at all, as shown in \auto
 An other interessting find was that quite some of the images contained a snail in the highest confidence BBox --- refer to \autoref{fig:false_class_snails} for a hand-picked selection of these examples.
 These misclassifications, highlight the need for enhanced object discrimination capabilities or the introduction of an additional class for non-target species.
 
-\begin{figure}[]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{figures/false_positive_dt.pdf}
 \caption{Hand-picked selection of images with a high confidence value but no animal in the image.}
 \label{fig:false_positive_dt}
 \end{figure}
 
-\begin{figure}[]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{figures/false_class_snails.pdf}
 \caption{Hand-picked selection of images predicted incorrectly with a high confidence value displaying a snail in the highest confidence BBox.}
@@ -41,7 +41,7 @@ These misclassifications, highlight the need for enhanced object discrimination 
 \end{figure}
 
 \subsection{Model Performance}
-Overall, all tested models achieved high performance in image classification tasks, demonstrating their suitability for automating small mammal identification.
+All tested models achieved high performance in image classification tasks, demonstrating their suitability for automating small mammal identification.
 Pretrained models slightly outperformed those trained from scratch, underscoring the value of transfer learning.
 The slight better balanced accuracy of pretrained models is just one of the benefits of using pretrained models, as they also require less training time and computational resources and could potentially be trained with less training data.
 
@@ -59,7 +59,7 @@ The observed weak but statistically significant correlation between detection co
 However, since this correlation is very weak, the exploration of other factors influencing classification confidence might be beneficial.
 The fact that overall classification confidence values were generally high, even for incorrect classifications and trough all detection confidence values, as shown in \autoref{fig:pred_conf_hexbin}, is again an indication that an additional class for non-target species would be beneficial.
 
-\begin{figure}[]
+\begin{figure}[ht]
 \centering
 \includegraphics{figures/pred_conf_hexbin.pdf}
 \caption{Hexbin plot of detection confidence vs. classifier certainty for correct and incorrect classifications. Color scale indicates log$_{10}$-binned counts.}
