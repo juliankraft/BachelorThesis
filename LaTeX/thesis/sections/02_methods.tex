@@ -79,7 +79,7 @@
         \subsubsection{Image Processing}
         To process the images a custom transformation pipline was implemented using transform version 2 from the torchvision library and a custom crop function.
         This transformation was applied on the fly by the PyTorch DataLoader.
-        Cropping was done using the \acp{BBox} from the \ac{MD} detection extending the \ac{BBox} in order to cut the ratio expected by the model.
+        Cropping was done using the \acp{BBox} from the detection extending it in order to cut the ratio expected by the model.
         In the case that the extended \ac{BBox} surpasses the image border the image was padded with black pixels.
         After cropping, each image was resized to the model's expected input size, i.e. \(224\times224\) pixels.
         Each image was first converted into a tensor of shape \((C,H,W)\). 
@@ -133,9 +133,9 @@
     To adjust the model parameters, the AdamW optimizer \autocite{loshchilovDecoupledWeightDecay2019} was used with a weight decay of \(10^{-5}\) and an initial learning rate of \(10^{-4}\).
     The learning rate was adjusted using a cosine annealing scheduler \autocite{loshchilovSGDRStochasticGradient2017} over 50 epochs.
     A maximum of 50 epochs where trained, but an early stopping callback was implemented monitoring the validation loss with a patience of 10 epochs.
-    The logging was done using the tensorboard logger, which is integrated into PyTorch Lightning and an additional custom CSV logger for easier log access for evaluation.
+    The logging was done using the tensorboard logger, which is integrated into PyTorch Lightning and an additional custom \ac{CSV} logger for easier log access for evaluation.
     A batch size of 64 was used for training --- and doubled for validation and prediction.
-    Predicting the whole dataset the predicted class for each sample and the confidence scores per class were saved to a CSV file for later evaluation
+    Predicting the whole dataset the predicted class for each sample and the confidence scores per class were saved to a \ac{CSV} file for later evaluation
 
     \subsection{Sequence Classification} \todo{Is this illustration reasonable?}
     Since the data is grouped into sequences and the classification was done per image, an additional step was performed to classify the sequences.
@@ -173,7 +173,7 @@
     \hat{y} = \arg\max \left\{p_1,\; p_2,\; p_3,\; p_4\right\}
     \]
 
-    \subsection{Evaluation}\todo{this was signifficantly changed}
+    \subsection{Evaluation}
     The evaluation is divided into two parts: a comparison of the models based on their performance during cross-validation and an evaluation of the best model on the full dataset.
 
     \subsubsection{Comparison of Models}
@@ -190,12 +190,12 @@
 
     \noindent where:
     \begin{description}
-    \item[\(K\)] is the total number of classes.
-    \item[\(TP_{c}\)] (true positives for class \(c\)) is the count of samples whose true label is \(c\) and whose predicted label is also \(c\).
-    \item[\(FN_{c}\)] (false negatives for class \(c\)) is the count of samples whose true label is \(c\) but whose predicted label is not \(c\).
+        \item[\(K\)] is the total number of classes.
+        \item[\(TP_{c}\)] (true positives for class \(c\)) is the count of samples whose true label is \(c\) and whose predicted label is also \(c\).
+        \item[\(FN_{c}\)] (false negatives for class \(c\)) is the count of samples whose true label is \(c\) but whose predicted label is not \(c\).
     \end{description}
 
-    \subsubsection{Best Model Evaluation}
+    \subsubsection{Best Model Evaluation}\todo{new}
     To further evaluate the best performing model some additional metrics where computed on the full dataset by combining the predictions from each cross-validation fold testset.
     On this data, precision, recall, F1-score and support for each class where computed.
     In the way the data is combined support (true positives per class) is the same as available samples per class in the whole dataset.
