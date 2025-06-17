@@ -16,7 +16,7 @@
     The dataset provides two kinds of labels: the original annotations from each session, and a standardized version created when the sessions were integrated into the dataset.
     For this project, only the standardized labels where used.
     Images group into sequences, with each sequence representing a single animal sighting.
-    The sequences where created by the Wildlife@Campus team, utilizing the EXIF information of the images to group them based on the time and date of the capture.
+    The sequences where created by the Wildlife@Campus team, utilizing the \ac{EXIF} information of the images to group them based on the time and date of the capture.
     Sequence lengths are not of a fixed length --- the distribution of sequence lengths is shown in \autoref{fig:seq_len_histograms}.
     To get an overview of the available sequences per label, refere to \autoref{fig:sequenceperlabel}.
     The category \texttt{other} represents sequences containing more than one species, this is a result of the process creating the sequences.
@@ -51,21 +51,21 @@
 
         \subsubsection{Detection and Selection}\todo{Is this okay?}
     
-        In this project, the Megadetector (MD) \autocite{morrisEfficientPipelineCamera2025} is used to identify regions of interest (ROI) on all the images.
-        The MD outputs a list of bounding boxe (BBox) for detected objects labeled \textit{animal}, \textit{human} or \textit{vehicle} with a corresponding confidence value.
-        Only BBoxes with a confidence score above \(0.25\) where storred for further processing.
+        In this project, the \ac{MD} \autocite{morrisEfficientPipelineCamera2025} is used to identify \acp{ROI} on all the images.
+        The \ac{MD} outputs a list of \acp{BBox} for detected objects labeled \textit{animal}, \textit{human} or \textit{vehicle} with a corresponding confidence value.
+        Only \acp{BBox} with a confidence score above \(0.25\) where storred for further processing.
         This detection step was done sequence wise and the outputs were saved to json files for each sequence.
         An example of how this detections look like is shown in \autoref{fig:detection_example}.
         Only images with a detection labeled \textit{animal} and a confidence score above a certain threshold were retained.  
         The percentage of images discarded per category due to this threshold was determined by inspecting Figure \autoref{fig:lost_images}.  
         In order to reduce noise in the data and eliminate blank inputs to the model, a threshold of \(0.5\) was chosen.
         The trade of was to discard around \(20\%\) of the images for the \textit{soricidae} and \textit{mustela\_erminea} categories.
-        For images with multiple detections, only the bounding box with the highest confidence score was kept.
+        For images with multiple detections, only the \ac{BBox} with the highest confidence score was kept.
 
         \begin{figure}[]
         \centering
         \includegraphics{figures/detections_on_a_sequence.pdf}
-        \caption{Example of how the detections look like. The bounding boxes are the six highest confidence detections for the sequence 1001824 a sample from the \textit{apodemus\_sp} category.}
+        \caption{Example of how the detections look like. The \acsp{BBox} are the six highest confidence detections for the sequence 1001824 a sample from the \textit{apodemus\_sp} category.}
         \label{fig:detection_example}
         \end{figure}
 
@@ -79,13 +79,13 @@
         \subsubsection{Image Processing}
         To process the images a custom transformation pipline was implemented using transform version 2 from the torchvision library and a custom crop function.
         This transformation was applied on the fly by the PyTorch DataLoader.
-        Cropping was done using the BBoxes from the MD detection extending the BBox in order to cut the ratio expected by the model.
-        In the case that the extended BBox surpasses the image border the image was padded with black pixels.
+        Cropping was done using the \acp{BBox} from the \ac{MD} detection extending the \ac{BBox} in order to cut the ratio expected by the model.
+        In the case that the extended \ac{BBox} surpasses the image border the image was padded with black pixels.
         After cropping, each image was resized to the model's expected input size, i.e. \(224\times224\) pixels.
         Each image was first converted into a tensor of shape \((C,H,W)\). 
         The pixel values were then normalized using the global channel wise mean and standard deviation of the dataset itself.
         This mean and standard deviation were calculated on the whole dataset, not just the training set, to ensure consistency across all folds.
-        Furthermore, only the best BBox area per image was used to calculate the mean and standard deviation.
+        Furthermore, only the best \ac{BBox} area per image was used to calculate the mean and standard deviation.
 
         \subsubsection{Data Splitting}
         The dataset was split into five folds using a stratified split based on the classes.
@@ -178,9 +178,9 @@
 
     \subsubsection{Comparison of Models}
     The evaluation is done using the predictions created by the best version of every model for each fold which where saved at the end of the training process.
-    To compare models, both the image-level and sequence-level predictions are evaluated using the balanced accuracy (BA) score \autocite{brodersenBalancedAccuracyIts2010} as the main metric.
-    For every model the BA is calculated for each fold and than averaged over all folds.
-    The BA score is calculated using the following formula:
+    To compare models, both the image-level and sequence-level predictions are evaluated using the \ac{BA} score \autocite{brodersenBalancedAccuracyIts2010} as the main metric.
+    For every model the \ac{BA} is calculated for each fold and than averaged over all folds.
+    The \ac{BA} score is calculated using the following formula:
     \begin{equation}
     \text{BA}
     \;=\;
@@ -199,7 +199,7 @@
     To further evaluate the best performing model some additional metrics where computed on the full dataset by combining the predictions from each cross-validation fold testset.
     On this data, precision, recall, F1-score and support for each class where computed.
     In the way the data is combined support (true positives per class) is the same as available samples per class in the whole dataset.
-    Additionally the normalized confusion matrix (CM) was calculated to visualize the performance of the model across all classes.
+    Additionally the normalized \ac{CM} was calculated to visualize the performance of the model across all classes.
     This metrics where all calculated using the \texttt{precision\_recall\_fscore\_support} and the \texttt{confusion\_matrix} function from the \texttt{sklearn} library \autocite{pedregosaScikitlearnMachineLearning2011}.
 
     To evaluate whether there is a correlation between detection confidence and classification confidence, Spearman's rank correlation test was used. 

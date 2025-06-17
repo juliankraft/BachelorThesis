@@ -11,8 +11,7 @@
 
 \subsection{Detection}
 
-
-The detection process significantly influenced the dataset composition, particularly for the category \textit{mustela\_erminea}.
+The detection process significantly influenced the dataset composition, on the sequence level particularly for the category \textit{mustela\_erminea}.
 This category experienced higher data loss likely due to the species relative size --- it is much larger then the other species captured by this MammaliaBox camera traps.
 This larger size may have resulted in more frequent bad shots dew to the closeness to the camera or the speed they pass trough the box --- a lot of images where showing only the tip of the animal's tail disappearing out of the box.
 An other interesting observation was the fact that the white fur individuals were more often not detected than the brown fur individuals.
@@ -54,7 +53,7 @@ The observation for this study suggests smaller, computationally efficient model
 
 The pretrained EfficientNet-B0 emerged as the best-performing model, achieving the highest balanced accuracy.
 Remarkably, optimal performance was reached within the first few training epochs.
-Since the training dataset was quite large, only contained four classes and was intensively vetted using the MegaDetector, the model was able to learn the task quite quickly.
+Since the training dataset was quite large, only contained four classes and was intensively vetted using the \ac{MD} the model was able to learn the task quite quickly.
 The observed weak but statistically significant correlation between detection confidence and classification confidence suggests that improved detections may lead to slightly better predictions.
 However, since this correlation is very weak, the exploration of other factors influencing classification confidence might be beneficial.
 The fact that overall classification confidence values were generally high, even for incorrect classifications and trough all detection confidence values, as shown in \autoref{fig:pred_conf_hexbin}, is again an indication that an additional class for non-target species would be beneficial.
@@ -69,7 +68,7 @@ The fact that overall classification confidence values were generally high, even
 \subsection{Limitations}
 
 The primary limitation of the current methodology is the absence of an explicit non-target class, forcing models into potentially incorrect predictions, exemplified by the snail misclassification issue, shown in \autoref{fig:false_class_snails}.
-Further, despite improvements, the MegaDetector still misses a significant number of potentially relevant detections.
+Further, despite improvements, the \ac{MD} still misses a significant number of potentially relevant detections.
 This limitation is particularly pronounced for rare species, where insufficient data reduces detection reliability.
 The loss of sequences for the \textit{mustela\_erminea} category, as shown in \autoref{tab:data_availability_after_md}, illustrates this issue.
 Every sequence completely lost is a potentially missed sighting of a rare species, which could have provided valuable insights for conservation efforts.

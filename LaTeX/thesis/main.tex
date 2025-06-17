@@ -21,10 +21,15 @@
 \projectcode{}
 \projectdate{\today}
 \keywords{
-    Camera Trap,
+    Camera Trapping,
     Deep Learning,
-    Image Classification
-}
+    Transfer Learning,
+    Object Detection,
+    Image Classification,
+    Small Mammals,
+    Biodiversity Monitoring,
+    MegaDetector
+    }
 
 %----------------------------------------------------------------------------------------
 % AUTHORS AND AFFILIATIONS
@@ -57,6 +62,53 @@
 \hypersetup{pdfkeywords=\keywords} % Set the PDF's keywords to your keywords
 }
 
+%----------------------------------------------------------------------------------------
+% Acronyms
+%----------------------------------------------------------------------------------------
+\DeclareAcronym{BA}{
+    short = BalAcc,
+    long = balanced accuracy,
+    }
+\DeclareAcronym{BBox}{
+    short = BBox,
+    long = bounding box,
+    short-plural = es,
+    long-plural = es
+    }
+\DeclareAcronym{CNN}{
+    short = CNN,
+    long  = Convolutional Neural Network
+    }
+\DeclareAcronym{CM}{
+    short = CM,
+    long  = confusion matrix
+    }
+\DeclareAcronym{eDNA}{
+    short = eDNA,
+    long  = environmental DNA
+    }
+\DeclareAcronym{EXIF}{
+    short = EXIF,
+    long  = Exchangeable Image File Format
+    }
+\DeclareAcronym{MD}{
+    short = MD,
+    long  = MegaDetector
+    }
+\DeclareAcronym{ZHAW}{
+    short = ZHAW,
+    long  = Zurich University of Applied Sciences
+    }
+\DeclareAcronym{ROI}{
+    short = ROI,
+    long  = Region of Interest
+    }
+
+
+%----------------------------------------------------------------------------------------
+% Beginning of the document
+%----------------------------------------------------------------------------------------
+
 \begin{document}
 \hypersetup{linkcolor=black, urlcolor=black} % Make links black for first part
 %----------------------------------------------------------------------------------------
@@ -81,6 +133,11 @@
 \include{front/abstract}
 
 %----------------------------------------------------------------------------------------
+% ACKNOWLEDGEMENTS
+%----------------------------------------------------------------------------------------
+\include{front/acknowledgements}
+
+%----------------------------------------------------------------------------------------
 % LIST OF CONTENTS/FIGURES/TABLES PAGES
 %----------------------------------------------------------------------------------------
 
@@ -95,6 +152,7 @@
 \newpage
 \listoffigures    % Add list of figures
 \listoftables     % Add list of tables
+\printacronyms
 \hypersetup{linkcolor=linkcolor, urlcolor=urlcolor} % Reset to default after TOC
 
 
@@ -115,7 +173,7 @@
 \include{sections/03_results}
 \include{sections/04_discussion}
 \include{sections/05_conclusion_outlook}
-\include{sections/06_acknowledgment_declaration}
+\include{sections/06_declaration}
 
 \printbibliography[heading=bibintoc]
 
