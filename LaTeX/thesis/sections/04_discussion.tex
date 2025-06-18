@@ -49,7 +49,7 @@ Examining \autoref{fig:bal_acc_img} again, one could speculate about a trend for
 The observations from this study suggest that smaller, computationally efficient models are sufficient and therefore preferable for the classification tasks at hand.
 
 \subsection{Best Model Architecture}
-The pretrained EfficientNet-B0 emerged as the best-performing model architecture, achieving the highest balanced accuracy.
+\sloppy{The pretrained EfficientNet-B0 emerged as the best-performing model architecture, achieving the highest balanced accuracy.}
 Remarkably, the optimal validation loss was reached within the first few epochs, while \ac{BA} continued to improve \autoref{fig:training_metrics_best_model}.\todo{Why did BalAcc still improve?}
 Since the training dataset was quite large, contained only four classes, and was intensively vetted using the \ac{MD}, the model was able to learn the task quite quickly.
 The observed weak but statistically significant correlation between detection confidence and classification confidence suggests that improved detections may lead to slightly better predictions.
@@ -59,7 +59,7 @@ The fact that overall classification confidence values were generally high, even
 \begin{figure}[ht]
 \centering
 \includegraphics{figures/pred_conf_hexbin.pdf}
-\caption{Hexbin plot of detection confidence vs. classifier certainty for correct and incorrect classifications. Color scale indicates log$_{10}$-binned counts.}
+\caption{Hexbin plot of detection confidence vs. classifier confidence for correct and incorrect classifications. Color scale indicates log$_{10}$-binned counts.}
 \label{fig:pred_conf_hexbin}
 \end{figure}
 

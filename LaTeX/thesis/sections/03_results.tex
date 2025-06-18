@@ -55,7 +55,7 @@ ResNet-50 values were more dispersed for both variants, yet the pretrained model
 Finally, ViT-B/16 displayed the largest benefit from pretraining, alongside the greatest fold-to-fold variability in both its pretrained and non-pretrained versions.
 
 % table
-\input{tables/bal_acc_by_model.tex}\todo{highlight the best model}
+\input{tables/bal_acc_by_model.tex}\todo{highlight the best model, change headers}
 
 \begin{figure}[ht]
 \centering
@@ -89,9 +89,9 @@ The $p$-values are far below the significance threshold of \( \alpha = 0.05 \), 
 \begin{figure}[ht]
 \centering
 \includegraphics{figures/training_metrics_best_model.pdf}
-\caption{Validation Loss and \acs{BA} across training epochs for the best-performing model, shown for all cross-validation folds. In the Validation Loss subfigure, the lowest value per fold is marked with a dot to indicate the best epoch. In the \acs{BA} subfigure, the highest value per fold is similarly marked.}
+\caption{Validation loss and accuracy across training epochs for the best-performing model, shown for all cross-validation folds. In the validation loss subfigure, the lowest value per fold is marked with a dot to indicate the best epoch. In the accuracy subfigure, the highest value per fold is similarly marked.}
 \label{fig:training_metrics_best_model}
-\end{figure}\todo{why is this val loss so much lower as in other eval?}    
+\end{figure}
 
 % table
 \input{tables/precision_recall_fscore_support.tex}

@@ -36,12 +36,13 @@
     \label{fig:seq_len_histograms}
     \end{figure}
 
+    \todo{add sequenc count to legend.}
     \begin{figure}[H]
     \centering
     \includegraphics{figures/label2_session.pdf}
     \caption{Available sequences per category colored by session.}
     \label{fig:sequenceperlabel}
-    \end{figure}\todo{add sequenc count to legend.}
+    \end{figure}
 
     \subsection{Data Processing}\todo{Hopefully still to come: process flow diagram}
 
@@ -204,7 +205,7 @@
         \item[\(FN_{c}\)] (false negatives for class \(c\)) is the count of samples whose true label is \(c\) but whose predicted label is not \(c\).
     \end{description}
 
-    \subsubsection{Best Performing Model Architecture Evaluation}\todo{this is not yet reviewed}
+    \subsubsection{Best Performing Model Architecture Evaluation}\todo{ensure clarity - model vs architecutre trough the whole thesi}
     To further evaluate the best performing model architecture some additional metrics where computed on the full dataset by combining the predictions from each cross-validation fold testset.
     On this data, precision, recall, F1-score and support for each class where computed.
     In the way the data is combined support (true positives per class) is the same as available samples per class in the whole dataset.
