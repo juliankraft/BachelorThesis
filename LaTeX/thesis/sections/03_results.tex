@@ -8,102 +8,97 @@
 \section{Results}
 \label{results}
 
-    \subsection{Detection}
-    One of the main goals of the initial detection trough the dataset was to identify, which images are suitable for the training routine.
-    The selection of images and the images discarded are shown in \autoref{tab:data_availability_after_md} the data is divided into the four categories.
-    The effect of the selection is displayed for a detection threshold of \(0.25\) and \(0.5\) with the later being the finally applied one.
-    On the image level the most effected category is \textit{soricidae} with \(23\%\) of the images being discarded followed by the \textit{mustela\_erminea} with \(20\%\).
-    The other categories \textit{apodemus\_sp} and \textit{cricetidae} were only affected by \(7\%\) and \(8\%\) respectively.
-    On the sequence level the situation is very different with only the \textit{mustela\_erminea} category being seriously effected with \(23\%\) of the sequences being discarded.
-    For the other categories only around \(1\%\) of the sequences were discarded.
-    Some visual examinations of the results of the \ac{MD} were performed to get a better understanding of the results --- some of this insights are presented in the following focussing on the \textit{mustela\_erminea} category.
-    Some of the highest confidence value detections for this category are shown in \autoref{fig:detection_mustela_best}: all of the images display a properly detected animal.
-    The inspection of the images with no detection within a threshold of \(0.25\) is shown in \autoref{fig:detection_special_nodetect} - this is a hand picked selection of images that were interesting for the analysis.
-    Most of the images with no detection where actually empty or showed only the tip of the animal's tail as in examples (c)--(g).
-    Some did show some form of obstruction, like in the examples (a) and (b) with the dragged in tube as in (b) being a common one.
-    And there where quite some images with an animal in the image but no detection, like in examples (h)--(l).
-    This occurred far more often for white fur individuals than for brown fur individuals --- this information is not statistically evaluated but rather based on a visual inspection of the images.
+\subsection{Detection}
+One of the main goals of the initial detection through the dataset was to identify which images were suitable for the training routine.
+The selection of images and the discarded ones are shown in \autoref{tab:data_availability_after_md}; the data is divided into four categories.
+The effect of the selection is displayed for detection thresholds of \(0.25\) and \(0.5\), with the latter being the one finally applied.
+On the image level, the most affected category is \textit{soricidae}, with \(23\%\) of the images being discarded, followed by \textit{mustela\_erminea} with \(20\%\).
+The other categories, \textit{apodemus\_sp} and \textit{cricetidae}, were only affected by \(7\%\) and \(8\%\), respectively.
+On the sequence level, the situation is very different, with only the \textit{mustela\_erminea} category being seriously affected, with \(23\%\) of the sequences being discarded.
+For the other categories, only around \(1\%\) of the sequences were discarded.
+Some visual examinations of the results of the \ac{MD} were performed to gain a better understanding of the outcomes --- some of these insights are presented in the following, focusing on the \textit{mustela\_erminea} category.
+Some of the highest-confidence detections for this category are shown in \autoref{fig:detection_mustela_best}; all the images display a properly detected animal.
+The inspection of images with no detection within a threshold of \(0.25\) is shown in \autoref{fig:detection_special_nodetect}; this is a hand-picked selection of images that were interesting for the analysis.
+Most of the images with no detection were actually empty or showed only the tip of the animal's tail, as seen in examples (c)--(g).
+Some showed forms of obstruction, such as examples (a) and (b), with the dragged-in tube in (b) being a common one.
+There were also several images with an animal clearly visible but no detection, such as in examples (h)--(l).
+This occurred far more often for individuals with white fur than for those with brown fur --- this observation is based on visual inspection and has not been statistically evaluated.
 
-    % table
-    \input{tables/data_availability_after_md.tex}
+% table
+\input{tables/data_availability_after_md.tex}
 
-    \begin{figure}[]
-    \centering
-    \includegraphics[width=\textwidth]{figures/mustela_best.pdf}
-    \caption{Highest confidence value detections for the category \textit{mustela\_erminaea} category.}
-    \label{fig:detection_mustela_best}
-    \end{figure}
+\begin{figure}[]
+\centering
+\includegraphics[width=\textwidth]{figures/mustela_best.pdf}
+\caption{Highest confidence value detections for the category \textit{mustela\_erminaea} category.}
+\label{fig:detection_mustela_best}
+\end{figure}
 
-    \begin{figure}[]
-    \centering
-    \includegraphics[width=\textwidth]{figures/mustela_special_nodetect.pdf}
-    \caption{Hand picked selection of interessting images of the \textit{mustela\_erminaea} category with no detection within a threshold of \(0.25\).}
-    \label{fig:detection_special_nodetect}
-    \end{figure}
+\begin{figure}[]
+\centering
+\includegraphics[width=\textwidth]{figures/mustela_special_nodetect.pdf}
+\caption{Hand-picked selection of interesting images of the \textit{mustela\_erminea} category with no detection within a threshold of \(0.25\).}
+\label{fig:detection_special_nodetect}
+\end{figure}
 
+\subsection{Classification Performance}
+All classification models performed well on their respective test sets.
+The \ac{BA} scores for each model are presented in \autoref{tab:bal_acc_by_model}.
+Generally, smaller models achieved slightly higher scores than larger ones, although these differences remained within one standard deviation.
+In particular, the pretrained EfficientNet-B0 reached the highest \ac{BA} of \(0.992\pm0.004\).
+Applying sequence-level classification to the image-level predictions improved \ac{BA} for every model, but only by \(0.001\) to \(0.005\), which again falls within a single standard deviation.
 
-    \subsection{Classification Performance}
+Pretrained models consistently outperformed those trained from scratch, as shown in \autoref{fig:bal_acc_img}.
+EfficientNet-B0 with pretraining performed uniformly well across all folds, with only one outlier, while the non-pretrained version scored slightly lower on average and showed greater variability.
+In contrast, DenseNet-169 showed less of a gap between pretrained and non-pretrained variants, with the pretrained version performing slightly better but also showing increased spread across folds.
+ResNet-50 values were more dispersed for both variants, yet the pretrained model still held a clear advantage.
+Finally, ViT-B/16 displayed the largest benefit from pretraining, alongside the greatest fold-to-fold variability in both its pretrained and non-pretrained versions.
 
-    All classification models performed well on their respective test sets.
-    The \ac{BA} scores for each model are presented in \autoref{tab:bal_acc_by_model}.
-    Generally, smaller models achieved slightly higher scores than larger ones, although these differences remained within one standard deviation.
-    In particular, the pretrained EfficientNet-B0 reached the highest \ac{BA} of \(0.992\pm0.004\).
-    Applying sequence level classification to the image level predictions improved \ac{BA} for every model, but only by \(0.001\) to \(0.005\), which again falls within a single standard deviation.
+% table
+\input{tables/bal_acc_by_model.tex}
 
-    Pretrained models consistently outperformed those trained from scratch, as shown in \autoref{fig:bal_acc_img}.
-    EfficientNet-B0 with pretraining performs uniformly well across all folds, with only one outlier, while the non-pretrained version scored slightly lower on average and showed greater variability.
-    In contrast the DenseNet-169 shows less of gap between pretrained and non-pretrained variants, with the pretrained variant performing slightly better but also increased spread across folds.
-    ResNet-50 values were more dispersed for both variants, yet the pretrained model still held a clear advantage. 
-    Finally, ViT-B/16 displayed the largest benefit from pretraining, alongside the greatest fold-to-fold variability in both its pretrained and non-pretrained versions.
+\begin{figure}[ht]
+\centering
+\includegraphics{figures/bal_acc_img.pdf}
+\caption{\acs{BA} of each model on the image-level across folds, shown separately for pretrained and non-pretrained variants. Individual fold results are plotted as points; the mean \acs{BA} is marked by a diamond; and the median is indicated by a horizontal line.}
+\label{fig:bal_acc_img}
+\end{figure}
 
-    % table
-    \input{tables/bal_acc_by_model.tex}
+\subsection{Best Model}
+The model with the best performance measured by \ac{BA} was the pretrained version of EfficientNet-B0.
+In \autoref{fig:training_metrics_best_model}, the validation loss and \ac{BA} across training epochs for all cross-validation folds are shown.
+For all folds, the best version, defined by the lowest validation loss, occurred within the first 3 epochs, while the \ac{BA} kept increasing.
 
-    \begin{figure}[ht]
-    \centering
-    \includegraphics{figures/bal_acc_img.pdf}
-    \caption{\acs{BA} of each model on the image-level across folds, shown separately for pretrained and non-pretrained variants. Individual fold results are plotted as points; the mean \acs{BA} is marked by a diamond; and the median is indicated by a horizontal line.}
-    \label{fig:bal_acc_img}
-    \end{figure}
+Its performance per category is shown in \autoref{tab:precision_recall_fscore_support}.
+The class it performed best on was \textit{mustela\_erminea}, with a value of \(0.999\) for all metrics --- this happens to be one of the classes with relatively few samples available.
+It performed the worst on the other underrepresented class, \textit{soricidae}, with a precision of \(0.971\), recall of \(0.979\), and F1-score of \(0.975\).
+For the other, more represented classes, the model achieved very high scores above \(0.99\) for all metrics.
 
-    \subsection{Best Model}
+The normalized \ac{CM} for the best model is shown in \autoref{fig:conf_matrix_best}.
+It shows that there were essentially no false positives for the class \textit{mustela\_erminea}, while it was rarely confused with other classes.
+The most frequent misclassification occurred with \textit{soricidae} being falsely classified as \textit{apodemus\_sp}, with a value of \(0.0184\).
+All other classes had a false positive rate of less than \(0.006\).
 
-    The model with the best performance measured by \ac{BA} was the pretrained version of EfficientNet-B0.
-    In \autoref{fig:training_metrics_best_model} the validation loss and \ac{BA} across training epochs for all cross-validation folds is shown.
-    For all folds the best version, defined by the lowest validation loss occurred within the first 3 epochs while the \ac{BA} kept increasing.
+The Spearman correlation between the detection confidence and the classification confidence is:
 
-    Its performance per category is shown in \autoref{tab:precision_recall_fscore_support}.
-    The class it performed best on was \textit{mustela\_erminea} with a value of \(0.999\) for all metrics --- this happens to be one of the classes with with relatively little samples available.
-    While it performed the worse on the other underrepresented class: \textit{soricidae} with a precision of \(0.971\), recall of \(0.979\) and F1-score of \(0.975\).
-    For the other, more represented classes, the model achieved very high scores above \(0.99\) for all metrics.
+\input{tables/spearman_corr_det_class_conf.tex}
 
-    The normalized \ac{CM} for the best model is shown in \autoref{fig:conf_matrix_best}.
-    It shows that there is basically no false positives for the class \textit{mustela\_erminea} while it was rarely confused for other classes.
-    The most frequent misclassification occurred with \textit{soricidae} being falsely classified as \textit{apodemus\_sp} with a value of \(0.0184\).
-    All other classes have a false positive rate of less than \(0.006\).
+This shows that there is a very weak positive correlation between detection confidence and classification confidence for correctly classified images, and a weak positive correlation for misclassified images.
+The $p$-values are far below the significance threshold of \( \alpha = 0.05 \), indicating that both correlations are statistically significant.
 
-    The Spearman correlation between the detection confidence and the classification confidence is:
+\begin{figure}[ht]
+\centering
+\includegraphics{figures/training_metrics_best_model.pdf}
+\caption{Validation Loss and \acs{BA} across training epochs for the best-performing model, shown for all cross-validation folds. In the Validation Loss subfigure, the lowest value per fold is marked with a dot to indicate the best epoch. In the \acs{BA} subfigure, the highest value per fold is similarly marked.}
+\label{fig:training_metrics_best_model}
+\end{figure}    
 
-    \input{tables/spearman_corr_det_class_conf.tex}
-    
-    This shows that there is a very weak positive correlation between detection confidence and classification confidence for correctly classified images, and a weak positive correlation for misclassified images.
-    The $p$-values are far below the significance threshold of \( \alpha = 0.05 \), indicating that both correlations are statistically significant.
+% table
+\input{tables/precision_recall_fscore_support.tex}
 
-    
-
-    \begin{figure}[ht]
-    \centering
-    \includegraphics{figures/training_metrics_best_model.pdf}
-    \caption{Validation Loss and \acs{BA} across training epochs for the best-performing model, shown for all cross-validation folds. In the Validation Loss subfigure, the lowest value per fold is marked with a dot to indicate the best epoch. In the \acs{BA} subfigure, the highest value per fold is similarly marked.}
-    \label{fig:training_metrics_best_model}
-    \end{figure}    
-
-    % table
-    \input{tables/precision_recall_fscore_support.tex}
-
-    \begin{figure}[ht]
-    \centering
-    \includegraphics{figures/conf_matrix_best.pdf}
-    \caption{Normalized \acs{CM} for the best-performing model.}
-    \label{fig:conf_matrix_best}
-    \end{figure}
+\begin{figure}[ht]
+\centering
+\includegraphics{figures/conf_matrix_best.pdf}
+\caption{Normalized \acs{CM} for the best-performing model.}
+\label{fig:conf_matrix_best}
+\end{figure}

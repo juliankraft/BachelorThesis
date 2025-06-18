@@ -78,6 +78,7 @@
 \DeclareAcronym{CSV}{
     short = CSV,
     long  = Comma-Separated Values,
+    first-style = short
     }
 \DeclareAcronym{CNN}{
     short = CNN,
@@ -93,7 +94,8 @@
     }
 \DeclareAcronym{EXIF}{
     short = EXIF,
-    long  = Exchangeable Image File Format
+    long  = Exchangeable Image File Format,
+    first-style = short
     }
 \DeclareAcronym{MD}{
     short = MD,
@@ -101,11 +103,32 @@
     }
 \DeclareAcronym{ZHAW}{
     short = ZHAW,
-    long  = Zurich University of Applied Sciences
+    long  = Zurich University of Applied Sciences,
+    first-style = short
     }
 \DeclareAcronym{ROI}{
     short = ROI,
     long  = Region of Interest
+    }
+\DeclareAcronym{HPC}{
+    short = HPC,
+    long  = High Performance Computing,
+    first-style = short
+    }
+\DeclareAcronym{IUNR}{
+    short = IUNR,
+    long  = Institute of Natural Resource Sciences,
+    first-style = short
+    }
+\DeclareAcronym{GB}{
+    short = GB,
+    long  = Giga Byte,
+    first-style = short
+    }
+\DeclareAcronym{GPU}{
+    short = GPU,
+    long  = Graphics Processing Unit,
+    first-style = short
     }
 
 
@@ -156,10 +179,9 @@
 \newpage
 \listoffigures    % Add list of figures
 \listoftables     % Add list of tables
-\printacronyms
+\printacronyms\todo{Is this the proper position for this?}    % Add list of acronyms
+
 \hypersetup{linkcolor=linkcolor, urlcolor=urlcolor} % Reset to default after TOC
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % THESIS CONTENT - CHAPTERS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
