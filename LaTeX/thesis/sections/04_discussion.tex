@@ -49,10 +49,10 @@ Examining \autoref{fig:bal_acc_img} again, one could speculate about a trend for
 The observations from this study suggest that smaller, computationally efficient models are sufficient and therefore preferable for the classification tasks at hand.
 
 \subsection{Best Model Architecture}
-\sloppy{The pretrained EfficientNet-B0 emerged as the best-performing model architecture, achieving the highest balanced accuracy.}
-Remarkably, the optimal validation loss was reached within the first few epochs, while \ac{BA} continued to improve \autoref{fig:training_metrics_best_model}.\todo{Why did BalAcc still improve?}
+\sloppy{The pretrained EfficientNet-B0 emerged as the best-performing model architecture, achieving the highest \ac{BA}.}
+Remarkably, the optimal validation loss was reached within the first few epochs, while the accuracy continued to improve \autoref{fig:training_metrics_best_model}.\todo{Why did Accuracy still improve?}
 Since the training dataset was quite large, contained only four classes, and was intensively vetted using the \ac{MD}, the model was able to learn the task quite quickly.
-The observed weak but statistically significant correlation between detection confidence and classification confidence suggests that improved detections may lead to slightly better predictions.
+The observed weak but statistically significant correlation between detection confidence and classification confidence suggests that improved detections may lead to slightly better predictions.\todo{fix the statistics insanity}
 However, since this correlation is very weak, the exploration of other factors influencing classification confidence might be beneficial.
 The fact that overall classification confidence values were generally high, even for incorrect classifications and across all detection confidence values, as shown in \autoref{fig:pred_conf_hexbin}, is again an indication that an additional class for non-target species would be beneficial.
 
