@@ -48,14 +48,14 @@ Generally, smaller models achieved slightly higher scores than larger ones, alth
 In particular, the pretrained EfficientNet-B0 reached the highest \ac{BA} of \(0.992\pm0.004\).
 Applying sequence-level classification to the image-level predictions improved \ac{BA} for every model, but only by \(0.001\) to \(0.005\), which again falls within a single standard deviation.
 
-Pretrained models consistently outperformed those trained from scratch, as shown in \autoref{fig:bal_acc_img}.
+Pretrained models consistently outperformed those trained from scratch, as shown in \autoref{fig:bal_acc_img} and \autoref{tab:bal_acc_by_model}.
 EfficientNet-B0 with pretraining performed uniformly well across all folds, with only one outlier, while the non-pretrained version scored slightly lower on average and showed greater variability.
 In contrast, DenseNet-169 showed less of a gap between pretrained and non-pretrained variants, with the pretrained version performing slightly better but also showing increased spread across folds.
 ResNet-50 values were more dispersed for both variants, yet the pretrained model still held a clear advantage.
 Finally, ViT-B/16 displayed the largest benefit from pretraining, alongside the greatest fold-to-fold variability in both its pretrained and non-pretrained versions.
 
 % table
-\input{tables/bal_acc_by_model.tex}
+\input{tables/bal_acc_by_model.tex}\todo{highlight the best model}
 
 \begin{figure}[ht]
 \centering
@@ -64,8 +64,8 @@ Finally, ViT-B/16 displayed the largest benefit from pretraining, alongside the 
 \label{fig:bal_acc_img}
 \end{figure}
 
-\subsection{Best Model}
-The model with the best performance measured by \ac{BA} was the pretrained version of EfficientNet-B0.
+\subsection{Best Performing Model Architecture}
+The model architecture with the best performance measured by \ac{BA} was EfficientNet-B0 with pretraining.
 In \autoref{fig:training_metrics_best_model}, the validation loss and \ac{BA} across training epochs for all cross-validation folds are shown.
 For all folds, the best version, defined by the lowest validation loss, occurred within the first 3 epochs, while the \ac{BA} kept increasing.
 
@@ -79,7 +79,7 @@ It shows that there were essentially no false positives for the class \textit{mu
 The most frequent misclassification occurred with \textit{soricidae} being falsely classified as \textit{apodemus\_sp}, with a value of \(0.0184\).
 All other classes had a false positive rate of less than \(0.006\).
 
-The Spearman correlation between the detection confidence and the classification confidence is:
+The Spearman correlation between the detection confidence and the classification confidence is:\todo{change this to corellation coefficient}
 
 \input{tables/spearman_corr_det_class_conf.tex}
 
@@ -91,7 +91,7 @@ The $p$-values are far below the significance threshold of \( \alpha = 0.05 \), 
 \includegraphics{figures/training_metrics_best_model.pdf}
 \caption{Validation Loss and \acs{BA} across training epochs for the best-performing model, shown for all cross-validation folds. In the Validation Loss subfigure, the lowest value per fold is marked with a dot to indicate the best epoch. In the \acs{BA} subfigure, the highest value per fold is similarly marked.}
 \label{fig:training_metrics_best_model}
-\end{figure}    
+\end{figure}\todo{why is this val loss so much lower as in other eval?}    
 
 % table
 \input{tables/precision_recall_fscore_support.tex}
