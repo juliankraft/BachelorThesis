@@ -53,12 +53,10 @@ The aim of this thesis is to develop a reproducible and effective workflow for t
 \subsection{Related Work}
 
 % Deap Learning for image classification
-Deep learning methods, particularly \ac{CNN}, have revolutionized image classification tasks,
+
 
 % Deep Learning for wildlife monitoring
- showing significant promise for ecological monitoring.
 
-Studies such as those by \textcite{velezChoosingAppropriatePlatform2022,schneiderRecognitionEuropeanMammals2024} demonstrate robust detection performance but highlight limitations in species-level classification, particularly for morphologically similar species.
 
 % use of megadetector
 
@@ -70,8 +68,9 @@ The authors conclude that while fully automated species classification is not ye
 \ac{MD}, originally developed by Microsoft, has since become one of the most widely adopted tools for wildlife image filtering and is actively maintained as a standalone detection model \autocite{morrisEfficientPipelineCamera2025}.
 Building on this foundation, a highly regarded research team supported by Microsoft is now developing the PyTorch Wildlife project \autocite{hernandezPytorchWildlifeCollaborativeDeep2024}.
 This framework incorporates \ac{MD} as a core component and extends its functionality into a full-featured deep learning platform tailored to wildlife monitoring.
-A study applying the \ac{MD} for image preprocessing for animal detection is presented by \textcite{schneiderRecognitionEuropeanMammals2024}, who demonstrate its effectiveness in filtering out blank images and identifying animals in camera trap images.
-A very interesting approach of them is their taxonomycal approach for the species classification task, allowing to classify species in a hierarchical manner.
+A study applying \ac{MD} for image preprocessing is presented by \textcite{schneiderRecognitionEuropeanMammals2024}, who demonstrate its effectiveness in filtering blank images and identifying animals in camera trap datasets.
+A particularly notable contribution of their work is the taxonomic classification approach, enabling hierarchical predictions beyond species level to genus, family, or order.
+
 
 % studies focussing on small mammals
 
@@ -82,15 +81,3 @@ There are more complex approaches leveraging the often sequential nature of came
 As an example, \textcite{zotinANIMALDETECTIONUSING2019} utilizes sequences for a none deep learning approach to detect animals in camera trap images taken under complex shooting conditions.
 Another study by \textcite{muhammadTemporalSwinFPNNetNovel2024} introduces a sequence-aware and metadata-driven approach to camera trap image classification by adapting the Swin Transformer architecture (Swin-FPN Net) to process image sequences rather than individual frames. 
 By incorporating temporal dynamics and leveraging metadata such as timestamps, their method enhances classification accuracy and reduces processing time, enabling a more context-sensitive and efficient analysis of wildlife imagery.
-
-
-
-
-The \ac{MD} \autocite{morrisEfficientPipelineCamera2025}, specifically developed for camera trap images, exemplifies successful application in biodiversity monitoring and provides a foundation for further optimization \autocite{hernandezPytorchWildlifeCollaborativeDeep2024, velezChoosingAppropriatePlatform2022, schneiderRecognitionEuropeanMammals2024}.
-
-
-
-
-Integrating \ac{eDNA} techniques alongside automated image analysis, as explored by recent initiatives, can substantially enhance the accuracy of small mammal detection, providing a more comprehensive and reliable monitoring approach.
-
-This thesis aims to advance these methodologies, contributing to more effective biodiversity conservation strategies.
