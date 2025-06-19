@@ -12,24 +12,29 @@ The ongoing loss of biodiversity is among the most urgent environmental issues g
 Small mammals, despite their ecological importance, often receive limited attention in conservation research compared to birds and butterflies \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
 This disparity persists although small mammals significantly contribute to ecosystem functions such as seed dispersal and soil aeration.
 In Switzerland, of the approximately 30 native small mammal species, several are endangered and require targeted conservation strategies \autocite{bafuListeNationalPrioritaren2019}.
-
-Monitoring small mammal populations traditionally involves labor-intensive methods like live trapping, which not only consume significant time and resources but also pose risks to animal welfare \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
-Therefore, innovative methods have emerged, particularly camera trapping combined with \ac{eDNA} sampling, offering non-invasive and efficient alternatives for biodiversity assessment \autocite{aegerterMonitoringKleinmustelidenSchlaefern2019}.
+In response to these challenges, the Wildlife@Campus project was initiated to establish a long-term and locally anchored monitoring program for small mammals in the urban context of the \ac{ZHAW} Campus Wädenswil.
+By combining citizen science with scientific research, the project aims to improve the detection and understanding of small mammal populations while also raising public awareness and contributing to species conservation efforts \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
 
 \subsection{Background}
-
-In response to these challenges, the Wildlife@Campus project at the \ac{ZHAW} focuses on developing advanced methods to systematically detect and monitor small mammals.
-The project integrates optimized camera trap systems capable of capturing high-quality images and videos while simultaneously collecting \ac{eDNA} samples, thereby overcoming the limitations inherent in traditional methods \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
-The collected data is subsequently analyzed using automated image classification algorithms, complemented by genetic analyses for precise species identification, particularly important when visual differentiation is insufficient \autocite{ratnaweeraWildlifeCampusProgressReports2021}.
-
-Moreover, the project involves practical measures for habitat enhancement at the \ac{ZHAW} campus, creating diverse habitats to support various species, thereby actively promoting biodiversity locally.
-These interventions are coupled with educational and communication strategies to raise awareness and engagement regarding the ecological roles and conservation needs of small mammals.
+Monitoring small mammal populations traditionally involves labor-intensive methods like live trapping, which not only consume significant time and resources but also pose risks to animal welfare \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
+Indirect, more efficient survey methodes are a very much needed alternative to monitor less invasive and to generate more data for less effort.
+A proven to be effective method is the use of footprint tunnels showing a very low non detection rate \autocite{yarnellUsingOccupancyAnalysis2014}.
+A further non-invasive method with increasing relevance is the use of \ac{eDNA} for species detection with high reliability \autocite{thomsenEnvironmentalDNAEmerging2015}.
+The method in focus for this study utilizes camera traps for species detection --- an approach that has seen rapid and widespread adoption in ecological and conservation research \autocite{delisleNextGenerationCameraTrapping2021}.
+Based on findings from the Wildlife@Campus project, a combined approach using camera traps for continuous monitoring and \acs{eDNA}-based methods for species-level identification appears to be a promising and scalable solution for small mammal detection in urban environments \autocite{grafWildlifeCampusKleineSaeugetiere2022}.
+As part of the Wildlife@Campus project, initial efforts were made to explore the collection of non-invasive genetic material such as hair and fecal samples.
+While these genetic methods were not fully implemented during the pilot phase, they were recognized as essential for identifying cryptic or morphologically similar species and are considered a key component of future monitoring strategies.
+Based on the design of the \enquote{Mostela} camera trap box, \textcite{aegerterMonitoringKleinmustelidenSchlaefern2019} developed the \enquote{MammaliaBox}, adapting it to local conditions for monitoring small mustelids and dormice in Switzerland.
+In addition to improving image quality, he conducted extensive field testing and produced a detailed guideline for standardized and effective deployment.
+During the Wildlife@Campus pilot phase, images were generated exclusively using \enquote{MammaliaBoxes} at multiple locations on the ZHAW campus. 
+These camera trap boxes produced a substantial volume of image material, capturing a wide range of small mammal activity.
+Significant effort has already been invested within the Wildlife@Campus project to manually label a substantial portion of the image dataset and to explore automated approaches to species detection.
+In fact, a preliminary solution for training a deep learning model was developed and tested, and a usable labeled dataset already exists \autocite{ratnaweeraWildlifeCampusProgressReports2021}.
+However, this work remained largely undocumented and was not brought to full completion or operational integration. 
+In the context of this bachelor's thesis, I revisit and build upon these foundations with the goal of refining, reproducing, and properly documenting a functional pipeline for automated image evaluation.
 
 \subsection{Problem Statement}
 
-Despite significant advancements, accurately distinguishing visually similar small mammal species using camera traps alone remains challenging.
-Additionally, large volumes of image data generated necessitate efficient automated classification tools that can manage data effectively without compromising accuracy.
-Thus, the central problem of this thesis is to evaluate and improve deep learning models' effectiveness for small mammal classification from camera trap images, integrating \ac{eDNA} analyses to validate and complement visual identifications.
 
 \subsection{Related Work}
 
