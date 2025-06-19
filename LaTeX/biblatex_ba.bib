@@ -381,6 +381,47 @@
   file = {/Volumes/ExSSD/UserData/Zotero/storage/9CJKP97Q/Ilse et al. - 2018 - Attention-based Deep Multiple Instance Learning.pdf;/Volumes/ExSSD/UserData/Zotero/storage/GIA3T2FT/1802.html}
 }
 
+@inproceedings{krizhevskyImageNetClassificationDeep2012,
+  title = {{{ImageNet Classification}} with {{Deep Convolutional Neural Networks}}},
+  booktitle = {Advances in {{Neural Information Processing Systems}}},
+  author = {Krizhevsky, Alex and Sutskever, Ilya and Hinton, Geoffrey E},
+  date = {2012},
+  volume = {25},
+  publisher = {Curran Associates, Inc.},
+  url = {https://proceedings.neurips.cc/paper_files/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html},
+  urldate = {2025-06-19},
+  abstract = {We trained a large, deep convolutional neural network to classify the 1.3 million high-resolution images in the LSVRC-2010 ImageNet training set into the 1000 different classes. On the test data, we achieved top-1 and top-5 error rates of 39.7\textbackslash\% and 18.9\textbackslash\% which is considerably better than the previous state-of-the-art results. The neural network, which has 60 million parameters and 500,000 neurons, consists of five convolutional layers, some of which are followed by max-pooling layers, and two globally connected layers with a final 1000-way softmax. To make training faster, we used non-saturating neurons and a very efficient GPU implementation of convolutional nets. To reduce overfitting in the globally connected layers we employed a new regularization method that proved to be very effective.},
+  file = {/Volumes/ExSSD/UserData/Zotero/storage/4BZGALZU/Krizhevsky et al. - 2012 - ImageNet Classification with Deep Convolutional Neural Networks.pdf}
+}
+
+@article{lecunGradientbasedLearningApplied1998,
+  title = {Gradient-Based Learning Applied to Document Recognition},
+  author = {Lecun, Y. and Bottou, L. and Bengio, Y. and Haffner, P.},
+  date = {1998-11},
+  journaltitle = {Proceedings of the IEEE},
+  volume = {86},
+  number = {11},
+  pages = {2278--2324},
+  issn = {1558-2256},
+  doi = {10.1109/5.726791},
+  abstract = {Multilayer neural networks trained with the back-propagation algorithm constitute the best example of a successful gradient based learning technique. Given an appropriate network architecture, gradient-based learning algorithms can be used to synthesize a complex decision surface that can classify high-dimensional patterns, such as handwritten characters, with minimal preprocessing. This paper reviews various methods applied to handwritten character recognition and compares them on a standard handwritten digit recognition task. Convolutional neural networks, which are specifically designed to deal with the variability of 2D shapes, are shown to outperform all other techniques. Real-life document recognition systems are composed of multiple modules including field extraction, segmentation recognition, and language modeling. A new learning paradigm, called graph transformer networks (GTN), allows such multimodule systems to be trained globally using gradient-based methods so as to minimize an overall performance measure. Two systems for online handwriting recognition are described. Experiments demonstrate the advantage of global training, and the flexibility of graph transformer networks. A graph transformer network for reading a bank cheque is also described. It uses convolutional neural network character recognizers combined with global training techniques to provide record accuracy on business and personal cheques. It is deployed commercially and reads several million cheques per day.},
+  keywords = {Character recognition,Feature extraction,Hidden Markov models,Machine learning,Multi-layer neural network,Neural networks,Optical character recognition software,Optical computing,Pattern recognition,Principal component analysis},
+  file = {/Volumes/ExSSD/UserData/Zotero/storage/QAWV7JZB/Lecun et al. - 1998 - Gradient-based learning applied to document recognition.pdf}
+}
+
+@online{liuSwinTransformerHierarchical2021,
+  title = {Swin {{Transformer}}: {{Hierarchical Vision Transformer}} Using {{Shifted Windows}}},
+  shorttitle = {Swin {{Transformer}}},
+  author = {Liu, Ze and Lin, Yutong and Cao, Yue and Hu, Han and Wei, Yixuan and Zhang, Zheng and Lin, Stephen and Guo, Baining},
+  date = {2021-03-25},
+  url = {https://arxiv.org/abs/2103.14030v2},
+  urldate = {2025-06-19},
+  abstract = {This paper presents a new vision Transformer, called Swin Transformer, that capably serves as a general-purpose backbone for computer vision. Challenges in adapting Transformer from language to vision arise from differences between the two domains, such as large variations in the scale of visual entities and the high resolution of pixels in images compared to words in text. To address these differences, we propose a hierarchical Transformer whose representation is computed with \textbackslash textbf\{S\}hifted \textbackslash textbf\{win\}dows. The shifted windowing scheme brings greater efficiency by limiting self-attention computation to non-overlapping local windows while also allowing for cross-window connection. This hierarchical architecture has the flexibility to model at various scales and has linear computational complexity with respect to image size. These qualities of Swin Transformer make it compatible with a broad range of vision tasks, including image classification (87.3 top-1 accuracy on ImageNet-1K) and dense prediction tasks such as object detection (58.7 box AP and 51.1 mask AP on COCO test-dev) and semantic segmentation (53.5 mIoU on ADE20K val). Its performance surpasses the previous state-of-the-art by a large margin of +2.7 box AP and +2.6 mask AP on COCO, and +3.2 mIoU on ADE20K, demonstrating the potential of Transformer-based models as vision backbones. The hierarchical design and the shifted window approach also prove beneficial for all-MLP architectures. The code and models are publicly available at\textasciitilde\textbackslash url\{https://github.com/microsoft/Swin-Transformer\}.},
+  langid = {english},
+  organization = {arXiv.org},
+  file = {/Volumes/ExSSD/UserData/Zotero/storage/EM7E8938/Liu et al. - 2021 - Swin Transformer Hierarchical Vision Transformer using Shifted Windows.pdf}
+}
+
 @online{loshchilovDecoupledWeightDecay2019,
   title = {Decoupled {{Weight Decay Regularization}}},
   author = {Loshchilov, Ilya and Hutter, Frank},
@@ -551,6 +592,36 @@
   abstract = {Deep convolutional neural networks have performed remarkably well on many Computer Vision tasks. However, these networks are heavily reliant on big data to avoid overfitting. Overfitting refers to the phenomenon when a network learns a function with very high variance such as to perfectly model the training data. Unfortunately, many application domains do not have access to big data, such as medical image analysis. This survey focuses on Data Augmentation, a data-space solution to the problem of limited data. Data Augmentation encompasses a suite of techniques that enhance the size and quality of training datasets such that better Deep Learning models can be built using them. The image augmentation algorithms discussed in this survey include geometric transformations, color space augmentations, kernel filters, mixing images, random erasing, feature space augmentation, adversarial training, generative adversarial networks, neural style transfer, and meta-learning. The application of augmentation methods based on GANs are heavily covered in this survey. In addition to augmentation techniques, this paper will briefly discuss other characteristics of Data Augmentation such as test-time augmentation, resolution impact, final dataset size, and curriculum learning. This survey will present existing methods for Data Augmentation, promising developments, and meta-level decisions for implementing Data Augmentation. Readers will understand how Data Augmentation can improve the performance of their models and expand limited datasets to take advantage of the capabilities of big data.},
   keywords = {Big data,Data Augmentation,Deep Learning,GANs,Image data},
   file = {/Volumes/ExSSD/UserData/Zotero/storage/ZEEC95RE/Shorten and Khoshgoftaar - 2019 - A survey on Image Data Augmentation for Deep Learning.pdf}
+}
+
+@online{simonyanVeryDeepConvolutional2015,
+  title = {Very {{Deep Convolutional Networks}} for {{Large-Scale Image Recognition}}},
+  author = {Simonyan, Karen and Zisserman, Andrew},
+  date = {2015-04-10},
+  eprint = {1409.1556},
+  eprinttype = {arXiv},
+  eprintclass = {cs},
+  doi = {10.48550/arXiv.1409.1556},
+  abstract = {In this work we investigate the effect of the convolutional network depth on its accuracy in the large-scale image recognition setting. Our main contribution is a thorough evaluation of networks of increasing depth using an architecture with very small (3x3) convolution filters, which shows that a significant improvement on the prior-art configurations can be achieved by pushing the depth to 16-19 weight layers. These findings were the basis of our ImageNet Challenge 2014 submission, where our team secured the first and the second places in the localisation and classification tracks respectively. We also show that our representations generalise well to other datasets, where they achieve state-of-the-art results. We have made our two best-performing ConvNet models publicly available to facilitate further research on the use of deep visual representations in computer vision.},
+  pubstate = {prepublished},
+  keywords = {Computer Science - Computer Vision and Pattern Recognition},
+  file = {/Volumes/ExSSD/UserData/Zotero/storage/K7LL92RV/Simonyan and Zisserman - 2015 - Very Deep Convolutional Networks for Large-Scale Image Recognition.pdf;/Volumes/ExSSD/UserData/Zotero/storage/K9X6NTGM/1409.html}
+}
+
+@inproceedings{szegedyGoingDeeperConvolutions2015,
+  title = {Going Deeper with Convolutions},
+  booktitle = {2015 {{IEEE Conference}} on {{Computer Vision}} and {{Pattern Recognition}} ({{CVPR}})},
+  author = {Szegedy, Christian and {Wei Liu} and {Yangqing Jia} and Sermanet, Pierre and Reed, Scott and Anguelov, Dragomir and Erhan, Dumitru and Vanhoucke, Vincent and Rabinovich, Andrew},
+  date = {2015-06},
+  pages = {1--9},
+  publisher = {IEEE},
+  location = {Boston, MA, USA},
+  doi = {10.1109/CVPR.2015.7298594},
+  abstract = {We propose a deep convolutional neural network architecture codenamed Inception that achieves the new state of the art for classification and detection in the ImageNet Large-Scale Visual Recognition Challenge 2014 (ILSVRC14). The main hallmark of this architecture is the improved utilization of the computing resources inside the network. By a carefully crafted design, we increased the depth and width of the network while keeping the computational budget constant. To optimize quality, the architectural decisions were based on the Hebbian principle and the intuition of multi-scale processing. One particular incarnation used in our submission for ILSVRC14 is called GoogLeNet, a 22 layers deep network, the quality of which is assessed in the context of classification and detection.},
+  eventtitle = {2015 {{IEEE Conference}} on {{Computer Vision}} and {{Pattern Recognition}} ({{CVPR}})},
+  isbn = {978-1-4673-6964-0},
+  langid = {english},
+  file = {/Volumes/ExSSD/UserData/Zotero/storage/6WPXTUVZ/Szegedy et al. - 2015 - Going deeper with convolutions.pdf}
 }
 
 @online{tabakCameraTrapDetectoRAutomaticallyDetect2022,
