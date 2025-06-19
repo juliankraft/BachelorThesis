@@ -5,7 +5,7 @@
 % 01_introduction
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Introduction}\todo{Its a starting point, needs to be extended and improved.}
+\section{Introduction}
 \label{introduction}
 
 The ongoing loss of biodiversity is among the most urgent environmental issues globally \autocite{brondizioGlobalAssessmentReport2019, cardinaleBiodiversityLossIts2012}.
@@ -54,20 +54,25 @@ The aim of this thesis is to develop a reproducible and effective workflow for t
 
 % Deap Learning for image classification
 Image classification utilizing \ac{DL} has become a cornerstone of modern computer vision, with significant advancements in recent years.
-One of the earliest successfull \ac{CNN} architectures was LeNet-5, introduced by \textcite{lecunGradientbasedLearningApplied1998} --- it was designed for handwritten digit recognition and laid the foundation for subsequent developments in \ac{DL} for image classification.
+One of the earliest successful \ac{CNN} architectures was LeNet-5, introduced by \textcite{lecunGradientbasedLearningApplied1998} --- it was designed for handwritten digit recognition and laid the foundation for subsequent developments in \ac{DL} for image classification.
 A major breakthrough came with the introduction of AlexNet by \textcite{krizhevskyImageNetClassificationDeep2012}, which demonstrated the power of deep convolutional networks in large-scale image classification tasks.
 This architecture won the ImageNet Large Scale Visual Recognition Challenge (ILSVRC) in 2012 and significantly outperformed previous methods, showcasing the potential of \ac{DL} in computer vision.
 Following AlexNet, several other influential architectures emerged, including VGGNet \autocite{simonyanVeryDeepConvolutional2015}, GoogLeNet \autocite{szegedyGoingDeeperConvolutions2015}, and ResNet \autocite{heDeepResidualLearning2016}.
 These architectures introduced various innovations, such as deeper networks, inception modules, and residual connections, which further improved classification accuracy and model efficiency.
+Subsequent models such as DenseNet \autocite{huangDenselyConnectedConvolutional2017} and EfficientNet \autocite{tanEfficientNetRethinkingModel2019} focused on parameter efficiency and scaling strategies, achieving strong performance with fewer computational resources.
 The development of these architectures has been complemented by the creation of large-scale datasets like ImageNet \autocite{dengImageNetLargescaleHierarchical2009}, which provided a rich source of labeled images for training and benchmarking \ac{DL} models.
-The are of modern \ac{DL} for image classification has continued to evolve, with the introduction of transformer-based architectures like \ac{ViT} \autocite{dosovitskiyImageWorth16x162021} and Swin Transformers \autocite{liuSwinTransformerHierarchical2021}, which have shown promising results in various image classification tasks.
-
+The area of modern \ac{DL} for image classification has continued to evolve, with the introduction of transformer-based architectures like \ac{ViT} \autocite{dosovitskiyImageWorth16x162021} and Swin Transformers \autocite{liuSwinTransformerHierarchical2021}, which have shown promising results in various image classification tasks.
 
 % Deep Learning for wildlife monitoring
-The success of \ac{DL} in general image classification has encouraged its adoption in wildlife monitoring, where camera trap images pose unique challenges due to varying lighting, occlusion, species similarity, and low data quality.
+The success of \ac{DL} in general image classification has led to its increasing application in wildlife monitoring, particularly in the analysis of camera trap images.
+The application of \ac{DL} in wildlife monitoring began gaining traction around 2014, when \textcite{chenDeepConvolutionalNeural2014} used \ac{CNN} to classify animal species in camera trap images.
+Their approach involved image segmentation via graph-cut algorithms followed by species classification using a \ac{CNN} trained on 14,000 manually segmented images across 20 species.
+Building on this early work, \textcite{gomezvillaAutomaticWildAnimal2017} compared various \ac{CNN} architectures on a subset of the Snapshot Serengeti dataset, demonstrating the superiority of deeper models like ResNet-101 for animal identification tasks.
+\textcite{norouzzadehAutomaticallyIdentifyingCounting2018} broadened the scope of \ac{DL} applications in wildlife monitoring by developing a model capable of not only identifying but also counting animals in camera trap images.
+This work demonstrated the potential of \ac{DL} to automate the labor-intensive task of manual image annotation, significantly improving the efficiency of wildlife monitoring efforts.
+Following this, \textcite{tabakMachineLearningClassify2019} applied \ac{DL} techniques to classify species in camera trap images, achieving high accuracy and demonstrating the feasibility of using \ac{DL} for large-scale wildlife monitoring projects.
 
 % use of megadetector
-
 There is a growing number of \ac{AI} platforms and tools designed to facilitate the application of \ac{DL} in wildlife monitoring.
 \textcite{velezChoosingAppropriatePlatform2022} provide a comprehensive overview of various platforms, including \ac{MD}, \ac{WI}, \ac{MLWIC2}, and Conservation \ac{AI}.
 \ac{WI} and \ac{MLWIC2} demonstrated low recall—many animals present in images were missed—but high precision for some species.
@@ -79,12 +84,15 @@ This framework incorporates \ac{MD} as a core component and extends its function
 A study applying \ac{MD} for image preprocessing is presented by \textcite{schneiderRecognitionEuropeanMammals2024}, who demonstrate its effectiveness in filtering blank images and identifying animals in camera trap datasets.
 A particularly notable contribution of their work is the taxonomic classification approach, enabling hierarchical predictions beyond species level to genus, family, or order.
 
-
 % studies focussing on small mammals
-
+While most existing studies have focused on larger mammals, there is a growing interest in applying \ac{DL} techniques to small mammal species.
+Camera traps is a proven to be effective methode for monitoring small mammal populations \autocite{clucasCameraTrapMethod2025,aegerterMonitoringKleinmustelidenSchlaefern2019,littlewoodUseNovelCamera2021}.
+Despite these developments, there remains a lack of comprehensive \ac{DL} applications specifically targeting small mammal classification.
+A notable exception is the work by \textcite{hopkinsDetectingMonitoringRodents2024}, who successfully applied a transfer learning approach to fine-tune a YOLOv5 model for detecting six rodent species from camera trap images.
+Their study highlights the feasibility of using \ac{DL} for small mammal monitoring and demonstrates how existing detection models can be adapted to new species with relatively limited training data.
+This indicates a promising direction for future research aiming to extend \ac{AI}-powered wildlife monitoring beyond the currently dominant focus on large mammals.
 
 % studies focussing on sequential detection
-
 There are more complex approaches leveraging the often sequential nature of camera trap data, to improve detection and classification accuracy.
 As an example, \textcite{zotinANIMALDETECTIONUSING2019} utilizes sequences for a none \ac{DL} approach to detect animals in camera trap images taken under complex shooting conditions.
 Another study by \textcite{muhammadTemporalSwinFPNNetNovel2024} introduces a sequence-aware and metadata-driven approach to camera trap image classification by adapting the Swin Transformer architecture (Swin-FPN Net) to process image sequences rather than individual frames. 
