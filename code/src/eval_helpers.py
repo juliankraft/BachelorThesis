@@ -14,7 +14,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.gridspec import GridSpec
 from IPython.display import display
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 from os import PathLike
 from typing import Dict, Any, Callable
@@ -36,6 +36,66 @@ def set_custom_plot_style():
     plt.rcParams['ytick.major.width'] = 0.1
     plt.rcParams['xtick.minor.width'] = 0.05
     plt.rcParams['ytick.minor.width'] = 0.05
+
+
+def draw_bbox_on_image(
+        image: Image.Image,
+        bbox: list[float] | None = None,
+        conf: float | None = None
+        ) -> Image.Image:
+    """
+    Draws a bounding box and optional confidence score directly on a PIL image.
+
+    Returns the image unmodified if no bbox or conf > 0.
+    """
+    if conf is None or conf <= 0 or bbox is None:
+        return image.copy()  # return a copy to avoid modifying the original
+
+    image = image.copy()
+    draw = ImageDraw.Draw(image)
+    width, height = image.size
+
+    x_abs = bbox[0] * width
+    y_abs = bbox[1] * height
+    w_abs = bbox[2] * width
+    h_abs = bbox[3] * height
+
+    if w_abs > 0 and h_abs > 0:
+        draw.rectangle(
+            [(x_abs, y_abs), (x_abs + w_abs, y_abs + h_abs)],
+            outline='red',
+            width=2
+            )
+
+        font = ImageFont.load_default(size=56)
+
+        text = f"conf = {conf:.2f}"
+        text_bbox = draw.textbbox((0, 0), text, font=font)
+        text_width = text_bbox[2] - text_bbox[0]
+        text_height = text_bbox[3] - text_bbox[1]
+
+        padding = 10
+        box_top_l = (x_abs, max(y_abs - text_height - 2 * padding, 0))
+        box_bottom_r = (x_abs + text_width + 2*padding, y_abs)
+
+        x_text = box_top_l[0] + padding
+        y_text = box_top_l[1]
+
+        # Background rectangle behind text
+        draw.rectangle(
+            [box_top_l, box_bottom_r],
+            fill="red"
+            )
+
+        # Draw text
+        draw.text(
+            (x_text, y_text),
+            text,
+            fill="white",
+            font=font
+            )
+
+    return image
 
 
 def plot_image_with_bbox(
