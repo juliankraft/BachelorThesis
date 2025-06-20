@@ -41,7 +41,9 @@ def set_custom_plot_style():
 def draw_bbox_on_image(
         image: Image.Image,
         bbox: list[float] | None = None,
-        conf: float | None = None
+        conf: float | None = None,
+        font_size: int | None = None,
+        line_width: int = 2
         ) -> Image.Image:
     """
     Draws a bounding box and optional confidence score directly on a PIL image.
@@ -64,36 +66,37 @@ def draw_bbox_on_image(
         draw.rectangle(
             [(x_abs, y_abs), (x_abs + w_abs, y_abs + h_abs)],
             outline='red',
-            width=2
+            width=line_width
             )
 
-        font = ImageFont.load_default(size=56)
+        if font_size is not None:
+            font = ImageFont.load_default(size=font_size)
 
-        text = f"conf = {conf:.2f}"
-        text_bbox = draw.textbbox((0, 0), text, font=font)
-        text_width = text_bbox[2] - text_bbox[0]
-        text_height = text_bbox[3] - text_bbox[1]
+            text = f"conf = {conf:.2f}"
+            text_bbox = draw.textbbox((0, 0), text, font=font)
+            text_width = text_bbox[2] - text_bbox[0]
+            text_height = text_bbox[3] - text_bbox[1]
 
-        padding = 10
-        box_top_l = (x_abs, max(y_abs - text_height - 2 * padding, 0))
-        box_bottom_r = (x_abs + text_width + 2*padding, y_abs)
+            padding = 10
+            box_top_l = (x_abs, max(y_abs - text_height - 2 * padding, 0))
+            box_bottom_r = (x_abs + text_width + 2*padding, y_abs)
 
-        x_text = box_top_l[0] + padding
-        y_text = box_top_l[1]
+            x_text = box_top_l[0] + padding
+            y_text = box_top_l[1]
 
-        # Background rectangle behind text
-        draw.rectangle(
-            [box_top_l, box_bottom_r],
-            fill="red"
-            )
+            # Background rectangle behind text
+            draw.rectangle(
+                [box_top_l, box_bottom_r],
+                fill="red"
+                )
 
-        # Draw text
-        draw.text(
-            (x_text, y_text),
-            text,
-            fill="white",
-            font=font
-            )
+            # Draw text
+            draw.text(
+                (x_text, y_text),
+                text,
+                fill="white",
+                font=font
+                )
 
     return image
 
