@@ -49,12 +49,20 @@ Examining \autoref{fig:bal_acc_img} again, one could speculate about a trend for
 The observations from this study suggest that smaller, computationally efficient models are sufficient and therefore preferable for the classification tasks at hand.
 
 \subsection{Best Model Architecture}
-\sloppy{The pretrained EfficientNet-B0 emerged as the best-performing model architecture, achieving the highest \ac{BA}.}
+The pretrained EfficientNet-B0 emerged as the best-performing architecture, achieving the highest \ac{BA}.
 Remarkably, the optimal validation loss was reached within the first few epochs, while the accuracy continued to improve \autoref{fig:training_metrics_best_model}.\todo{Why did Accuracy still improve?}
 Since the training dataset was quite large, contained only four classes, and was intensively vetted using the \ac{MD}, the model was able to learn the task quite quickly.
-The observed weak but statistically significant correlation between detection confidence and classification confidence suggests that improved detections may lead to slightly better predictions.\todo{fix the statistics insanity}
-However, since this correlation is very weak, the exploration of other factors influencing classification confidence might be beneficial.
-The fact that overall classification confidence values were generally high, even for incorrect classifications and across all detection confidence values, as shown in \autoref{fig:pred_conf_hexbin}, is again an indication that an additional class for non-target species would be beneficial.
+The initial supposition that a higher confidence in the detection would lead to a higher classification confidence could not be confirmed by the Spearman's rank corelation coefficient.
+It even suggested that the correlation is stronger for the incorrect classifications.
+Examining \autoref{fig:pred_conf_hexbin} of the relationship between detection confidence and classification confidence, shows that the classification confidence is generally very high --- for all detection confidence values and even for incorrect classifications.
+There seems to be more values located in the upper right corner, which would point to a higher confidence detection leading to a higher classification confidence.
+Since there is so many samples with close to 1 classification confidence trough all detection confidence values, the Spermann's rank might not be a good measure for this relationship.
+This many very high classification confidence values could be explained considering the model's architecture.
+In the last layers of the model, the following happens: the model maps its learned features to the four classes and than normalizes this for values to sum to one.
+If the model is entirely confident that an input does not belong to the first three classes and assigns a very small value to the fourth class (e.g., $[0\;;\;0\;;\;0\;;\;10^{-5}]$), this distribution will be normalized to $[0\;;\;0\;;\;0\;;\;1]$, resulting in a prediction for the fourth class with maximum confidence.
+Therefore this evaluation lacks some meaningfulness.
+It could be repeated with a predicted test set where the values are kept as they are without normalization.
+Still, the assumption that a non-target class would benefit the classification task remains valid.
 
 \begin{figure}[ht]
 \centering
@@ -63,7 +71,7 @@ The fact that overall classification confidence values were generally high, even
 \label{fig:pred_conf_hexbin}
 \end{figure}
 
-\subsection{Limitations}
+\subsection{Limitations}\todo{this is not ready}
 The primary limitation of the current methodology is the absence of an explicit non-target class, forcing models into potentially incorrect predictions, exemplified by the snail misclassification issue, shown in \autoref{fig:false_class_snails}.
 Further, despite improvements, the \ac{MD} still misses a significant number of potentially relevant detections.
 This limitation is particularly pronounced for rare species, where insufficient data reduces detection reliability.

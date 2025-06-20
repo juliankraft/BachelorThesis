@@ -43,12 +43,12 @@ This occurred far more often for individuals with white fur than for those with 
 
 \subsection{Classification Performance}
 All classification models performed well on their respective test sets.
-The \ac{BA} scores for each model are presented in \autoref{tab:bal_acc_by_model}.
-Generally, smaller models achieved slightly higher scores than larger ones, although these differences remained within one standard deviation.
+The \ac{BA} scores for each model architecture are presented in \autoref{tab:bal_acc_by_model} for the pretrained and non-pretrained variants.
+Generally, smaller architectures achieved slightly higher scores than larger ones, although these differences remained within one standard deviation.
 In particular, the pretrained EfficientNet-B0 reached the highest \ac{BA} of \(0.992\pm0.004\).
-Applying sequence-level classification to the image-level predictions improved \ac{BA} for every model, but only by \(0.001\) to \(0.005\), which again falls within a single standard deviation.
+Applying sequence-level classification to the image-level predictions improved \ac{BA} for every model architecture, but only by \(0.001\) to \(0.005\), which again falls within a single standard deviation.
 
-Pretrained models consistently outperformed those trained from scratch, as shown in \autoref{fig:bal_acc_img} and \autoref{tab:bal_acc_by_model}.
+Pretrained versions consistently outperformed those trained from scratch, as shown in \autoref{fig:bal_acc_img} and \autoref{tab:bal_acc_by_model}.
 EfficientNet-B0 with pretraining performed uniformly well across all folds, with only one outlier, while the non-pretrained version scored slightly lower on average and showed greater variability.
 In contrast, DenseNet-169 showed less of a gap between pretrained and non-pretrained variants, with the pretrained version performing slightly better but also showing increased spread across folds.
 ResNet-50 values were more dispersed for both variants, yet the pretrained model still held a clear advantage.
@@ -67,10 +67,9 @@ Finally, ViT-B/16 displayed the largest benefit from pretraining, alongside the 
 \end{figure}
 
 \subsection{Best Performing Model Architecture}
-The model architecture with the best performance measured by \ac{BA} was EfficientNet-B0 with pretraining.
-In \autoref{fig:training_metrics_best_model}, the validation loss and \ac{BA} across training epochs for all cross-validation folds are shown.
-For all folds, the best version, defined by the lowest validation loss, occurred within the first 3 epochs, while the \ac{BA} kept increasing.
-
+The model architecture that achieved the best performance, as measured by \ac{BA}, was EfficientNet-B0 with pretraining. 
+\autoref{fig:training_metrics_best_model} shows the validation metrics for each cross-validation fold across all epochs; note that accuracy is reported in the table instead of \ac{BA}.
+For all folds, the best version, defined by the lowest validation loss, occurred within the first 3 epochs, while the accuracy kept increasing.
 Its performance per category is shown in \autoref{tab:precision_recall_fscore_support}.
 The class it performed best on was \textit{mustela\_erminea}, with a value of \(0.999\) for all metrics --- this happens to be one of the classes with relatively few samples available.
 It performed the worst on the other underrepresented class, \textit{soricidae}, with a precision of \(0.971\), recall of \(0.979\), and F1-score of \(0.975\).
@@ -81,17 +80,21 @@ It shows that there were essentially no false positives for the class \textit{mu
 The most frequent misclassification occurred with \textit{soricidae} being falsely classified as \textit{apodemus\_sp}, with a value of \(0.0184\).
 All other classes had a false positive rate of less than \(0.006\).
 
-The Spearman correlation between the detection confidence and the classification confidence is:\todo{change this to corellation coefficient}
+The Spearman's rank correlation coefficient between the detection and the classification confidence is:
 
+% table
 \input{tables/spearman_corr_det_class_conf.tex}
 
-This shows that there is a very weak positive correlation between detection confidence and classification confidence for correctly classified images, and a weak positive correlation for misclassified images.
-The $p$-values are far below the significance threshold of \( \alpha = 0.05 \), indicating that both correlations are statistically significant.
+This suggests that there is a very weak positive correlation between detection confidence and classification confidence for correctly classified images, and a weak positive correlation for misclassified images.
 
 \begin{figure}[ht]
 \centering
 \includegraphics{figures/training_metrics_best_model.pdf}
-\caption{Validation loss and accuracy across training epochs for the best-performing model, shown for all cross-validation folds. In the validation loss subfigure, the lowest value per fold is marked with a dot to indicate the best epoch. In the accuracy subfigure, the highest value per fold is similarly marked.}
+\caption{
+    Validation loss and accuracy of the pretrained EfficientNet-B0 across all cross-validation folds. 
+    In the validation loss subplot, the lowest loss per fold is marked with a dot, indicating the best-performing epoch. 
+    In the accuracy subplot, the highest accuracy per fold is similarly marked.
+    }
 \label{fig:training_metrics_best_model}
 \end{figure}
 

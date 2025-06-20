@@ -181,14 +181,23 @@
     \end{equation}
 
     \subsection{Evaluation}
-    The evaluation is divided into two parts: a comparison of the models based on their performance during cross-validation and an evaluation of the best model on the full dataset.
+    There is tree levels of evaluation in this project.
+    The first is the evaluation of the detection output, which is done using the \ac{MD} output.
+    The second is the evaluation of the model architecture performance, determining the best performing model architecture based on the balanced accuracy score.
+    The third is the evaluation of the best performing model architecture in more detail, using additional metrics such as precision, recall, F1-score, and support.
 
-    \subsubsection{Evaluation of Detection Output}\todo{this could be added...}
+    \subsubsection{Detection Output}
+    To evaluate the detection output, two approaches where used.
+    At one hand a strictly numerical evaluation was done counting the number of images and sequences per category with detections above the thresholds of \(0.25\) and \(0.5\).
+    On the other hand, a visual evaluation was done by plotting series of detections on images from the dataset creating views like \autoref{fig:detection_mustela_best} and \autoref{fig:detection_special_nodetect}.
+    To do this a Python class was implemented to iterate over a dataframe outputting fixed size chunks of the dataframe.
+    This class was used to brows trough a dataframe wich different filters applied to it visualizing the chunks with a custom plot function.
 
     \subsubsection{Comparison of Model Architecture Performance}
-    The evaluation is done using the predictions created by the best version of every model for each fold which where saved at the end of the training process.
-    To compare models, both the image-level and sequence-level predictions are evaluated using thehighest \ac{BA} score as metric for the best performance.
-    For every model the \ac{BA} is calculated for each fold and than averaged over all folds.
+    The evaluation is done using the testset predictions created by the best version of each folds model which where saved at the end of the training process.
+    To compare model architecture, both the image-level and sequence-level predictions are evaluated using the highest \ac{BA} score as metric for the best performance.
+    For every model architecture the \ac{BA} is calculated for each fold and than averaged over all folds.
+    This evaluation was done for every model architecture both with and without pretraining.
     The \ac{BA} score is calculated using the following formula:
     \begin{equation}
     \text{BalAcc}
@@ -204,19 +213,18 @@
         \item[\(FN_{c}\)] (false negatives for class \(c\)) is the count of samples whose true label is \(c\) but whose predicted label is not \(c\).
     \end{description}
 
-    \subsubsection{Best Performing Model Architecture Evaluation}\todo{ensure clarity - model vs architecutre trough the whole thesi}
+    \subsubsection{Best Performing Model Architecture}
     To further evaluate the best performing model architecture some additional metrics where computed on the full dataset by combining the predictions from each cross-validation fold testset.
     On this data, precision, recall, F1-score and support for each class where computed.
     In the way the data is combined support (true positives per class) is the same as available samples per class in the whole dataset.
     Additionally the normalized \ac{CM} was calculated to visualize the performance of the model across all classes.
     This metrics where all calculated using the \texttt{precision\_recall\_fscore\_support} and the \texttt{confusion\_matrix} function from the \texttt{sklearn} library \autocite{pedregosaScikitlearnMachineLearning2011}.
 
-    To evaluate whether there is a correlation between detection confidence and classification confidence, Spearman's rank correlation test was used. 
-    A significance level of \( \alpha = 0.05 \) was applied to determine statistical significance.\todo{change to correlation coefficient}
-    
+    To assess the rank-based relationship between detection and classification confidence scores, Spearman's rank correlation coefficient was calculated. 
+    This analysis was performed separately for correctly classified and misclassified images. 
+    The p-value was not reported, as it becomes uninformative with large sample sizes, where even negligible correlations tend to appear statistically significant.
 
     \subsection{Hardware and Software}
-
     This project was processed on the \ac{IUNR} \ac{HPC} cluster using node 301, an HPE Apollo 6500 Gen10+ node running Rocky Linux 8. 
     The node is equipped with 8 NVIDIA L40S \acp{GPU} (48 \ac{GB} each), dual AMD EPYC 7742 processors, 512 cores, and 5800 \ac{GB} of storage, providing the computational power needed for high-performance tasks.
 
