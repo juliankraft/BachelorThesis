@@ -49,7 +49,7 @@
     Further more a custom data splitting was implemented to create five stratified folds for cross-validation.
     While the detection was performed once for the whole dataset, the selection, image processing, and data splitting were implemented to be done on the fly.
 
-        \subsubsection{Detection and Selection}\todo{Is this okay?}
+        \subsubsection{Detection and Selection}
     
         In this project, the \ac{MD} \autocite{morrisEfficientPipelineCamera2025} is used to identify \acp{ROI} on all the images.
         The \ac{MD} outputs a list of \acp{BBox} for detected objects labeled \textit{animal}, \textit{human} or \textit{vehicle} with a corresponding confidence value.
@@ -137,7 +137,7 @@
     A batch size of 64 was used for training --- and doubled for validation and prediction.
     Predicting the whole dataset the predicted class for each sample and the confidence scores per class were saved to a \ac{CSV} file for later evaluation
 
-    \subsection{Sequence Classification}\todo{go trough the illustration again}
+    \subsection{Sequence Classification}
     Since the data is grouped into sequences and the classification was done per image, an additional step was performed to classify the sequences.
     This step was only performed after the model has been trained and the predictions for the whole dataset were available.
 
