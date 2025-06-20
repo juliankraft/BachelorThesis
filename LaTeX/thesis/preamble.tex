@@ -101,10 +101,9 @@
 \usepackage{pdfpages}          % Required to include PDF files/graphics (\includepdf)
 \usepackage{colortbl}          % Tables with colors
 \usepackage[tooltip]{acro}     % For acronyms and abbreviations
-\acsetup{
-  list/heading = section*, 
-  list/name = {List of Abbreviations}
-}
+\usepackage[autostyle=true]{csquotes} 
+                               % Required to generate language-dependent quotes 
+                               % in the bibliography
   
 \usepackage{todonotes}         % Introduces the command \todo
 \setlength{\marginparwidth}{2.5cm} % Adjust this if the todo notes are out of margins
@@ -194,25 +193,6 @@
 % https://tex.stackexchange.com/questions/585582
 % One could also create an own style in Pygments
 % https://pygments.org/docs/styles/#creating-own-styles
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% References
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\usepackage[autostyle=true]{csquotes} 
-                               % Required to generate language-dependent quotes 
-                               % in the bibliography
-
-\usepackage[
-    backend=biber,             % Use biber backend (an external tool)
-    sorting=nyt,               % Sort by name, year, title
-    style=apa,                 % Choose here your preferred citation style
-    uniquename=false,          % Avoids creating unique author lists
-    uniquelist=false           % Avoids creating unique author lists
-]{biblatex}
-
-\addbibresource{../biblatex_ba.bib} % The filename of the bibliography
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MARGIN SETTINGS

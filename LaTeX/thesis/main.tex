@@ -9,10 +9,6 @@
 %----------------------------------------------------------------------------------------
 \input{preamble}
 
-% Includes for blind texts...
-\usepackage{blindtext}
-\usepackage{kantlipsum}
-
 %----------------------------------------------------------------------------------------
 % PROJECT INFORMATION: MODIFY THIS SECTION!
 %----------------------------------------------------------------------------------------
@@ -63,103 +59,34 @@
 }
 
 %----------------------------------------------------------------------------------------
+% References
+%----------------------------------------------------------------------------------------
+\usepackage[
+    backend=biber,             % Use biber backend (an external tool)
+    sorting=nyt,               % Sort by name, year, title
+    style=apa,                 % Choose here your preferred citation style
+    uniquename=false,          % Avoids creating unique author lists
+    uniquelist=false           % Avoids creating unique author lists
+]{biblatex}
+
+\addbibresource{../biblatex_ba.bib} % The filename of the bibliography
+
+%----------------------------------------------------------------------------------------
 % Acronyms
 %----------------------------------------------------------------------------------------
-
-\DeclareAcronym{ViT}{
-    short = ViT,
-    long  = Vision Transformer
-    }
-\DeclareAcronym{WI}{
-    short = WI,
-    long  = Wildlife Insights
-    }
-\DeclareAcronym{MLWIC2}{
-    short = MLWIC2,
-    long  = Machine Learning for Wildlife Image Classification 2
-    }   
-\DeclareAcronym{AI}{
-    short = AI,
-    long  = Artificial Intelligence,
-    first-style = short
-    }
-\DeclareAcronym{DL}{
-    short = DL,
-    long  = Deep Learning
-    }
-\DeclareAcronym{BA}{
-    short = BalAcc,
-    long = balanced accuracy,
-    }
-\DeclareAcronym{BBox}{
-    short = BBox,
-    long = bounding box,
-    short-plural = es,
-    long-plural = es
-    }
-\DeclareAcronym{CSV}{
-    short = CSV,
-    long  = Comma-Separated Values,
-    first-style = short
-    }
-\DeclareAcronym{CNN}{
-    short = CNN,
-    long  = Convolutional Neural Network
-    }
-\DeclareAcronym{CM}{
-    short = CM,
-    long  = confusion matrix
-    }
-\DeclareAcronym{eDNA}{
-    short = eDNA,
-    long  = environmental DNA
-    }
-\DeclareAcronym{EXIF}{
-    short = EXIF,
-    long  = Exchangeable Image File Format,
-    first-style = short
-    }
-\DeclareAcronym{MD}{
-    short = MD,
-    long  = MegaDetector
-    }
-\DeclareAcronym{ZHAW}{
-    short = ZHAW,
-    long  = Zurich University of Applied Sciences,
-    first-style = short
-    }
-\DeclareAcronym{ROI}{
-    short = ROI,
-    long = region of interest
-    }
-\DeclareAcronym{HPC}{
-    short = HPC,
-    long  = High Performance Computing,
-    first-style = short
-    }
-\DeclareAcronym{IUNR}{
-    short = IUNR,
-    long  = Institute of Natural Resource Sciences,
-    first-style = short
-    }
-\DeclareAcronym{GB}{
-    short = GB,
-    long  = Giga Byte,
-    first-style = short
-    }
-\DeclareAcronym{GPU}{
-    short = GPU,
-    long  = Graphics Processing Unit,
-    first-style = short
+\acsetup{
+    list/heading = section*, 
+    list/name = {List of Abbreviations}
     }
 
+\input{acronyms} % Load the acronyms file
 
 %----------------------------------------------------------------------------------------
 % Beginning of the document
 %----------------------------------------------------------------------------------------
-
 \begin{document}
 \hypersetup{linkcolor=black, urlcolor=black} % Make links black for first part
+
 %----------------------------------------------------------------------------------------
 % TITLE PAGE AND IMPRINT
 %----------------------------------------------------------------------------------------
@@ -189,7 +116,6 @@
 %----------------------------------------------------------------------------------------
 % LIST OF CONTENTS/FIGURES/TABLES PAGES
 %----------------------------------------------------------------------------------------
-
 % Comment out if any of the following is not needed:
 \tableofcontents  % Add main table of contents
 
@@ -204,6 +130,7 @@
 \printacronyms    % Add list of acronyms
 
 \hypersetup{linkcolor=linkcolor, urlcolor=urlcolor} % Reset to default after TOC
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % THESIS CONTENT - CHAPTERS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -216,6 +143,7 @@
 \setcounter{page}{1}
 %\mainmatter                     % Begin numeric (1,2,3...) page numbering
 %\pagestyle{reportStyle}              % Reset the page headers
+
 \include{sections/01_introduction}
 \include{sections/02_methods}
 \include{sections/03_results}
@@ -226,7 +154,6 @@
 {\sloppy
 \printbibliography[heading=bibintoc]
 }
-
 
 % \appendix
 % \include{sections/a_tables}
