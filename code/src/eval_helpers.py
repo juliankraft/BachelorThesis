@@ -21,6 +21,7 @@ from typing import Dict, Any, Callable
 
 from ba_dev.dataset import MammaliaDataImage
 from ba_dev.utils import BBox, load_path_yaml
+from ba_dev.transform import ImagePipeline
 
 
 def set_custom_plot_style():
@@ -558,6 +559,48 @@ def get_md_info(
     max_conf = max(conf_values) if conf_values else 0.0
 
     return conf_values, bboxes, max_conf
+
+
+def process_image_series(
+        chunk: pd.DataFrame,
+        pipeline: ImagePipeline,
+        font_size: int | None = None,
+        line_width: int = 10
+        ) -> list[dict[str, Image.Image]]:
+
+    images = []
+    for n, row in enumerate(chunk.itertuples()):
+        image_path = eval.paths['dataset'] / str(row.file_path)
+        img = Image.open(image_path)
+        bbox = row.bbox
+        conf = row.conf
+
+        if conf > 0:
+            img_cropped = pipeline(image_path, bbox).resize((1000, 1000))
+        else:
+            img_cropped = Image.new("RGB", (1000, 1000), color="white")
+
+        img_bbox = draw_bbox_on_image(
+            image=img.copy(),
+            bbox=bbox,
+            conf=conf,
+            font_size=font_size,
+            line_width=line_width,
+            )
+
+        row_dict = row._asdict()
+
+        image_entry = {
+            'img': img,
+            'img_bbox': img_bbox,
+            'img_cropped': img_cropped,
+            }
+
+        image_entry.update(row_dict)
+
+        images.append(image_entry)
+
+    return images
 
 
 class LoadRun:
