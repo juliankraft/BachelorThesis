@@ -24,6 +24,9 @@ Some of these images were empty or contained no animal at all, as shown in \auto
 Another interesting finding was that quite a few of the images contained a snail in the highest confidence BBox --- refer to \autoref{fig:false_class_snails} for a hand-picked selection of these examples.
 These misclassifications highlight the need for enhanced object discrimination capabilities or the introduction of an additional class for non-target species.
 
+The dilemma of not missing potentially relevant detections while also not polluting the dataset with image noise remains a challenge.
+Simply to lower the detection threshold to reduce missed out animals is not a viable solution --- an improvement or the detection algorithm would be necessary to achieve this.
+
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\textwidth]{figures/false_positive_dt.pdf}
@@ -78,10 +81,10 @@ This limitation is particularly pronounced for rare species, where insufficient 
 The loss of sequences for the \textit{mustela\_erminea} category, as shown in \autoref{tab:data_availability_after_md}, illustrates this issue.
 Every sequence completely lost is a potentially missed sighting of a rare species, which could have provided valuable insights for conservation efforts.
 
+The step of the sequence classification is performed on the model's outputted classification confidence values per class and image.
+Since the information from the output on the logits level is heavily distorted by the normalization step, the sequence classification is not yet to its full potential.
+This approach might need to be revisited in order to improve the reliability of the sequence classification results.
+
 Moreover, the current approach is heavily dependent on data availability.
 Rare species inherently have fewer data points, constraining model training and potentially biasing predictions.
-
-Lastly, although data augmentation techniques --- proven effective in improving model performance and generalization \autocite{shortenSurveyImageData2019} --- were initially considered, they were not employed.
-Future work could revisit these techniques to potentially enhance robustness and accuracy.
-
-Standardizing sequence lengths based on typical camera settings, such as 1, 3, 5, or 10 images per trigger, may further streamline future data processing and model training pipelines.
+To include an additional class would require a sufficient number of samples to ensure reliable model performance and generally, the data acquisition is the moste resource intensive part of most machine learning projects.

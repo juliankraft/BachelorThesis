@@ -9,7 +9,6 @@
 \label{methods}
 
     \subsection{Dataset}
-
     As part of the Wildlife@Campus project, a labeled dataset was created to train a deep learning algorithm
     The information about the dataset is derived from the dataset itself and a progress report available on GitHub \autocite{ratnaweeraWildlifeCampusProgressReports2021}.
     This dataset is divided into seven sessions --- indicating the source of the images --- the sessions and their origin are listed in \autoref{tab:session_info}.
@@ -43,22 +42,25 @@
     \label{fig:sequenceperlabel}
     \end{figure}
 
-    \subsection{Data Processing}\todo{Hopefully still to come: process flow diagram}
+    \subsection{Data Processing}
 
-    The data processing is divided into tree main steps: Detection, Selection, and Image Processing. 
+    The data processing is done in two main steps --- after the initial detection, the \acsp{ROI} selected and processed.
+    This part is illustrated on the upper part of \autoref{fig:process_flow_diagram}.
     Further more a custom data splitting was implemented to create five stratified folds for cross-validation.
     While the detection was performed once for the whole dataset, the selection, image processing, and data splitting were implemented to be done on the fly.
 
     \begin{figure}[p]
     \centering
-    \includegraphics[width=\textwidth]{figures/flow_chart.png}
-    \caption{Process flow chart demonstrating the workflow from image processing to sequence classification.}
+    \includegraphics[width=\textwidth]{figures/flow_chart.pdf}
+    \caption{
+        Flow chart illustrating the workflow for one sequence of the dataset from the raw images to a sequence classification. 
+        Selected was the sequence 4002072, which is a sample from the \textit{apodemus\_sp} category.
+        }
     \label{fig:process_flow_diagram}
     \end{figure}
 
         \subsubsection{Detection and Selection}
-    
-        In this project, the \ac{MD} \autocite{morrisEfficientPipelineCamera2025} is used to identify \acp{ROI} on all the images.
+        In this project, the \ac{MD} \autocite{morrisEfficientPipelineCamera2025} is used to identify \acsp{ROI} on all the images.
         The \ac{MD} outputs a list of \acp{BBox} for detected objects labeled \textit{animal}, \textit{human} or \textit{vehicle} with a corresponding confidence value.
         Only \acp{BBox} with a confidence score above \(0.25\) where storred for further processing.
         This detection step was done sequence wise and the outputs were saved to json files for each sequence.
@@ -84,7 +86,7 @@
         \end{figure}        
 
         \subsubsection{Image Processing}
-        To process the images a custom transformation pipline was implemented using transform version 2 from the torchvision library and a custom crop function.
+        To process the images, a custom transformation pipline was implemented using transform version 2 from the torchvision library and a custom crop function.
         This transformation was applied on the fly by the PyTorch DataLoader.
         Cropping was done using the \acp{BBox} from the detection extending it in order to cut the ratio expected by the model.
         In the case that the extended \ac{BBox} surpasses the image border the image was padded with black pixels.
@@ -104,7 +106,6 @@
 
 
     \subsection{Model}
-
     In this project, a selection of models from the torchvision library was tested to classify the images. 
     Every model was both trained from scratch and fine-tuned using the weights of a model pre-trained on ImageNet \autocite{dengImageNetLargescaleHierarchical2009}.
     A custom helper function was implemented to adapt the last layer of the model to fit the number of classes in the dataset when the model is loaded.
@@ -126,7 +127,6 @@
     \end{itemize}
 
     \subsection{Training}
-
     The training process was divided into four main steps repeated for each fold of the cross-validation:
     \begin{enumerate}
         \item Loading the dataset and applying the processing steps described above.
@@ -142,11 +142,15 @@
     A maximum of 50 epochs where trained, but an early stopping callback was implemented monitoring the validation loss with a patience of 10 epochs.
     The logging was done using the tensorboard logger, which is integrated into PyTorch Lightning and an additional custom \ac{CSV} logger for easier log access for evaluation.
     A batch size of 64 was used for training --- and doubled for validation and prediction.
-    Predicting the whole dataset the predicted class for each sample and the confidence scores per class were saved to a \ac{CSV} file for later evaluation
 
-    \subsection{Sequence Classification}
-    Since the data is grouped into sequences and the classification was done per image, an additional step was performed to classify the sequences.
+    \subsection{Classification}
+    After the training process was completed, the dataset was predicted using the best version model.
+    To the model's output logits, a \texttt{softmax} function was applied to obtain the predicted class confidences.
+    The predicted class was determined by selecting the class with the highest confidence score using the \texttt{argmax} function.
+    Both the predicted class and the confidence scores for each class were saved in a \ac{CSV} file for later evaluation.
+    In order to classify the sequences from the image level predictions some additional steps were performed.
     This step was only performed after the model has been trained and the predictions for the whole dataset were available.
+    This steps are illustrated in the lower part of \autoref{fig:process_flow_diagram}.
 
     For this calculation, a sequence could be viewed as a matrix \( P \) of shape \((n, 4)\), where \(n\) is the number of images in the sequence and 4 is the number of classes.
     Since the model outputs a normalized confidence value over classes, the values in each row sum to one, i.e., \( \sum_{j=1}^{4} p_{i,j} = 1 \) for all \( i \in \{1, \ldots, n\} \).
@@ -198,7 +202,7 @@
     At one hand a strictly numerical evaluation was done counting the number of images and sequences per category with detections above the thresholds of \(0.25\) and \(0.5\).
     On the other hand, a visual evaluation was done by plotting series of detections on images from the dataset creating views like \autoref{fig:detection_mustela_best} and \autoref{fig:detection_special_nodetect}.
     To do this a Python class was implemented to iterate over a dataframe outputting fixed size chunks of the dataframe.
-    This class was used to brows trough a dataframe wich different filters applied to it visualizing the chunks with a custom plot function.
+    This class was used to brows trough a dataframe --- with different filters applied to it --- visualizing the chunks with a custom plot function.
 
     \subsubsection{Comparison of Model Architecture Performance}
     The evaluation is done using the testset predictions created by the best version of each folds model which where saved at the end of the training process.
