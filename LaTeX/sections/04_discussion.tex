@@ -13,7 +13,7 @@
 The detection process significantly influenced the dataset composition, particularly on the sequence level for the \texttt{mustela\_erminea} category.
 This category experienced higher data loss, likely due to the relative size of the species --- it is much larger than the other species captured by these MammaliaBox camera traps.
 This larger size may have resulted in more frequent bad shots due to the closeness to the camera or the speed at which they pass through the box --- many images showed only the tip of the animal's tail disappearing out of the box.
-The difficulty of detecting stoats is a known issue examined for example by \textcite{crooseAssessingDetectabilityIrish2022} 
+The difficulty of properly detecting stoats using camera traps is a known issue examined for example by \textcite{crooseAssessingDetectabilityIrish2022}.
 Another interesting observation was the fact that the white fur individuals were more often not detected than the brown fur individuals.
 An explanation has yet to be found for why this was only the case on the sequence level, where the \texttt{mustela\_erminea} category was disproportionately affected.
 On the image level, the \texttt{soricidae} category was the most affected, with \(23\%\) of the images lost but only \(1\%\) of the sequences.
@@ -26,7 +26,9 @@ Another interesting finding was that quite a few of the images contained a snail
 These misclassifications highlight the need for enhanced object discrimination capabilities or the introduction of an additional class for non-target species.
 
 The dilemma of not missing potentially relevant detections while also not polluting the dataset with image noise remains a challenge.
-Simply to lower the detection threshold to reduce missed out animals is not a viable solution --- an improvement or the detection algorithm would be necessary to achieve this.
+Simply to lower the detection threshold to reduce missed out animals is not a viable solution.
+As \textcite{leornaHumanVsMachine2022} showed, reducing the \ac{MD} confidence threshold raised recall to over substantially, but at the cost of a significant increase in false positives, such as empty frames or vegetation.
+This supports the need for a more sophisticated approach to reduce missed detections while maintaining a clean dataset.
 
 \begin{figure}[ht]
 \centering
@@ -46,6 +48,7 @@ Simply to lower the detection threshold to reduce missed out animals is not a vi
 All tested models achieved high performance in image classification tasks, demonstrating their suitability for automating small mammal identification.
 Pretrained models slightly outperformed those trained from scratch, underscoring the value of transfer learning.
 The slightly better balanced accuracy of pretrained models is just one of the benefits of using pretrained models, as they also require less training time and computational resources and could potentially be trained with less training data.
+There are various studies exploring or applying transfer learning to camera trap images supporting its potential \autocite{stancicClassificationEfficiencyPreTrained2022,hopkinsDetectingMonitoringRodents2024,doanWildlifeSpeciesClassification2024,rameshExploringGeneralizabilityTransfer2025}.
 
 Interestingly, the smaller the models, the better they performed on the image-level classification task, highlighting the fact that bigger is not always better.
 Smaller models, if complex enough for the task, are always preferable since they require less computational resources and are faster to train.
