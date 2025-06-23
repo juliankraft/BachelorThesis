@@ -69,7 +69,7 @@
     uniquelist=false           % Avoids creating unique author lists
 ]{biblatex}
 
-\addbibresource{./biblatex_ba.bib} % The filename of the bibliography
+\addbibresource{./biblatex.bib} % The filename of the bibliography
 
 %----------------------------------------------------------------------------------------
 % Acronyms
@@ -141,8 +141,9 @@
 \clearpage
 \pagenumbering{arabic}
 \setcounter{page}{1}
-%\mainmatter                     % Begin numeric (1,2,3...) page numbering
-%\pagestyle{reportStyle}              % Reset the page headers
+%\mainmatter                        % Begin numeric (1,2,3...) page numbering
+%\pagestyle{reportStyle}            % Reset the page headers
+\acresetall                         % Reset the acronym counter
 
 \include{sections/01_introduction}
 \include{sections/02_methods}
