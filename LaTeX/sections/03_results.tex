@@ -12,11 +12,11 @@
 One of the main goals of the initial detection through the dataset was to identify which images were suitable for the training routine.
 The selection of images and the discarded ones are shown in \autoref{tab:data_availability_after_md}; the data is divided into four categories.
 The effect of the selection is displayed for detection thresholds of \(0.25\) and \(0.5\), with the latter being the one finally applied.
-On the image level, the most affected category is \textit{soricidae}, with \(23\%\) of the images being discarded, followed by \textit{mustela\_erminea} with \(20\%\).
-The other categories, \textit{apodemus\_sp} and \textit{cricetidae}, were only affected by \(7\%\) and \(8\%\), respectively.
-On the sequence level, the situation is very different, with only the \textit{mustela\_erminea} category being seriously affected, with \(23\%\) of the sequences being discarded.
+On the image level, the most affected category is \texttt{soricidae}, with \(23\%\) of the images being discarded, followed by \texttt{mustela\_erminea} with \(20\%\).
+The other categories, \texttt{apodemus\_sp} and \texttt{cricetidae}, were only affected by \(7\%\) and \(8\%\), respectively.
+On the sequence level, the situation is very different, with only the \texttt{mustela\_erminea} category being seriously affected, with \(23\%\) of the sequences being discarded.
 For the other categories, only around \(1\%\) of the sequences were discarded.
-Some visual examinations of the results of the \ac{MD} were performed to gain a better understanding of the outcomes --- some of these insights are presented in the following, focusing on the \textit{mustela\_erminea} category.
+Some visual examinations of the results of the \ac{MD} were performed to gain a better understanding of the outcomes --- some of these insights are presented in the following, focusing on the \texttt{mustela\_erminea} category.
 Some of the highest-confidence detections for this category are shown in \autoref{fig:detection_mustela_best}; all the images display a properly detected animal.
 The inspection of images with no detection within a threshold of \(0.25\) is shown in \autoref{fig:detection_special_nodetect}; this is a hand-picked selection of images that were interesting for the analysis.
 Most of the images with no detection were actually empty or showed only the tip of the animal's tail, as seen in examples (c)--(g).
@@ -37,7 +37,7 @@ This occurred far more often for individuals with white fur than for those with 
 \begin{figure}[p]
 \centering
 \includegraphics[width=\textwidth]{figures/mustela_special_nodetect.pdf}
-\caption{Hand-picked selection of interesting images of the \textit{mustela\_erminea} category with no detection within a threshold of \(0.25\).}
+\caption{Hand-picked selection of interesting images of the \texttt{mustela\_erminea} category with no detection within a threshold of \(0.25\).}
 \label{fig:detection_special_nodetect}
 \end{figure}
 
@@ -71,13 +71,13 @@ The model architecture that achieved the best performance, as measured by \ac{BA
 \autoref{fig:training_metrics_best_model} shows the validation metrics for each cross-validation fold across all epochs; note that accuracy is reported in the table instead of \ac{BA}.
 For all folds, the best version, defined by the lowest validation loss, occurred within the first 3 epochs, while the accuracy kept increasing.
 Its performance per category is shown in \autoref{tab:precision_recall_fscore_support}.
-The class it performed best on was \textit{mustela\_erminea}, with a value of \(0.999\) for all metrics --- this happens to be one of the classes with relatively few samples available.
-It performed the worst on the other underrepresented class, \textit{soricidae}, with a precision of \(0.971\), recall of \(0.979\), and F1-score of \(0.975\).
+The class it performed best on was \texttt{mustela\_erminea}, with a value of \(0.999\) for all metrics --- this happens to be one of the classes with relatively few samples available.
+It performed the worst on the other underrepresented class, \texttt{soricidae}, with a precision of \(0.971\), recall of \(0.979\), and F1-score of \(0.975\).
 For the other, more represented classes, the model achieved very high scores above \(0.99\) for all metrics.
 
 The normalized \ac{CM} for the best model is shown in \autoref{fig:conf_matrix_best}.
-It shows that there were essentially no false positives for the class \textit{mustela\_erminea}, while it was rarely confused with other classes.
-The most frequent misclassification occurred with \textit{soricidae} being falsely classified as \textit{apodemus\_sp}, with a value of \(0.0184\).
+It shows that there were essentially no false positives for the class \texttt{mustela\_erminea}, while it was rarely confused with other classes.
+The most frequent misclassification occurred with \texttt{soricidae} being falsely classified as \texttt{apodemus\_sp}, with a value of \(0.0184\).
 All other classes had a false positive rate of less than \(0.006\).
 
 The Spearman's rank correlation coefficient between the detection and the classification confidence is:
