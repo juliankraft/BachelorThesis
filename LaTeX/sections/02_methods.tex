@@ -9,18 +9,18 @@
 \label{methods}
 
     \subsection{Dataset}
-    As part of the Wildlife@Campus project, a labeled dataset was created to train a deep learning algorithm
+    As part of the Wildlife@Campus project, a labeled dataset was created to train a deep learning algorithm.
     The information about the dataset is derived from the dataset itself and a progress report available on GitHub \autocite{ratnaweeraWildlifeCampusProgressReports2021}.
     This dataset is divided into seven sessions --- indicating the source of the images --- the sessions and their origin are listed in \autoref{tab:session_info}.
-    The dataset provides two kinds of labels: the original annotations from each session, and a standardized version created when the sessions were integrated into the dataset.
-    For this project, only the standardized labels where used.
-    Images group into sequences, with each sequence representing a single animal sighting.
-    The sequences where created by the Wildlife@Campus team, utilizing the \ac{EXIF} information of the images to group them based on the time and date of the capture.
-    Sequence lengths are not of a fixed length --- the distribution of sequence lengths is shown in \autoref{fig:seq_len_histograms}.
-    To get an overview of the available sequences per label, refere to \autoref{fig:sequenceperlabel}.
-    The category \texttt{other} represents sequences containing more than one species, this is a result of the process creating the sequences.
-    Furthermore, the category \texttt{NaN} represents sequences not labeled --- both where excluded from the from the dataset.
-    The category \texttt{glis\_glis} is represented in only four sequences, which is simply not enough to actually train a model to detect it.
+    The dataset provides two kinds of labels: the original annotations from each session and a standardized version created when the sessions were integrated into the dataset.
+    For this project, only the standardized labels were used.
+    Images are grouped into sequences, with each sequence representing a single animal sighting.
+    The sequences were created by the Wildlife@Campus team, utilizing the \ac{EXIF} information of the images to group them based on the time and date of capture.
+    Sequence lengths are not fixed --- the distribution of sequence lengths is shown in \autoref{fig:seq_len_histograms}.
+    To get an overview of the available sequences per label, refer to \autoref{fig:sequenceperlabel}.
+    The category \texttt{other} represents sequences containing more than one species; this is a result of the process creating the sequences.
+    Furthermore, the category \texttt{NaN} represents sequences not labeled --- both were excluded from the dataset.
+    The category \texttt{glis\_glis} is represented in only four sequences, which is simply not enough to train a model to detect it.
     For this reason, it was excluded from the dataset as well.
     This leaves four categories for the classification task, which are summarized in \autoref{tab:class_labels}.
 
@@ -63,10 +63,10 @@
 
     \subsection{Data Processing}
 
-    The data processing is done in two main steps --- after the initial detection, the \acsp{ROI} selected and processed.
-    This part is illustrated on the upper part of \autoref{fig:process_flow_diagram}.
-    Further more a custom data splitting was implemented to create five stratified folds for cross-validation.
-    While the detection was performed once for the whole dataset, the selection, image processing, and data splitting were implemented to be done on the fly.
+    The data processing is done in two main steps --- after the initial detection, the \acsp{ROI} are selected and processed.
+    This part is illustrated in the upper part of \autoref{fig:process_flow_diagram}.
+    Furthermore, a custom data splitting was implemented to create five stratified folds for cross-validation.
+    While the detection was performed once for the whole dataset, the selection, image processing and data splitting were implemented to be done on the fly.
 
     \begin{figure}[p]
     \centering
@@ -81,13 +81,13 @@
         \subsubsection{Detection and Selection}
         In this project, the \ac{MD} \autocite{morrisEfficientPipelineCamera2025} is used to identify \acsp{ROI} on all the images.
         The \ac{MD} outputs a list of \acp{BBox} for detected objects labeled \texttt{animal}, \texttt{human} or \texttt{vehicle} with a corresponding confidence value.
-        Only \acp{BBox} with a confidence score above \(0.25\) where storred for further processing.
-        This detection step was done sequence wise and the outputs were saved to json files for each sequence.
-        An example of how this detections look like is shown in \autoref{fig:detection_example}.
-        Only images with a detection labeled \texttt{animal} and a confidence score above a certain threshold were retained.  
-        The percentage of images discarded per category due to this threshold was determined by inspecting \autoref{fig:lost_images}.  
+        Only \acp{BBox} with a confidence score above \(0.25\) were stored for further processing.
+        This detection step was done sequence-wise and the outputs were saved to json files for each sequence.
+        An example of what these detections look like is shown in \autoref{fig:detection_example}.
+        Only images with a detection labeled \texttt{animal} and a confidence score above a certain threshold were retained.
+        The percentage of images discarded per category due to this threshold was determined by inspecting \autoref{fig:lost_images}.
         In order to reduce noise in the data and eliminate blank inputs to the model, a threshold of \(0.5\) was chosen.
-        The trade of was to discard around \(20\%\) of the images for the \texttt{soricidae} and \texttt{mustela\_erminea} categories.
+        The trade-off was to discard around \(20\%\) of the images for the \texttt{soricidae} and \texttt{mustela\_erminea} categories.
         For images with multiple detections, only the \ac{BBox} with the highest confidence score was kept.
 
         \begin{figure}[p]
@@ -105,44 +105,45 @@
         \end{figure}        
 
         \subsubsection{Image Processing}
-        To process the images, a custom transformation pipline was implemented using transform version 2 from the torchvision library and a custom crop function.
+        To process the images, a custom transformation pipeline was implemented using transform version 2 from the torchvision library and a custom crop function.
         This transformation was applied on the fly by the PyTorch DataLoader.
-        Cropping was done using the \acp{BBox} from the detection extending it in order to cut the ratio expected by the model.
-        In the case that the extended \ac{BBox} surpasses the image border the image was padded with black pixels.
+        Cropping was done using the \acp{BBox} from the detection, extending them to match the ratio expected by the model.
+        In cases where the extended \ac{BBox} surpassed the image border, the image was padded with black pixels.
         After cropping, each image was resized to the model's expected input size, i.e. \(224\times224\) pixels.
-        Each image was first converted into a tensor of shape \((C,H,W)\). 
-        The pixel values were then normalized using the global channel wise mean and standard deviation of the dataset itself.
+        Each image was first converted into a tensor of shape \((C,H,W)\).
+        The pixel values were then normalized using the global channel-wise mean and standard deviation of the dataset itself.
         This mean and standard deviation were calculated on the whole dataset, not just the training set, to ensure consistency across all folds.
         Furthermore, only the best \ac{BBox} area per image was used to calculate the mean and standard deviation.
 
-        \subsubsection{Data Splitting}
-        The dataset was split into five folds using a stratified split based on the classes.
-        A custom helper function was implemented to ensure the splits are done on a sequence level, meaning no sequence is ever split between folds.
-        The fold size was determined by the number of images instead of the number of sequences, as the sequences vary in length.
-        This approach ensures that the images are evenly distributed across the folds while maintaining the sequence integrity.
-        For each class in the dataset, all the sequences were shuffled using a fixed seed for reproducibility resulting in two lists: one with the sequence ids and one with the corresponding sequence lengths.
-        The list with sequence lengths was used to determine the cut-points for the folds while the list with sequence ids was used to assign the sequences to the folds.
+
+    \subsubsection{Data Splitting}
+    The dataset was split into five folds using a stratified split based on the classes.
+    A custom helper function was implemented to ensure the splits are done on a sequence level, meaning no sequence is ever split between folds.
+    The fold size was determined by the number of images instead of the number of sequences, as the sequences vary in length.
+    This approach ensures that the images are evenly distributed across the folds while maintaining the sequence integrity.
+    For each class in the dataset, all the sequences were shuffled using a fixed seed for reproducibility, resulting in two lists: one with the sequence IDs and one with the corresponding sequence lengths.
+    The list with sequence lengths was used to determine the cut-points for the folds, while the list with sequence IDs was used to assign the sequences to the folds.
 
 
     \subsection{Model}
-    In this project, a selection of models from the torchvision library was tested to classify the images. 
-    Every model was both trained from scratch and fine-tuned using the weights of a model pre-trained on ImageNet \autocite{dengImageNetLargescaleHierarchical2009}.
+    In this project, a selection of models from the torchvision library was tested to classify the images.
+    Each model was both trained from scratch and fine-tuned using the weights of a model pre-trained on ImageNet \autocite{dengImageNetLargescaleHierarchical2009}.
     A custom helper function was implemented to adapt the last layer of the model to fit the number of classes in the dataset when the model is loaded.
     The models used in this project are:
 
     \begin{itemize}
         \item \textbf{EfficientNet-B0} \autocite{tanEfficientNetRethinkingModel2019}:  
-        A Convolutional Neural Network architecture that uses a compound scaling method to uniformly scale network width, depth, and resolution.  
+        A Convolutional Neural Network architecture that uses a compound scaling method to uniformly scale network width, depth and resolution.  
         The B0 variant is the baseline model from which larger EfficientNets are derived.  
 
         \item \textbf{DenseNet-169} \autocite{huangDenselyConnectedConvolutional2017}:  
-        A densely connected convolutional network with 169 layers in which each layer receives feature-maps from all preceding layers, fostering feature reuse and improved gradient flow.  
+        A densely connected convolutional network with 169 layers, in which each layer receives feature maps from all preceding layers, fostering feature reuse and improved gradient flow.  
 
         \item \textbf{ResNet-50} \autocite{heDeepResidualLearning2016}:  
-        A 50-layer Residual Network that introduces skip connections (residual blocks) to alleviate the vanishing-gradient problem, enabling training of very deep models.  
+        A 50-layer Residual Network that introduces skip connections (residual blocks) to alleviate the vanishing gradient problem, enabling training of very deep models.  
 
         \item \textbf{ViT-B\_16} \autocite{dosovitskiyImageWorth16x162021}:  
-        The “Base” Vision Transformer model which splits an image into \(16\times 16\) patches, linearly embeds them, and processes the resulting sequence with a standard Transformer encoder.  
+        The “Base” Vision Transformer model which splits an image into \(16\times 16\) patches, linearly embeds them and processes the resulting sequence with a standard Transformer encoder.  
     \end{itemize}
 
     \subsection{Training}
@@ -155,11 +156,11 @@
         \item The best version of the model is loaded to predict the whole dataset for later evaluation.
     \end{enumerate}
 
-    During training, the loss was calculated using the cross-entropy loss function with the class weights calculated on the current training set.
+    During training, the loss was calculated using the cross-entropy loss function with the class weights computed on the current training set.
     To adjust the model parameters, the AdamW optimizer \autocite{loshchilovDecoupledWeightDecay2019} was used with a weight decay of \(10^{-5}\) and an initial learning rate of \(10^{-4}\).
     The learning rate was adjusted using a cosine annealing scheduler \autocite{loshchilovSGDRStochasticGradient2017} over 50 epochs.
-    A maximum of 50 epochs where trained, but an early stopping callback was implemented monitoring the validation loss with a patience of 10 epochs.
-    The logging was done using the tensorboard logger, which is integrated into PyTorch Lightning and an additional custom \ac{CSV} logger for easier log access for evaluation.
+    A maximum of 50 epochs was trained, but an early stopping callback was implemented, monitoring the validation loss with a patience of 10 epochs.
+    Logging was done using the TensorBoard logger, which is integrated into PyTorch Lightning, and an additional custom \ac{CSV} logger for easier log access for evaluation.
     A batch size of 64 was used for training --- and doubled for validation and prediction.
 
     \subsection{Classification}
@@ -167,9 +168,9 @@
     To the model's output logits, a \texttt{softmax} function was applied to obtain the predicted class confidences.
     The predicted class was determined by selecting the class with the highest confidence score using the \texttt{argmax} function.
     Both the predicted class and the confidence scores for each class were saved in a \ac{CSV} file for later evaluation.
-    In order to classify the sequences from the image level predictions some additional steps were performed.
-    This step was only performed after the model has been trained and the predictions for the whole dataset were available.
-    This steps are illustrated in the lower part of \autoref{fig:process_flow_diagram}.
+    In order to classify the sequences from the image-level predictions, some additional steps were performed.
+    This step was only performed after the model had been trained and the predictions for the whole dataset were available.
+    These steps are illustrated in the lower part of \autoref{fig:process_flow_diagram}.
 
     For this calculation, a sequence could be viewed as a matrix \( P \) of shape \((n, 4)\), where \(n\) is the number of images in the sequence and 4 is the number of classes.
     Since the model outputs a normalized confidence value over classes, the values in each row sum to one, i.e., \( \sum_{j=1}^{4} p_{i,j} = 1 \) for all \( i \in \{1, \ldots, n\} \).
@@ -185,7 +186,7 @@
     \label{eq:sequence_matrix}
     \end{equation}
 
-    Each row would corresponds to an image in the sequence, and each column to one of the 4 classes.
+    Each row corresponds to an image in the sequence, and each column to one of the four classes.
 
     The scores for each class in the sequence were calculated by summing the scores across all images in the sequence, resulting in a class score vector \( S \):
 
@@ -194,14 +195,13 @@
     \label{eq:class_score_vector}
     \end{equation}
 
-    This class score vector \( S \) is than normalized to obtain the normalized class scores \( \hat{S} \):
+    This class score vector \( S \) is then normalized to obtain the normalized class scores \( \hat{S} \):
 
     \begin{equation}
     \hat{S} = [\hat{s}_1\; \hat{s}_2\; \hat{s}_3\; \hat{s}_4] = \left[ \frac{s_1}{S},\; \frac{s_2}{S},\; \frac{s_3}{S},\; \frac{s_4}{S} \right]
     \quad \text{with } S = s_1 + s_2 + s_3 + s_4
     \label{eq:normalized_class_scores}
     \end{equation}
-
 
     Finally, the predicted class label \( \hat{y} \) for the sequence is determined by selecting the class with the highest normalized score:
 
@@ -211,22 +211,22 @@
     \end{equation}
 
     \subsection{Evaluation}
-    There is tree levels of evaluation in this project.
+    There are three levels of evaluation in this project.
     The first is the evaluation of the detection output, which is done using the \ac{MD} output.
     The second is the evaluation of the model architecture performance, determining the best performing model architecture based on the balanced accuracy score.
-    The third is the evaluation of the best performing model architecture in more detail, using additional metrics such as precision, recall, F1-score, and support.
+    The third is the evaluation of the best performing model architecture in more detail, using additional metrics such as precision, recall, F1-score and support.
 
     \subsubsection{Detection Output}
-    To evaluate the detection output, two approaches where used.
-    At one hand a strictly numerical evaluation was done counting the number of images and sequences per category with detections above the thresholds of \(0.25\) and \(0.5\).
-    On the other hand, a visual evaluation was done by plotting series of detections on images from the dataset creating views like \autoref{fig:detection_mustela_best} and \autoref{fig:detection_special_nodetect}.
-    To do this a Python class was implemented to iterate over a dataframe outputting fixed size chunks of the dataframe.
-    This class was used to brows trough a dataframe --- with different filters applied to it --- visualizing the chunks with a custom plot function.
+    To evaluate the detection output, two approaches were used.
+    On one hand, a strictly numerical evaluation was done by counting the number of images and sequences per category with detections above the thresholds of \(0.25\) and \(0.5\).
+    On the other hand, a visual evaluation was done by plotting series of detections on images from the dataset, creating views like \autoref{fig:detection_mustela_best} and \autoref{fig:detection_special_nodetect}.
+    To do this, a Python class was implemented to iterate over a dataframe, outputting fixed-size chunks of the dataframe.
+    This class was used to browse through a dataframe --— with different filters applied to it --— visualizing the chunks with a custom plot function.
 
     \subsubsection{Comparison of Model Architecture Performance}
-    The evaluation is done using the testset predictions created by the best version of each folds model which where saved at the end of the training process.
-    To compare model architecture, both the image-level and sequence-level predictions are evaluated using the highest \ac{BA} score as metric for the best performance.
-    For every model architecture the \ac{BA} is calculated for each fold and than averaged over all folds.
+    The evaluation is done using the test set predictions created by the best version of each fold's model, which were saved at the end of the training process.
+    To compare model architectures, both the image-level and sequence-level predictions are evaluated using the highest \ac{BA} score as the metric for best performance.
+    For every model architecture, the \ac{BA} is calculated for each fold and then averaged over all folds.
     This evaluation was done for every model architecture both with and without pretraining.
     The \ac{BA} score is calculated using the following formula:
     \begin{equation}
@@ -244,22 +244,22 @@
     \end{description}
 
     \subsubsection{Best Performing Model Architecture}
-    To further evaluate the best performing model architecture some additional metrics where computed on the full dataset by combining the predictions from each cross-validation fold testset.
-    On this data, precision, recall, F1-score and support for each class where computed.
-    In the way the data is combined support (true positives per class) is the same as available samples per class in the whole dataset.
-    Additionally the normalized \ac{CM} was calculated to visualize the performance of the model across all classes.
-    This metrics where all calculated using the \texttt{precision\_recall\_fscore\_support} and the \texttt{confusion\_matrix} function from the \texttt{sklearn} library \autocite{pedregosaScikitlearnMachineLearning2011}.
+    To further evaluate the best performing model architecture, some additional metrics were computed on the full dataset by combining the predictions from each cross-validation fold test set.
+    On this data, precision, recall, F1-score and support for each class were computed.
+    In the way the data is combined, support (true positives per class) is the same as the number of available samples per class in the whole dataset.
+    Additionally, the normalized \ac{CM} was calculated to visualize the performance of the model across all classes.
+    These metrics were all calculated using the \texttt{precision\_recall\_fscore\_support} and the \texttt{confusion\_matrix} functions from the \texttt{sklearn} library \autocite{pedregosaScikitlearnMachineLearning2011}.
 
-    To assess the rank-based relationship between detection and classification confidence scores, Spearman's rank correlation coefficient was calculated. 
-    This analysis was performed separately for correctly classified and misclassified images. 
+    To assess the rank-based relationship between detection and classification confidence scores, Spearman's rank correlation coefficient was calculated.
+    This analysis was performed separately for correctly classified and misclassified images.
     The p-value was not reported, as it becomes uninformative with large sample sizes, where even negligible correlations tend to appear statistically significant.
 
     \subsection{Hardware and Software}
-    This project was processed on the \ac{IUNR} \ac{HPC} cluster using node 301, an HPE Apollo 6500 Gen10+ node running Rocky Linux 8. 
-    The node is equipped with 8 NVIDIA L40S \acp{GPU} (48 \ac{GB} each), dual AMD EPYC 7742 processors, 512 cores, and 5800 \ac{GB} of storage, providing the computational power needed for high-performance tasks.
+    This project was processed on the \ac{IUNR} \ac{HPC} cluster using node 301, an HPE Apollo 6500 Gen10+ node running Rocky Linux 8.
+    The node is equipped with 8 NVIDIA L40S \acp{GPU} (48 \ac{GB} each), dual AMD EPYC 7742 processors, 512 cores and 5800 \ac{GB} of storage, providing the computational power needed for high-performance tasks.
 
     The software environment was set up using micromamba, a lightweight version of conda, to manage the dependencies and packages required for the project.
-    A \textit{environment.yml} file is provided in the GitHub repository to reproduce the environment.
+    An \texttt{environment.yml} file is provided in the GitHub repository to reproduce the environment.
     The Python version and used packages are as follows:
 
     \begin{itemize}
@@ -272,5 +272,3 @@
         \item PyTorch Lightning 2.5.1
         \item Pillow 9.4.0
     \end{itemize}
-
-
