@@ -248,7 +248,7 @@
     On this data, precision, recall, F1-score and support for each class were computed.
     In the way the data is combined, support (true positives per class) is the same as the number of available samples per class in the whole dataset.
     Additionally, the normalized \ac{CM} was calculated to visualize the performance of the model across all classes.
-    These metrics were all calculated using the \texttt{precision\_recall\_fscore\_support} and the \texttt{confusion\_matrix} functions from the \texttt{sklearn} library \autocite{pedregosaScikitlearnMachineLearning2011}.
+    These metrics were all calculated using the respective functions from the \texttt{sklearn} library \autocite{pedregosaScikitlearnMachineLearning2011}.
 
     To assess the rank-based relationship between detection and classification confidence scores, Spearman's rank correlation coefficient was calculated.
     This analysis was performed separately for correctly classified and misclassified images.
@@ -259,7 +259,7 @@
     The node is equipped with 8 NVIDIA L40S \acp{GPU} (48 \ac{GB} each), dual AMD EPYC 7742 processors, 512 cores and 5800 \ac{GB} of storage, providing the computational power needed for high-performance tasks.
 
     The software environment was set up using micromamba, a lightweight version of conda, to manage the dependencies and packages required for the project.
-    An \texttt{environment.yml} file is provided in the GitHub repository to reproduce the environment.
+    An environment file is provided in the GitHub repository to reproduce the environment.
     The Python version and used packages are as follows:
 
     \begin{itemize}
