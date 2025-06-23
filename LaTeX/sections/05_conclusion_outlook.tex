@@ -1,0 +1,53 @@
+% Indicate the main file. Must go at the beginning of the file.
+% !TEX root = ../main.tex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 05_conclusion_outlook
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Conclusion and Outlook}\todo{This is a starting point, needs to be extended and improved.}
+\label{conclusion_outlook}
+
+\subsection{Conclusion}
+
+This thesis demonstrated the effectiveness of deep learning models for detecting and classifying small mammals from camera trap images.
+The pretrained EfficientNet-B0 model provided superior classification accuracy, quickly converging and demonstrating robustness across validation folds.
+The integration of automated detections utilizing \ac{MD}, while beneficial, revealed some room for improvement, particularly concerning misdetections and missed out detections.
+It was found that some finetuning of the \ac{MD} to the specific MammaliaBox camera trap setup could improve the results.
+Despite these limitations, the processing pipeline and the trained models provide a promissing start for developing a applicable tool and a workflow to reduce the manual effort.
+
+
+\subsection{Outlook}
+The sequence based classification did not improve the classification performance significantly as it was done in this thesis.
+It still seems a very promissing approach since camera trap images are often taken in sequences, and the sequence information could be used to improve the classification performance.
+Further research could explore different options for sequence-based classification.
+As a first step, the models output could be evaluated on the logits level output to determine how this information could be utilized to improve the classification performance.
+More sophisticated approaches could involve utilizing temporally aware models as demonstated by \textcite{muhammadTemporalSwinFPNNetNovel2024}.
+Since the initial detection process using \ac{MD} could still be improved, utilizing sequence information for the detection process could be explored further.
+\textcite{zotinANIMALDETECTIONUSING2019} demonstrated a promising non-\ac{DL} approach for detecting animals in camera trap images using sequence information.
+
+Future enhancements should focus on addressing current limitations by introducing an explicit category for non-target species to improve classification accuracy and reduce false predictions with high confidence.
+To allow for a broader application of the model additional categories would be needed such as the here explicitly ignored \textit{glis\_glis} species, which is a common small mammal in Switzerland on the IUCN Red List of Threatened Species.
+To improve the model's robustness, while adding more categories --- possibly with limited data availability --- data augmentation techniques could be implemented, as they have been shown to enhance model performance and generalization \autocite{shortenSurveyImageData2019}
+
+Another important step towards a practical application of the model is to develop an interface or integrated software solution.
+This would allow researchers to actually use the model in their workflows, for monitoring small mammel populations.
+This could be done in a way, that manual review, which is still necessary for reliable results could be integrated for further improvement of the model.
+Currently the data processing pileline is still dependent on a manual preprocessing of the image metadata to extract sequence information.
+This step would benefit from automation to streamline the workflow --- ideally the input for the classification task would just be the raw images as they are retained form the camera trap.
+The only available information in the \ac{EXIF} metadata, potentially allowing to group images into sequences is the timestamp.
+However, this alone is not sufficient to determine the sequence length, as it does not account for the actual number of images per trigger.
+Better sequence information is availabele imprinted visually on top of the images, which could be extracted using an \ac{OCR} model.
+Since the information is imprinted on the images with high contrast and no distortion, this should be a straightforward task for an \ac{OCR} model.
+A quick test of the \textit{Tesseract} \ac{OCR} model one one sample image was successful: refer to \autoref{fig:ocr_sample}.
+The fact that the first information imprinted on the image is the timestamp, which is also available in the \ac{EXIF} metadata, could be used to match the \ac{OCR} output with the \ac{EXIF} information to quickly determine the reliability of the \ac{OCR} output.
+
+\begin{figure}[ht]
+\centering
+\includegraphics{figures/ocr_example.pdf}
+\caption{Top 5\% of a sample image — processed with the \textit{Tesseract} \ac{OCR} model. The output string was: \enquote{\texttt{2019-09-04 1:02:09 AM M 1/3 \#9 10\textdegree C}}.}
+\label{fig:ocr_sample}
+\end{figure}
+
+

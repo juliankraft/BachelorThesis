@@ -1,0 +1,161 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DOCUMENT SPECIFICATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \documentclass[twoside,a4paper]{scrartcl}        % Koma-script class
+\documentclass[a4paper]{scrartcl}               % Koma-script class
+
+%----------------------------------------------------------------------------------------
+% PREAMBLE: PACKAGES AND CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+\input{preamble}
+
+%----------------------------------------------------------------------------------------
+% PROJECT INFORMATION: MODIFY THIS SECTION!
+%----------------------------------------------------------------------------------------
+\projecttitle{Deep Learning for Biodiversity Monitoring: Automated Classification of Small Mammals Captured in Foto Trap Boxes}
+\projecttype{Bachelor Thesis} % Bachelor Thesis, Master Thesis, Project Report, etc.
+\projectcode{}
+\projectdate{\today}
+\keywords{
+    Camera Trapping,
+    Deep Learning,
+    Transfer Learning,
+    Object Detection,
+    Image Classification,
+    Small Mammals,
+    Biodiversity Monitoring,
+    MegaDetector
+    }
+
+%----------------------------------------------------------------------------------------
+% AUTHORS AND AFFILIATIONS
+%----------------------------------------------------------------------------------------
+\addauthor{A}{Julian}{Kraft}{kraftjul@students.zhaw.ch}{1}
+
+\addcollaborator{A}{Dr. Stefan}{Glüge}{glue@zhaw.ch}{2}
+\addcollaborator{B}{Dr. Matthias}{Nyfeler}{nyfe@zhaw.ch}{2}
+
+\addaffiliation{1}
+{ZHAW - Institute of Natural Resource Sciences}
+{https://www.zhaw.ch/en/lsfm/institutes-centres/iunr/}
+{Grüentalstrasse 14, Wädenswil, Switzerland}
+
+\addaffiliation{2}
+{ZHAW - Institute of Computational Life Sciences}
+{https://www.zhaw.ch/en/lsfm/institutes-centres/icls/}
+{Schloss, Wädenswil, Switzerland}
+
+
+\pdfautorstring{Julian Kraft}
+\university{Zurich University of Applied Sciences}
+\department{Life Sciences and Facility Management}
+\institute{Institute of Natural Resource Sciences} 
+\group{} 
+
+\AtBeginDocument{
+\hypersetup{pdftitle=\projecttitle} % Set the PDF's title to your title
+\hypersetup{pdfauthor=\pdfautorstring} % Set the PDF's author to your name
+\hypersetup{pdfkeywords=\keywords} % Set the PDF's keywords to your keywords
+}
+
+%----------------------------------------------------------------------------------------
+% References
+%----------------------------------------------------------------------------------------
+\usepackage[
+    backend=biber,             % Use biber backend (an external tool)
+    sorting=nyt,               % Sort by name, year, title
+    style=apa,                 % Choose here your preferred citation style
+    uniquename=false,          % Avoids creating unique author lists
+    uniquelist=false           % Avoids creating unique author lists
+]{biblatex}
+
+\addbibresource{./biblatex_ba.bib} % The filename of the bibliography
+
+%----------------------------------------------------------------------------------------
+% Acronyms
+%----------------------------------------------------------------------------------------
+\acsetup{
+    list/heading = section*, 
+    list/name = {List of Abbreviations}
+    }
+
+\input{acronyms} % Load the acronyms file
+
+%----------------------------------------------------------------------------------------
+% Beginning of the document
+%----------------------------------------------------------------------------------------
+\begin{document}
+\hypersetup{linkcolor=black, urlcolor=black} % Make links black for first part
+
+%----------------------------------------------------------------------------------------
+% TITLE PAGE AND IMPRINT
+%----------------------------------------------------------------------------------------
+\include{front/titlepage}
+
+%\let\cleardoublepage\clearpage % not needed for single-sided printing
+
+\include{front/imprint}
+
+%----------------------------------------------------------------------------------------
+% handling page numbering
+%----------------------------------------------------------------------------------------
+\clearpage
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+%----------------------------------------------------------------------------------------
+% ABSTRACT
+%----------------------------------------------------------------------------------------
+\include{front/abstract}
+
+%----------------------------------------------------------------------------------------
+% ACKNOWLEDGEMENTS
+%----------------------------------------------------------------------------------------
+\include{front/acknowledgements}
+
+%----------------------------------------------------------------------------------------
+% LIST OF CONTENTS/FIGURES/TABLES PAGES
+%----------------------------------------------------------------------------------------
+% Comment out if any of the following is not needed:
+\tableofcontents  % Add main table of contents
+
+\hypersetup{linkcolor=linkcolor, urlcolor=urlcolor}
+\textbf{Code, and LaTeX source are to be found on GitHub:}\\
+\url{https://github.com/juliankraft/BachelorThesis}
+\hypersetup{linkcolor=black, urlcolor=black}
+
+\newpage
+\listoffigures    % Add list of figures
+\listoftables     % Add list of tables
+\printacronyms    % Add list of acronyms
+
+\hypersetup{linkcolor=linkcolor, urlcolor=urlcolor} % Reset to default after TOC
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THESIS CONTENT - CHAPTERS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+% handling page numbering
+%----------------------------------------------------------------------------------------
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+%\mainmatter                     % Begin numeric (1,2,3...) page numbering
+%\pagestyle{reportStyle}              % Reset the page headers
+
+\include{sections/01_introduction}
+\include{sections/02_methods}
+\include{sections/03_results}
+\include{sections/04_discussion}
+\include{sections/05_conclusion_outlook}
+\include{sections/06_declaration}
+
+{\sloppy
+\printbibliography[heading=bibintoc]
+}
+
+% \appendix
+% \include{sections/a_tables}
+
+\end{document}  

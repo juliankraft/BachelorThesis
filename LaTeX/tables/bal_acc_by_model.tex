@@ -1,0 +1,20 @@
+\begin{table}[H]
+\centering
+\caption{\acs{BA} of all models --- mean ± standard deviation; best values highlighted.}
+\label{tab:bal_acc_by_model}
+\begin{tabular}{l c r c c}
+\toprule
+Model & Pretrained & Params (M) & Image \acs{BA} & Sequence \acs{BA} \\
+\midrule
+efficientnet\_b0 & Yes & 4 & \colorbox{gray!20}{0.9921} ± 0.004 & \colorbox{gray!20}{0.9947} ± 0.002 \\
+densenet169 & Yes & 12 & \colorbox{white}{0.9904} ± 0.004 & \colorbox{white}{0.9939} ± 0.002 \\
+resnet50 & Yes & 23 & \colorbox{white}{0.9899} ± 0.004 & \colorbox{white}{0.9934} ± 0.002 \\
+vit\_b\_16 & Yes & 85 & \colorbox{white}{0.9885} ± 0.005 & \colorbox{white}{0.9933} ± 0.002 \\
+\midrule
+efficientnet\_b0 & No & 4 & \colorbox{white}{0.9856} ± 0.005 & \colorbox{white}{0.9898} ± 0.003 \\
+densenet169 & No & 12 & \colorbox{white}{0.9863} ± 0.006 & \colorbox{white}{0.9899} ± 0.002 \\
+resnet50 & No & 23 & \colorbox{white}{0.9850} ± 0.004 & \colorbox{white}{0.9888} ± 0.003 \\
+vit\_b\_16 & No & 85 & \colorbox{white}{0.9767} ± 0.006 & \colorbox{white}{0.9856} ± 0.004 \\
+\bottomrule
+\end{tabular}
+\end{table}
