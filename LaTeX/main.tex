@@ -74,9 +74,13 @@
 %----------------------------------------------------------------------------------------
 % Acronyms
 %----------------------------------------------------------------------------------------
+\setlength\LTleft{10pt}
+
 \acsetup{
     list/heading = section*, 
-    list/name = {List of Abbreviations}
+    list/name = {List of Abbreviations},
+    list/display = used,
+    list/template = longtable
     }
 
 \input{acronyms} % Load the acronyms file
