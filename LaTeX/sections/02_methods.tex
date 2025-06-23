@@ -24,6 +24,10 @@
     For this reason, it was excluded from the dataset as well.
     This leaves four categories for the classification task, which are summarized in \autoref{tab:class_labels}.
 
+    %==== table: overview_dataset ====%
+    \input{tables/session_info.tex}
+    %=================================%
+
     \begin{table}[ht]
     \centering
     \caption{Overview of the classification categories in this study.}
@@ -43,18 +47,14 @@
     \end{tabular}
     \end{table}
 
-    %==== table: overview_dataset ====%
-    \input{tables/session_info.tex}
-    %=================================%
-
-    \begin{figure}[H]
+    \begin{figure}[ht]
     \centering
     \includegraphics{figures/seq_len_histograms.pdf}
     \caption{Distribution of sequence lengths per label. More than 90\% of the sequences are between 1 and 50 images long. There are longer ones up to a length of 915 images, but these are outliers.}
     \label{fig:seq_len_histograms}
     \end{figure}
 
-    \begin{figure}[H]
+    \begin{figure}[ht]
     \centering
     \includegraphics{figures/label2_session.pdf}
     \caption{Available sequences per category colored by session.}
