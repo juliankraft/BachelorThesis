@@ -5,6 +5,7 @@
 % Abstract
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\vspace*{\fill}
 \selectlanguage{english}
 \section*{Abstract}
 \label{abstract}
@@ -13,20 +14,27 @@ This thesis explores the use of \ac{DL} to automate the classification of small 
 A dataset of over 400,000 labeled images, grouped into sequences, was processed using \ac{MD} to filter and crop relevant regions of interest.
 Several model architectures were evaluated, with the pretrained EfficientNet-B0 achieving the highest balanced accuracy of \(0.992\) for the classification task.
 A comprehensive data pipeline was developed, including detection, preprocessing, cross-validation and classification on an image and sequence level, enabling efficient and reproducible model training and evaluation.
-While pretrained models outperformed non-pretrained variants, the results also demonstrated that smaller architectures can be both accurate and resource-efficient.
-The study highlights the importance of detection quality, label accuracy, and the need for a non-target class to handle unknown species such as snails or misdetections such as plant parts or empty images.
+While pretrained models outperformed non-pretrained variants, the results also demonstrated that smaller architectures can be accurate while saving resources.
+The study highlights the importance of detection quality, label accuracy and the need for a non-target class to handle unknown species such as snails or misdetections such as plant parts or simply empty images.
 In addition to the missing non-target class, the study also emphasizes the need for an improved detection process in order to reduce missed sightings.
-There is still the high dependency on large amounts of labeled data, wich is a real challenge in adding additional classes.
-This work lays the foundation for integrating \ac{DL} into the efforts of the Wildlife@Campus project, aiming to reduce manual effort in small mammal monitoring and contribute to ecological research.
+There is still a high dependency on large amounts of labeled data, which is a real challenge when adding additional classes.
+This work lays the foundation for integrating \ac{DL} into the camera trap approach of the Wildlife@Campus project, aiming to reduce the associated manual effort in small mammal monitoring and contribute to ecological research.
+\vspace*{\fill}
 
+\newpage
+
+\vspace*{\fill}
 \selectlanguage{ngerman}
 \section*{Zusammenfassung}
-Diese Bachelorarbeit untersucht den Einsatz von \ac{DL} zur automatisierten Klassifikation von Kleinsäugern, die mithilfe von Kamerafallen im Rahmen des Wildlife@Campus Projekts erfasst wurden.
+
+\sloppy{Diese Bachelorarbeit untersucht den Einsatz von \ac{DL} zur automatisierten Klassifikation von Kleinsäugern, die mithilfe von Kamerafallen im Rahmen des Wildlife@Campus-Projekts erfasst wurden.}
 Ein Datensatz mit über 400'000 annotierten Bildern, gruppiert in Sequenzen, wurde mithilfe von \ac{MD} verarbeitet, um relevante Bildausschnitte zu filtern und zuzuschneiden.
-Mehrere Modelle wurden evaluiert, wobei das vortrainierte EfficientNet-B0 die höchste Balanced Accuracy von \(0.992\) erzielte.
-Es wurde eine umfassende Datenpipeline entwickelt, die Erkennung, Vorverarbeitung, Kreuzvalidierung sowie Klassifikation auf Bild- und Sequenzebene umfasst und ein effizientes und reproduzierbares Modelltraining ermöglicht.
-Während vortrainierte Modelle gegenüber nicht vortrainierten Varianten bessere Leistungen zeigten, verdeutlichen die Resultate auch, dass kleinere Architekturen sowohl präzise als auch ressourcenschonend sein können.
-Die Studie betont die Bedeutung der Filterqualität, der Labelgenauigkeit sowie die Notwendigkeit einer unbekannten Klasse zur Berücksichtigung unbekannter Arten wie Schnecken oder Fehldetektionen wie Pflanzenteile oder leere Bilder.
-Trotz der insgesamt hohen Leistungsfähigkeit bestehen Einschränkungen hinsichtlich der Detektionssensitivität und der Behandlung unterrepräsentierter Klassen.
-Diese Arbeit legt das Fundament für den Einsatz von \ac{DL} im Wildlife@Campus Projekt mit dem Ziel, den manuellen Aufwand bei der Kleinsäugerüberwachung zu reduzieren und zur ökologischen Forschung beizutragen.
+Mehrere Modellarchitekturen wurden evaluiert, wobei das vortrainierte EfficientNet-B0 die höchste Balanced Accuracy von \(0{,}992\) für die Klassifikationsaufgabe erzielte.
+Es wurde eine umfassende Datenpipeline entwickelt, die Erkennung, Vorverarbeitung, Kreuzvalidierung sowie Klassifikation auf Bild- und Sequenzebene umfasst und ein effizientes sowie reproduzierbares Modelltraining und eine entsprechende Evaluation ermöglicht.
+Während vortrainierte Modelle gegenüber nicht vortrainierten Varianten bessere Leistungen zeigten, verdeutlichten die Ergebnisse auch, dass kleinere Architekturen präzise sein können und gleichzeitig Ressourcen sparen.
+Die Studie betont die Bedeutung der Detektionsqualität, der Labelgenauigkeit und die Notwendigkeit einer Sonstige-Klasse zur Berücksichtigung unbekannter Arten wie z.B. Schnecken oder Fehldetektionen wie z.B. Pflanzenteile oder einfach leere Bilder.
+Neben der fehlenden Sonstige-Klasse unterstreicht die Studie auch den Bedarf nach einem verbesserten Detektionsprozess, um verpasste Sichtungen zu reduzieren.
+Zudem besteht weiterhin eine hohe Abhängigkeit von grossen Mengen annotierter Daten, was eine reale Herausforderung bei der Einführung zusätzlicher Klassen darstellt.
+Diese Arbeit legt das Fundament für die Integration von \ac{DL} in den Kamerafallen-Ansatz des Wildlife@Campus-Projekts, mit dem Ziel, den damit verbundenen manuellen Aufwand bei der Kleinsäugerüberwachung zu reduzieren und zur ökologischen Forschung beizutragen.
 \selectlanguage{english}
+\vspace*{\fill}
