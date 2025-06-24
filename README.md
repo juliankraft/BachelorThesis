@@ -5,21 +5,15 @@
 
 ### Abstract
 
-Understanding the distribution of impervious and pervious surfaces is critical 
-for effective urban planning, environmental management, and rainfall impact analysis. 
-This study explores the use of convolutional neural networks (CNNs) for 
-pixel-based classification of aerial remote sensing data to assess surface sealing. 
-Using high-resolution SwissImage RS data, the analysis employs a simplified 
-ResNet-18 architecture adapted for four-channel inputs, including RGB and 
-near-infrared bands. A detailed workflow was developed, describing the 
-preprocessing of the data, the training, and the evaluation of the model. 
-A data augmentation strategy was implemented to improve the model's performance, 
-and a hyperparameter tuning process was conducted to optimize the model. 
-The best-performing model achieved a classification accuracy of 0.927, 
-which is in a similar range to the results of previous studies 
-utilizing a geoprocessing approach. While challenges such as mixed-pixel 
-problems or limited data availability remain, this study demonstrates 
-the potential of deep learning for detailed surface sealing analysis.
+This thesis explores the use of Deep Learning (DL) to automate the classification of small mammals captured in camera trap images gathered as part of the Wildlife@Campus project.
+A dataset of over 400,000 labeled images, grouped into sequences, was processed using MegaDetector to filter and crop relevant regions of interest.
+Several model architectures were evaluated, with the pretrained EfficientNet-B0 achieving the highest balanced accuracy of \(0.992\) for the classification task.
+A comprehensive data pipeline was developed, including detection, preprocessing, cross-validation and classification on an image and sequence level, enabling efficient and reproducible model training and evaluation.
+While pretrained models outperformed non-pretrained variants, the results also demonstrated that smaller architectures can be accurate while saving resources.
+The study highlights the importance of detection quality, label accuracy and the need for a non-target class to handle unknown species such as snails or misdetections such as plant parts or simply empty images.
+In addition to the missing non-target class, the study also emphasizes the need for an improved detection process in order to reduce missed sightings.
+There is still a high dependency on large amounts of labeled data, which is a real challenge when adding additional classes.
+This work lays the foundation for integrating DL into the camera trap approach of the Wildlife@Campus project, aiming to reduce the associated manual effort in small mammal monitoring and contribute to ecological research.
 
 **Author:**         Julian Kraft<br>
 **Supervisor:**     Dr. Stefan Glüge<br>
@@ -30,18 +24,17 @@ the potential of deep learning for detailed surface sealing analysis.
 **Date:**           2025-06-24
 
 **Paper:** [link](./LaTeX/main.pdf)<br>
-**Visualizations:** [link](./code/eval/visualizations.ipynb)
+**Visualizations:** [link](./visualizations.ipynb)
 
 ### Repository Content
 
-This repository provides all the relevant code as well as the LaTeX source code and
-and all visualizations used in the thesis.
+This repository provides all the relevant code as well as the LaTeX source and all visualizations created in the thesis.
 
 ### Repository Structure
 
 - `LaTeX/`: LaTeX source code of the term paper
 - `code/`: all Python code created for this thesis
-- `experiments/`: 
+- `run/`: files used to run the experiments
 
 ### Environment
 
