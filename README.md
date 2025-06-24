@@ -53,7 +53,7 @@ The environment used to run this model and the evaluation was created using Anac
 Additionally, the code developed in this project can be installed as a developer package. To do so, run:
 
 ```bash
-pip install -e ./package/
+pip install -e ./code/
 ```
 
 ### License
