@@ -18,7 +18,8 @@ It was found that some finetuning of the \ac{MD} to the specific MammaliaBox cam
 Despite these limitations, the processing pipeline and the trained models provide a promising start for developing an applicable tool and a workflow to reduce manual effort.
 
 \subsection{Outlook}
-Future enhancements should focus on addressing current limitations by introducing an explicit category for non-target species to improve classification accuracy and reduce false predictions with high confidence.\todo{find source for "non-target species"}
+Future enhancements should focus on addressing current limitations by introducing an explicit category for non-target species to improve classification accuracy and reduce false predictions with high confidence.
+A possible approach could be the \ac{OOD} detection suggested by \textcite{hendrycksBaselineDetectingMisclassified2018}, which could be used to identify images that do not belong to any of the known categories.
 To allow for broader application of the model, additional categories would be needed --- such as the here explicitly ignored \textit{Glis glis}, a common small mammal in Switzerland on the \textcite{iucnIUCNRedList2025} Red List of Threatened Species.
 To improve the model's robustness while adding more categories --- possibly with limited data availability --- data augmentation techniques could be implemented, as they have been shown to enhance model performance and generalization \autocite{shortenSurveyImageData2019}.
 
@@ -26,10 +27,10 @@ The sequence-based classification did not improve classification performance sig
 It still seems a very promising approach, since camera trap images are often taken in sequences and the sequence information could be used to improve classification performance.
 Further research could explore different options for sequence-based classification.
 As a first step, the model's output could be evaluated on the logits level to determine how this information could be utilized to improve classification performance.
-More sophisticated approaches could involve utilizing temporally aware models, as demonstrated by \textcite{muhammadTemporalSwinFPNNetNovel2024}.
+More sophisticated approaches could involve utilizing temporally aware models as demonstrated by \textcite{muhammadTemporalSwinFPNNetNovel2024}.
 Since the initial detection process using \ac{MD} could still be improved, utilizing sequence information for the detection process could be explored further.
 \textcite{zotinANIMALDETECTIONUSING2019} demonstrated a promising non-\ac{DL} approach for detecting animals in camera trap images using sequence information.
-There is still a better approach needed to determine the sequence length, as the method applied by the Wildlife@Campus team using the \ac{EXIF} timestamp.
+There is still a better approach needed to determine the sequence length than the method applied by the Wildlife@Campus team using the \ac{EXIF} timestamp.
 Better sequence information is available visually imprinted on top of the images, which could be extracted using an \ac{OCR} model --- refer to \autoref{fig:ocr_sample}.
 Since the information is imprinted on the images with high contrast and no distortion, this should be a straightforward task for an \ac{OCR} model.
 The fact that the first information imprinted on the image is the timestamp — which is also available in the \ac{EXIF} metadata --- could be used to match the \ac{OCR} output with the \ac{EXIF} information to quickly determine the reliability of the \ac{OCR} output.
@@ -37,7 +38,7 @@ The fact that the first information imprinted on the image is the timestamp — 
 \begin{figure}[ht]
 \centering
 \includegraphics{figures/ocr_example.pdf}
-\caption{Top 5\% of a camera trap image —-- it was processed with the \texttt{Tesseract} \acs{OCR} model. The output string was: \texttt{2019-09-04 1:02:09 AM M 1/3 \#9 10\textdegree C}.}
+\caption{Top \(5\%\) of a camera trap image --- it was processed with the \texttt{Tesseract} \acs{OCR} model. The output string was: \texttt{2019-09-04 1:02:09 AM M 1/3 \#9 10\textdegree C}.}
 \label{fig:ocr_sample}
 \end{figure}
 

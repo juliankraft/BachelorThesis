@@ -73,10 +73,10 @@ However, since there are so many samples with classification confidence close to
 These many very high classification confidence values could be explained by the model's architecture.
 In the last layers of the model, the learned features are mapped to the four classes and then normalized so the values sum to one.
 If the model is entirely confident that an input does not belong to the first three classes and assigns a very small value to the fourth class (e.g., \([0\;;\;0\;;\;0\;;\;10^{-5}]\)), this distribution will be normalized to \([0\;;\;0\;;\;0\;;\;1]\), resulting in a prediction for the fourth class with maximum confidence.
+As shown by \textcite{hendrycksBaselineDetectingMisclassified2018}, softmax-based confidence scores often fail to meaningfully reflect true uncertainty, especially for \ac{OOD} inputs.
 Therefore, this evaluation lacks meaningfulness.
-It could be repeated using predictions where the logits are retained without normalization.
-Still, the assumption that a non-target class would benefit the classification task remains valid.
-
+It could be repeated using logits without normalization.
+Nonetheless, the assumption that a non-target class would benefit the classification task remains valid.
 
 \begin{figure}[ht]
 \centering
