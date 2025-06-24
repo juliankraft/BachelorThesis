@@ -564,13 +564,14 @@ def get_md_info(
 def process_image_series(
         chunk: pd.DataFrame,
         pipeline: ImagePipeline,
+        path_to_dataset: PathLike | str,
         font_size: int | None = None,
         line_width: int = 10
         ) -> list[dict[str, Image.Image]]:
 
     images = []
     for n, row in enumerate(chunk.itertuples()):
-        image_path = eval.paths['dataset'] / str(row.file_path)
+        image_path = Path(path_to_dataset) / str(row.file_path)
         img = Image.open(image_path)
         bbox = row.bbox
         conf = row.conf
