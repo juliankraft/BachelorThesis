@@ -570,7 +570,7 @@ def process_image_series(
         ) -> list[dict[str, Image.Image]]:
 
     images = []
-    for n, row in enumerate(chunk.itertuples()):
+    for n, row in chunk.iterrows():
         image_path = Path(path_to_dataset) / str(row.file_path)
         img = Image.open(image_path)
         bbox = row.bbox
