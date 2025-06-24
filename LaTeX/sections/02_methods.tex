@@ -50,7 +50,7 @@
     \begin{figure}[ht]
     \centering
     \includegraphics{figures/seq_len_histograms.pdf}
-    \caption{Distribution of sequence lengths per label. More than 90\% of the sequences are between 1 and 50 images long. There are longer ones up to a length of 915 images, but these are outliers.}
+    \caption{Distribution of sequence lengths per label. More than \(90\%\) of the sequences are between 1 and 50 images long. There are longer ones up to a length of 915 images, but these are outliers.}
     \label{fig:seq_len_histograms}
     \end{figure}
 
@@ -73,7 +73,7 @@
     \includegraphics[width=\textwidth]{figures/flow_chart.pdf}
     \caption{
         Flow chart illustrating the workflow for one sequence of the dataset from the raw images to a sequence classification. 
-        Selected was the sequence 4002072, which is a sample from the \texttt{apodemus\_sp} category.
+        Selected was the sequence 4,002,072, which is a sample from the \texttt{apodemus\_sp} category.
         }
     \label{fig:process_flow_diagram}
     \end{figure}
@@ -93,14 +93,17 @@
         \begin{figure}[p]
         \centering
         \includegraphics{figures/detections_on_a_sequence.pdf}
-        \caption{Example of how the detections look like. The \acsp{BBox} are the six highest confidence detections for the sequence 1001824 a sample from the \texttt{apodemus\_sp} category.}
+        \caption{Example of how the detections look like. The \acsp{BBox} are the six highest confidence detections for the sequence 1,001,824 a sample from the \texttt{apodemus\_sp} category.}
         \label{fig:detection_example}
         \end{figure}
 
         \begin{figure}[ht]
         \centering
         \includegraphics{figures/discarded_img_by_conf.pdf}
-        \caption{Fraction of images discarded per category for a detection confidence threshold of 0.5.}
+        \caption{
+            Fraction of images discarded at various detection confidence thresholds.
+            The selected threshold of \(0.5\), used in this project, is indicated.
+            }
         \label{fig:lost_images}
         \end{figure}        
 
