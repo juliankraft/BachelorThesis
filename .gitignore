@@ -1,11 +1,12 @@
 # excluded folders
 documents/
+code/dev/
 meetings/
 data_zip/
 sandbox/
 output/
-data/*
-!data/feature_stats.pt
+hpc_submit/
+data/
 Slurm-*/
 
 # exclude files
