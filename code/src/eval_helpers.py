@@ -589,7 +589,7 @@ def process_image_series(
             line_width=line_width,
             )
 
-        row_dict = row._asdict()
+        row_dict = row.to_dict()
 
         image_entry = {
             'img': img,
