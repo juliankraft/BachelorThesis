@@ -15,8 +15,6 @@ path_config.yml
 rsync_command.sh
 
 # excluded for LaTeX
-*.pdf
-!main.pdf
 
 *.lof
 *.lot
