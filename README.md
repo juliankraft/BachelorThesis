@@ -17,6 +17,13 @@ This work lays the foundation for integrating DL into the camera trap approach o
 
 ### Project Details
 
+**Author:** Julian Kraft  
+**Supervisors:** Dr. Stefan Glüge, Dr. Matthias Nyfeler  
+**Institution:** Zurich University of Applied Sciences (ZHAW)  
+**Program:** BSc Natural Resource Sciences  
+**Project:** Bachelor’s Thesis  
+**Date:** 2025-06-24  
+
 |                   |                                            |
 |-------------------|--------------------------------------------|
 | **Author**        | Julian Kraft                               |
