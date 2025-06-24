@@ -64,7 +64,7 @@
     \end{figure}
 
         \subsubsection{Detection and Selection}
-        In this project, the \ac{MD} \autocite{morrisEfficientPipelineCamera2025} is used to identify \acsp{ROI} on all the images.
+        In this project, the \ac{MD} \autocite{beeryEfficientPipelineCamera2019} is used to identify \acsp{ROI} on all the images.
         The \ac{MD} outputs a list of \acp{BBox} for detected objects labeled \texttt{animal}, \texttt{human} or \texttt{vehicle} with a corresponding confidence value.
         Only \acp{BBox} with a confidence score above \(0.25\) were stored for further processing.
         This detection step was done sequence-wise and the outputs were saved to json files for each sequence.
