@@ -19,4 +19,4 @@ dependencies:
   - jupyter
   - pip
   - pip:
-      - megadetector
+    - megadetector

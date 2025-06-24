@@ -1,4 +1,4 @@
-name: BA
+name: project-env
 channels:
   - conda-forge
   - defaults
@@ -6,6 +6,7 @@ dependencies:
   - python=3.11
   - pytorch
   - pytorch_lightning
+  - torchmetrics
   - jupyter
   - pandas
   - numpy
@@ -15,4 +16,4 @@ dependencies:
   - scikit-learn
   - pip
   - pip:
-      - megadetector
+    - megadetector
