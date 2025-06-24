@@ -95,6 +95,7 @@ Every sequence completely lost is a potentially missed sighting of a rare specie
 The step of sequence classification is performed on the model's outputted classification confidence values per class and image.
 Since the information from the logits is heavily distorted by the normalization step, sequence classification does not yet reach its full potential.
 This approach might need to be revisited to improve the reliability of sequence-level results.
+The current approach also depends on manual preprocessing of the dataset to group the images into sequences --- this process would benefit from automation.
 
 Moreover, the current approach is heavily dependent on data availability.
 Rare species inherently have fewer data points, constraining model training and potentially biasing predictions.
