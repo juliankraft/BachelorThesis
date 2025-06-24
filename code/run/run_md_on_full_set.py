@@ -2,8 +2,8 @@
 # caffeinate -is conda run -n BA python run_md_on_full_set.py 2>&1 | tee -a run_md.log
 
 import datetime
-from ba_stable.dataloader import MammaliaData
-from ba_stable.utils import load_config_yaml
+from src.dataset import MammaliaData
+from src.utils import load_path_yaml
 
 # Print log header
 print("=" * 60)
@@ -11,7 +11,7 @@ print("Running MegaDetector Initialization Script")
 print(f"Started at: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 print("=" * 60)
 
-paths = load_config_yaml('path_config.yml')
+paths = load_path_yaml('/path/to/path_config.yml')
 
 path_to_dataset = paths['dataset']
 path_labelfiles = paths['labels']

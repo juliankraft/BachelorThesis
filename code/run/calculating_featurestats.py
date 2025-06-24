@@ -3,11 +3,11 @@ import torch
 from torchvision.transforms import v2
 from torch.utils.data import DataLoader
 
-from ba_stable.dataset import MammaliaDataImage
-from ba_stable.transform import ImagePipeline
-from ba_stable.utils import load_config_yaml
+from src.dataset import MammaliaDataImage
+from src.transform import ImagePipeline
+from src.utils import load_path_yaml
 
-paths = load_config_yaml('/cfs/earth/scratch/kraftjul/BA/code/path_config.yml')
+paths = load_path_yaml('/path/to/path_config.yml')
 target_path = paths['output'] / 'feature_stats.pt'
 
 image_pipeline = ImagePipeline(

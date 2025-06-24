@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Sequence, Callable, Any, cast
 from os import PathLike
 
-from ba_dev.utils import BBox
+from src.utils import BBox
 
 
 class ImagePipeline:

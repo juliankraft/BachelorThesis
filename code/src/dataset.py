@@ -14,9 +14,9 @@ from os import PathLike
 from torch.utils.data import Dataset
 from sklearn.utils.class_weight import compute_class_weight
 
-from ba_dev.runner import MegaDetectorRunner
-from ba_dev.transform import ImagePipeline, BatchImagePipeline
-from ba_dev.utils import best_weighted_split, BBox
+from src.runner import MegaDetectorRunner
+from src.transform import ImagePipeline, BatchImagePipeline
+from src.utils import best_weighted_split, BBox
 
 
 class DetectionResult(TypedDict):

@@ -7,12 +7,12 @@ from torchvision.transforms import v2
 from pathlib import Path
 from typing import Sequence
 
-from ba_dev.dataset import MammaliaDataImage
-from ba_dev.datamodule import MammaliaDataModule
-from ba_dev.transform import ImagePipeline
-from ba_dev.model import LightningModelImage
-from ba_dev.trainer import MammaliaTrainer
-from ba_dev.utils import count_parameters
+from src.dataset import MammaliaDataImage
+from src.datamodule import MammaliaDataModule
+from src.transform import ImagePipeline
+from src.model import LightningModelImage
+from src.trainer import MammaliaTrainer
+from src.utils import count_parameters
 
 
 def print_banner(text, width=89, border_char='-'):

@@ -19,9 +19,9 @@ from pathlib import Path
 from os import PathLike
 from typing import Dict, Any, Callable
 
-from ba_dev.dataset import MammaliaDataImage
-from ba_dev.utils import BBox, load_path_yaml
-from ba_dev.transform import ImagePipeline
+from src.dataset import MammaliaDataImage
+from src.utils import BBox, load_path_yaml
+from src.transform import ImagePipeline
 
 
 def set_custom_plot_style():

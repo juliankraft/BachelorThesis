@@ -2,8 +2,8 @@ import torch
 import pandas as pd
 import pytorch_lightning as L
 from torch.utils.data import DataLoader
-from ba_dev.dataset import MammaliaData
-from ba_dev.transform import ImagePipeline
+from src.dataset import MammaliaData
+from src.transform import ImagePipeline
 
 from typing import Type, Any
 

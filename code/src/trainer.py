@@ -4,7 +4,7 @@ from pytorch_lightning.loggers import TensorBoardLogger, CSVLogger
 from typing import Literal, Sequence, Any
 from pathlib import Path
 
-from ba_dev.utils import PredictionWriter
+from src.utils import PredictionWriter
 
 
 class MammaliaTrainer(L.Trainer):
