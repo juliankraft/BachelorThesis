@@ -25,6 +25,7 @@ This work lays the foundation for integrating DL into the camera trap approach o
 | **Program**       | BSc Natural Resource Sciences              |
 | **Project**       | Bachelor’s Thesis                          |
 | **Date**          | 2025-06-24                                 |
+|                   |                                            |
 
 ## Repository Content
 
