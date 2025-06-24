@@ -1,6 +1,7 @@
 # excluded folders
 documents/
-code/dev/
+drawio/
+dev/
 meetings/
 data_zip/
 sandbox/
