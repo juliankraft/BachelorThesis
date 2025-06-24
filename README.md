@@ -17,7 +17,7 @@ This work lays the foundation for integrating DL into the camera trap approach o
 
 ### Project Details
 
-| **Project**       | Bachelor’s Thesis                          |
+| Bachelor’s Thesis |                          |
 |-------------------|--------------------------------------------|
 | **Author**        | Julian Kraft                               |
 | **Supervisors**<br><br>   | Dr. Stefan Glüge<br>Dr. Matthias Nyfeler   |
