@@ -11,15 +11,15 @@
     \subsection{Dataset}
     As part of the Wildlife@Campus project, a labeled dataset was created to train a deep learning algorithm.
     The information about the dataset is derived from the dataset itself and a progress report available on GitHub \autocite{ratnaweeraWildlifeCampusProgressReports2021}.
-    This dataset is divided into seven sessions --- indicating the source of the images --- the sessions and their origin are listed in \autoref{tab:session_info}.
+    This dataset is divided into seven sessions---indicating the source of the images---the sessions and their origin are listed in \autoref{tab:session_info}.
     The dataset provides two kinds of labels: the original annotations from each session and a standardized version created when the sessions were integrated into the dataset.
     For this project, only the standardized labels were used.
     Images are grouped into sequences, with each sequence representing a single animal sighting.
     The sequences were created by the Wildlife@Campus team, utilizing the \ac{EXIF} information of the images to group them based on the time and date of capture.
-    Sequence lengths are not fixed --- the distribution of sequence lengths is shown in \autoref{fig:seq_len_histograms}.
+    Sequence lengths are not fixed---the distribution of sequence lengths is shown in \autoref{fig:seq_len_histograms}.
     To get an overview of the available sequences per label, refer to \autoref{fig:sequenceperlabel}.
     The category \texttt{other} represents sequences containing more than one species; this is a result of the process creating the sequences.
-    Furthermore, the category \texttt{NaN} represents sequences not labeled --- both were excluded from the dataset.
+    Furthermore, the category \texttt{NaN} represents sequences not labeled---both were excluded from the dataset.
     The category \texttt{glis\_glis} is represented in only four sequences, which is simply not enough to train a model to detect it.
     For this reason, it was excluded from the dataset as well.
     This leaves four categories for the classification task, which are summarized in \autoref{tab:class_labels}.
@@ -48,7 +48,7 @@
 
     \subsection{Data Processing}
 
-    The data processing is done in two main steps --- after the initial detection, the \acsp{ROI} are selected and processed.
+    The data processing is done in two main steps---after the initial detection, the \acsp{ROI} are selected and processed.
     This part is illustrated in the upper part of \autoref{fig:process_flow_diagram}.
     Furthermore, a custom data splitting was implemented to create five stratified folds for cross-validation.
     While the detection was performed once for the whole dataset, the selection, image processing and data splitting were implemented to be done on the fly.
@@ -94,7 +94,7 @@
 
         \subsubsection{Image Processing}
         To process the images, a custom transformation pipeline was implemented using transform version 2 from the torchvision library and a custom crop function.
-        This transformation was applied on the fly by the PyTorch DataLoader.
+        This transformation was applied on-the-fly by the PyTorch DataLoader.
         Cropping was done using the \acp{BBox} from the detection, extending them to match the ratio expected by the model.
         In cases where the extended \ac{BBox} surpassed the image border, the image was padded with black pixels.
         After cropping, each image was resized to the model's expected input size, i.e. \(224\times224\) pixels.
@@ -114,7 +114,7 @@
 
 
     \subsection{Model}
-    In this project, a selection of models from the torchvision library was tested to classify the images.
+    A selection of models from the torchvision library was tested to classify the images.
     Each model was both trained from scratch and fine-tuned using the weights of a model pre-trained on ImageNet \autocite{dengImageNetLargescaleHierarchical2009}.
     A custom helper function was implemented to adapt the last layer of the model to fit the number of classes in the dataset when the model is loaded.
     The models used in this project are:
@@ -140,7 +140,7 @@
         \item Loading the dataset and applying the processing steps described above.
         \item Initializing the model and adapting the last layer to match the classes.
         \item Training the model for the current fold using the training set.
-        \item Validating the model on the validation set and saving the best version of the model based on the lowest validation loss.
+        \item Validating the model on the validation set and saving the best version of the model based on the lowest validation loss (early stopping).
         \item The best version of the model is loaded to predict the whole dataset for later evaluation.
     \end{enumerate}
 
@@ -149,10 +149,10 @@
     The learning rate was adjusted using a cosine annealing scheduler \autocite{loshchilovSGDRStochasticGradient2017} over 50 epochs.
     A maximum of 50 epochs was trained, but an early stopping callback was implemented, monitoring the validation loss with a patience of 10 epochs.
     Logging was done using the TensorBoard logger, which is integrated into PyTorch Lightning, and an additional custom \ac{CSV} logger for easier log access for evaluation.
-    A batch size of 64 was used for training --- and doubled for validation and prediction.
+    A batch size of 64 was used for training---and doubled for validation and prediction for faster processing.
 
     \subsection{Classification}
-    After the training process was completed, the dataset was predicted using the best version model.
+    After the training process was completed, the dataset was predicted using the best model version.
     To the model's output logits, a \texttt{softmax} function was applied to obtain the predicted class confidences.
     The predicted class was determined by selecting the class with the highest confidence score using the \texttt{argmax} function.
     Both the predicted class and the confidence scores for each class were saved in a \ac{CSV} file for later evaluation.
@@ -160,95 +160,81 @@
     This step was only performed after the model had been trained and the predictions for the whole dataset were available.
     These steps are illustrated in the lower part of \autoref{fig:process_flow_diagram}.
 
-    For this calculation, a sequence could be viewed as a matrix \( P \) of shape \((n, 4)\), where \(n\) is the number of images in the sequence and 4 is the number of classes.
-    Since the model outputs a normalized confidence value over classes, the values in each row sum to one, i.e., \( \sum_{j=1}^{4} p_{i,j} = 1 \) for all \( i \in \{1, \ldots, n\} \).
-
+    For this calculation, a sequence could be viewed as a matrix
     \begin{equation}
-    P = 
-    \begin{bmatrix}
-    p_{1,1} & p_{1,2} & p_{1,3} & p_{1,4} \\
-    p_{2,1} & p_{2,2} & p_{2,3} & p_{2,4} \\
-    \vdots  & \vdots  & \vdots  & \vdots  \\
-    p_{n,1} & p_{n,2} & p_{n,3} & p_{n,4}
-    \end{bmatrix}
+        P = 
+        \begin{bmatrix}
+        p_{1,1} & p_{1,2} & p_{1,3} & p_{1,4} \\
+        p_{2,1} & p_{2,2} & p_{2,3} & p_{2,4} \\
+        \vdots  & \vdots  & \vdots  & \vdots  \\
+        p_{n,1} & p_{n,2} & p_{n,3} & p_{n,4}
+        \end{bmatrix}
     \label{eq:sequence_matrix}
     \end{equation}
-
+    of shape \((n, 4)\), where \(n\) is the number of images in the sequence and 4 is the number of classes.
+    Since the model outputs a normalized confidence value over classes, the values in each row sum to one, i.e., \( \sum_{j=1}^{4} p_{i,j} = 1 \) for all \( i \in \{1, \ldots, n\} \).
     Each row corresponds to an image in the sequence, and each column to one of the four classes.
-
-    The scores for each class in the sequence were calculated by summing the scores across all images in the sequence, resulting in a class score vector \( S \):
-
+    The scores for each class in the sequence were calculated by summing the scores across all images in the sequence, resulting in a class score vector
     \begin{equation}
-    S = [s_1\; s_2\; s_3\; s_4] = \left[ \sum_{i=1}^n p_{i,1},\; \sum_{i=1}^n p_{i,2},\; \sum_{i=1}^n p_{i,3},\; \sum_{i=1}^n p_{i,4} \right]
+        S = [s_1\; s_2\; s_3\; s_4] = \left[ \sum_{i=1}^n p_{i,1},\; \sum_{i=1}^n p_{i,2},\; \sum_{i=1}^n p_{i,3},\; \sum_{i=1}^n p_{i,4} \right]\quad.
     \label{eq:class_score_vector}
     \end{equation}
-
-    This class score vector \( S \) is then normalized to obtain the normalized class scores \( \hat{S} \):
-
-    \begin{equation}
-    \hat{S} = [\hat{s}_1\; \hat{s}_2\; \hat{s}_3\; \hat{s}_4] = \left[ \frac{s_1}{S},\; \frac{s_2}{S},\; \frac{s_3}{S},\; \frac{s_4}{S} \right]
-    \quad \text{with } S = s_1 + s_2 + s_3 + s_4
+    \( S \) is then normalized to obtain the normalized class scores \todo{make one equation}
+    \begin{align}
+        \hat{S} &= [\hat{s}_1\; \hat{s}_2\; \hat{s}_3\; \hat{s}_4]\quad \text{with }\\
+     \hat{s}_j &= \frac{s_j}{\sum_{k=1}^4  s_k}\quad.
     \label{eq:normalized_class_scores}
-    \end{equation}
-
+    \end{align}
     Finally, the predicted class label \( \hat{y} \) for the sequence is determined by selecting the class with the highest normalized score:
-
     \begin{equation}
-    \hat{y} = \arg\max \left\{\hat{s}_1\; \hat{s}_2\; \hat{s}_3\; \hat{s}_4\right\}
+        \hat{y} = \arg\max \left\{\hat{s}_1\; \hat{s}_2\; \hat{s}_3\; \hat{s}_4\right\}\quad.
     \label{eq:predicted_sequence_label}
     \end{equation}
 
     \subsection{Evaluation}
-    There are three levels of evaluation in this project.
-    The first is the evaluation of the detection output, which is done using the \ac{MD} output.
-    The second is the evaluation of the model architecture performance, determining the best performing model architecture based on the balanced accuracy score.
-    The third is the evaluation of the best performing model architecture in more detail, using additional metrics such as precision, recall, F1-score and support.
+    There are three levels of evaluation in this project:
+    i) the detection output, which is done using the \ac{MD} output,
+    ii) the model architecture performance, determining the best performing model architecture based on the balanced accuracy score and
+    iii) the best performing model architecture in more detail, using additional metrics such as precision, recall, F1-score and support.
 
     \subsubsection{Detection Output}
     To evaluate the detection output, two approaches were used.
-    On one hand, a strictly numerical evaluation was done by counting the number of images and sequences per category with detections above the thresholds of \(0.25\) and \(0.5\).
-    On the other hand, a visual evaluation was done by plotting series of detections on images from the dataset, creating views like \autoref{fig:detection_mustela_best} and \autoref{fig:detection_special_nodetect}.
+    On the one hand, a strictly numerical evaluation was conducted by counting the number of images and sequences per category with detections above the thresholds of \(0.25\) and \(0.5\).
+    On the other hand, a visual evaluation was performed by plotting series of detections on images from the dataset, creating views like \autoref{fig:detection_mustela_best} and \autoref{fig:detection_special_nodetect}.
     To do this, a Python class was implemented to iterate over a dataframe, outputting fixed-size chunks of the dataframe.
-    This class was used to browse through a dataframe --— with different filters applied to it --— visualizing the chunks with a custom plot function.
+    This class was used to browse through a dataframe---with different filters applied to it---visualizing the chunks with a custom plot function.
 
     \subsubsection{Comparison of Model Architecture Performance}
     The evaluation is done using the test set predictions created by the best version of each fold's model, which were saved at the end of the training process.
     To compare model architectures, both the image-level and sequence-level predictions are evaluated using the highest \ac{BA} score as the metric for best performance.
-    For every model architecture, the \ac{BA} is calculated for each fold and then averaged over all folds.
-    This evaluation was done for every model architecture both with and without pretraining.
-    The \ac{BA} score is calculated using the following formula:
+    For every model architecture, the
     \begin{equation}
-    \text{BalAcc}
-    \;=\;
-    \frac{1}{K} \sum_{c=1}^{K}
+        \text{BalAcc} =
+        \frac{1}{K} \sum_{c=1}^{K}
         \frac{TP_{c}}{\,TP_{c} + FN_{c}\,}
     \end{equation}
-
-    \noindent where:
-    \begin{description}
-        \item[\(K\)] is the total number of classes.
-        \item[\(TP_{c}\)] (true positives for class \(c\)) is the count of samples whose true label is \(c\) and whose predicted label is also \(c\).
-        \item[\(FN_{c}\)] (false negatives for class \(c\)) is the count of samples whose true label is \(c\) but whose predicted label is not \(c\).
-    \end{description}
+    was computed independently for versions with and without pretraining.
+    Here, \(K\) is the total number of classes, \(TP_{c}\) is the count of samples whose true label is \(c\) and whose predicted label is also \(c\) (true positives for class \(c\)) and \(FN_{c}\) is the count of samples whose true label is \(c\) but whose predicted label is not \(c\) (false negatives for class \(c\)).
+    This score is calculated for each fold and then averaged over all folds.
 
     \subsubsection{Best Performing Model Architecture}
-    To further evaluate the best performing model architecture, some additional metrics were computed on the full dataset by combining the predictions from each cross-validation fold test set.
-    On this data, precision, recall, F1-score and support for each class were computed.
+    To further evaluate the best performing model architecture, some additional metrics were computed on the full dataset by combining the predictions from each cross-validation fold test set:
+    precision, recall, F1-score and support for each class were computed.
     In the way the data is combined, support (true positives per class) is the same as the number of available samples per class in the whole dataset.
-    Additionally, the normalized \ac{CM} was calculated to visualize the performance of the model across all classes.
+    Additionally, the normalized \ac{CM} was obtained to visualize the performance of the model across all classes.
     These metrics were all calculated using the respective functions from the \texttt{sklearn} library \autocite{pedregosaScikitlearnMachineLearning2011}.
 
-    To assess the rank-based relationship between detection and classification confidence scores, Spearman's rank correlation coefficient was calculated.
+    To assess the rank-based relationship between detection and classification confidence scores, Spearman's rank correlation coefficient was used.
     This analysis was performed separately for correctly classified and misclassified images.
     The p-value was not reported, as it becomes uninformative with large sample sizes, where even negligible correlations tend to appear statistically significant.
 
     \subsection{Hardware and Software}
-    This project was processed on the \ac{IUNR} \ac{HPC} cluster using node 301, an HPE Apollo 6500 Gen10+ node running Rocky Linux 8.
+    This project was processed on the \ac{IUNR} \ac{HPC} cluster using an HPE Apollo 6500 Gen10+ node operating on Rocky Linux 8.
     The node is equipped with 8 NVIDIA L40S \acp{GPU} (48 \ac{GB} each), dual AMD EPYC 7742 processors, 512 cores and 5800 \ac{GB} of storage, providing the computational power needed for high-performance tasks.
 
     The software environment was set up using micromamba, a lightweight version of conda, to manage the dependencies and packages required for the project.
     An environment file is provided in the GitHub repository to reproduce the environment.
-    The Python version and used packages are as follows:
+    The Python version and used packages are as follows: \todo{cite packages?}
 
     \begin{itemize}
         \item Python 3.10.16
