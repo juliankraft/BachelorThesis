@@ -46,9 +46,10 @@ This calls for a more sophisticated approach to reduce missed detections while m
 
 \subsection{Model Performance}
 All tested models achieved high performance in image classification tasks, demonstrating their suitability for automating small mammal identification.
-Pretrained models slightly outperformed those trained from scratch, underscoring the value of transfer learning.
-The slightly better balanced accuracy of pretrained models is just one of the benefits of using pretrained models, as they also require less training time and computational resources---and hence less energy---and could potentially be trained with less data.
-There are various studies exploring or applying transfer learning to camera trap images, underscoring its potential \autocite{stancicClassificationEfficiencyPreTrained2022,hopkinsDetectingMonitoringRodents2024,doanWildlifeSpeciesClassification2024,rameshExploringGeneralizabilityTransfer2025,beeryRecognitionTerraIncognita2018}.\todo{(What's the difference? Delete one?)}
+Pretrained models slightly outperformed those trained from scratch, highlighting the benefits of transfer learning.
+These include faster training, lower resource requirements, and often better accuracy.
+Several studies support this: \textcite{stancicClassificationEfficiencyPreTrained2022} found good performance of pretrained models on real-world lynx data, \textcite{doanWildlifeSpeciesClassification2024} improved results through fine-tuning, and \textcite{rameshExploringGeneralizabilityTransfer2025} confirmed strong generalization on a diverse dataset.
+However, as \textcite{beeryRecognitionTerraIncognita2018} point out, performance can drop when models are used in new environments, showing that transfer learning still has its limitations.
 
 Interestingly, the smaller the models, the better they performed on the image-level classification task, highlighting the fact that bigger is not always better.
 Smaller models, if complex enough for the task, are always preferable since they require fewer computational resources and are faster to train.

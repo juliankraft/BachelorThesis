@@ -17,20 +17,20 @@ The integration of automated detections utilizing \ac{MD}, while beneficial, rev
 It was found that some finetuning of the \ac{MD} to the specific MammaliaBox camera trap setup could improve the results.
 Despite these limitations, the processing pipeline and the trained models provide a promising start for developing an applicable tool and a workflow to reduce manual effort.
 
-Having discussed the main findings, I now return to the initial problem statement outlined at the introduction and address each point with a brief summary.\todo{check this}
+Having discussed the main findings, I now return to the initial problem statement outlined at the introduction and address each point with a brief summary.
 \begin{itemize}
     \item \textbf{Dataset Preparation:} Review and analyze the existing labeled dataset, including understanding the data structure and labeling conventions.\\
-    $\blacktriangleright$ The existing labeled dataset was analyzed, revealing a structured collection of camera trap images, which were used to train and validate the deep learning models. Labeling conventions were understood and leveraged to ensure correct mapping between images and target classes.
+    $\rightarrow$ The existing labeled dataset was analyzed, revealing a structured collection of camera trap images, which were used to train and validate the deep learning models. Labeling conventions were understood and leveraged to ensure correct mapping between images and target classes.
     \item \textbf{Data Processing:} Develop a processing pipeline that includes identification of the \ac{ROI} in each image, selecting appropriate training samples and preparing the data for \ac{DL} model training.\\
-    $\blacktriangleright$ A data processing pipeline was developed to identify regions of interest (ROIs) and prepare training samples. The pipeline incorporated MegaDetector for automated detection, though some manual preprocessing remained necessary.
+    $\rightarrow$ A data processing pipeline was developed to identify \acp{ROI} and prepare training samples. The pipeline incorporated \ac{MD} for automated detection, though some manual preprocessing remained necessary.
     \item \textbf{Model Selection:} Research and select suitable \ac{DL} architectures for the classification task, considering both performance and computational efficiency.\\
-    $\blacktriangleright$ EfficientNet-B0 was selected due to its strong performance and computational efficiency. It outperformed other candidates by achieving high classification accuracy and stable convergence.
+    $\rightarrow$ EfficientNet-B0 was selected due to its strong performance and computational efficiency. It outperformed other candidates by achieving high classification accuracy and stable convergence.
     \item \textbf{Model Training:} Train the selected models on the prepared dataset using appropriate optimization strategies.\\
-    $\blacktriangleright$ The selected model was trained on the prepared dataset using standard optimization strategies, including transfer learning and validation across multiple folds, ensuring robust learning.
+    $\rightarrow$ The selected model was trained on the prepared dataset using standard optimization strategies, including transfer learning and validation across multiple folds, ensuring robust learning.
     \item \textbf{Model Evaluation:} Assess and compare model performance using standard evaluation metrics and conduct a detailed analysis of the most promising architecture.\\
-    $\blacktriangleright$ Model performance was evaluated using standard metrics, and EfficientNet-B0 was found to be the most promising. Its strengths were analyzed in contrast with limitations stemming from detection errors and non-target species.
+    $\rightarrow$ Model performance was evaluated using standard metrics, and EfficientNet-B0 was found to be the most promising. Its strengths were analyzed in contrast with limitations stemming from detection errors and non-target species.
     \item \textbf{Future pathways:} Discuss the potential for further development and integration of the model into the Wildlife@Campus project, including considerations for future data collection and model refinement.\\
-    $\blacktriangleright$ Future development includes integrating the model into the Wildlife@Campus project, automating sequence extraction via OCR, expanding categories, and exploring sequence-based and temporally aware models to improve accuracy and practical usability.
+    $\rightarrow$ Future development includes integrating the model into the Wildlife@Campus project, automating sequence extraction via OCR, expanding categories, and exploring sequence-based and temporally aware models to improve accuracy and practical usability.
 \end{itemize}
 
 \subsection{Outlook}

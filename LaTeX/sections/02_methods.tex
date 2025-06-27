@@ -174,20 +174,22 @@
     of shape \((n, 4)\), where \(n\) is the number of images in the sequence and 4 is the number of classes.
     Since the model outputs a normalized confidence value over classes, the values in each row sum to one, i.e., \( \sum_{j=1}^{4} p_{i,j} = 1 \) for all \( i \in \{1, \ldots, n\} \).
     Each row corresponds to an image in the sequence, and each column to one of the four classes.
-    The scores for each class in the sequence were calculated by summing the scores across all images in the sequence, resulting in a class score vector
+    The scores for each class in the sequence were calculated by summing the scores across all images in the sequence, resulting in a class score vector:
     \begin{equation}
-        S = [s_1\; s_2\; s_3\; s_4] = \left[ \sum_{i=1}^n p_{i,1},\; \sum_{i=1}^n p_{i,2},\; \sum_{i=1}^n p_{i,3},\; \sum_{i=1}^n p_{i,4} \right]\quad.
+        S = [s_1\; s_2\; s_3\; s_4] = \left[ \sum_{i=1}^n p_{i,1},\; \sum_{i=1}^n p_{i,2},\; \sum_{i=1}^n p_{i,3},\; \sum_{i=1}^n p_{i,4} \right]\quad
     \label{eq:class_score_vector}
     \end{equation}
-    \( S \) is then normalized to obtain the normalized class scores \todo{make one equation}
-    \begin{align}
-        \hat{S} &= [\hat{s}_1\; \hat{s}_2\; \hat{s}_3\; \hat{s}_4]\quad \text{with }\\
-     \hat{s}_j &= \frac{s_j}{\sum_{k=1}^4  s_k}\quad.
+    \( S \) is then normalized to obtain the normalized class scores:
+    \begin{equation}
+    \begin{aligned}
+        \hat{S} &= [\hat{s}_1\; \hat{s}_2\; \hat{s}_3\; \hat{s}_4]\quad \text{with } \\
+        \hat{s}_j &= \frac{s_j}{\sum_{k=1}^4  s_k}\quad
+    \end{aligned}
     \label{eq:normalized_class_scores}
-    \end{align}
+    \end{equation}
     Finally, the predicted class label \( \hat{y} \) for the sequence is determined by selecting the class with the highest normalized score:
     \begin{equation}
-        \hat{y} = \arg\max \left\{\hat{s}_1\; \hat{s}_2\; \hat{s}_3\; \hat{s}_4\right\}\quad.
+        \hat{y} = \arg\max \left\{\hat{s}_1\; \hat{s}_2\; \hat{s}_3\; \hat{s}_4\right\}\quad
     \label{eq:predicted_sequence_label}
     \end{equation}
 
@@ -234,7 +236,7 @@
 
     The software environment was set up using micromamba, a lightweight version of conda, to manage the dependencies and packages required for the project.
     An environment file is provided in the GitHub repository to reproduce the environment.
-    The Python version and used packages are as follows: \todo{cite packages?}
+    The Python version and used packages are as follows:
 
     \begin{itemize}
         \item Python 3.10.16
