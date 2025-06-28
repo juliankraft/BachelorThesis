@@ -1,4 +1,6 @@
 # excluded folders
+presentation/out/
+presentation/help/
 documents/
 drawio/
 dev/
