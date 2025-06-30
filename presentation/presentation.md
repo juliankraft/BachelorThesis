@@ -54,3 +54,43 @@ This is what it turned into:
 ## Objectives
 
 ----
+
+### These were the core objectives:
+
+- Detect animals in camera trap images  
+- Build a preprocessing pipeline  
+- Select suitable model architectures  
+- Train the classification models  
+- Evaluate model performance
+
+---
+
+## Methodology
+
+----
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; height: 100%;">
+
+  <div style="flex: 1;">
+    <h3>Detection</h3>
+    <p>Microsoft MegaDetector was used for an initial detection.</p>
+  </div>
+
+  <div style="flex: 1; text-align: right;">
+    <img src="images/flow_chart.png" style="width: 100%; max-width: 500px;" />
+  </div>
+
+</div>
+----
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; height: 100%;">
+
+  <div style="flex: 1;">
+    <h3>Selecting</h3>
+    <img src="images/discarded_img_by_conf.jpg" style="width: 100%; max-width: 500px;" />
+  </div>
+
+  <div style="flex: 1; text-align: right;">
+    <img src="images/flow_chart.png" style="width: 100%; max-width: 500px;" />
+  </div>
+
+</div>
+----
