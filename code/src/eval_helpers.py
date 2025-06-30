@@ -238,7 +238,7 @@ def plot_series_of_images(
         ncols: int = 3,
         fig_width_cm: float = 24,
         offset_margin_conf_annotation: int = 100,
-        print_idx: bool = False
+        print_idx: str = 'label'
         ) -> Figure:
 
     dataset_path = Path(dataset_path)
@@ -267,21 +267,25 @@ def plot_series_of_images(
 
         sample['img'] = Image.open(file_path)
 
-        if print_idx:
+        do_annotate = True
+        if print_idx == 'idx':
             subfigure_label = f"idx: {sample['idx']}"
-        else:
+        elif print_idx == 'label':
             subfigure_label = f'({labels[i]})'
+        else:
+            do_annotate = False
 
-        ax.annotate(
-            subfigure_label,
-            xy=(0.01, 0.98),
-            xycoords=ax.transAxes,
-            fontsize=10,
-            color='red',
-            ha='left',
-            va='top',
-            bbox=dict(facecolor='white', edgecolor='none', alpha=0.6, pad=1.5)
-            )
+        if do_annotate:
+            ax.annotate(
+                subfigure_label,
+                xy=(0.01, 0.98),
+                xycoords=ax.transAxes,
+                fontsize=10,
+                color='red',
+                ha='left',
+                va='top',
+                bbox=dict(facecolor='white', edgecolor='none', alpha=0.6, pad=1.5)
+                )
 
         draw_bbox_on_ax(
             ax=ax,
