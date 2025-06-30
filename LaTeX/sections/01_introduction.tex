@@ -28,7 +28,7 @@ Based on the design of the \enquote{Mostela} camera trap box, \textcite{aegerter
 In addition to improving image quality, they conducted extensive field testing and produced a detailed guideline for standardized and effective deployment.
 During the Wildlife@Campus project, images were generated exclusively using \enquote{MammaliaBoxes} at multiple locations on the ZHAW campus. 
 These camera trap boxes produced a substantial volume of image material, capturing a wide range of small mammal activity.
-Significant effort has already been invested within the Wildlife@Campus project to manually label a substantial portion of the image dataset and to explore automated approaches to species detection.
+Significant effort has already been invested within the Wildlife@Campus project to manually label a substantial portion of the image dataset, hereafter referred to as the \enquote{Mammalia Dataset} and to explore automated approaches to species detection.
 In fact, a preliminary solution for training a \ac{DL} model was developed and tested, and a usable labeled dataset already existed \autocite{ratnaweeraWildlifeCampusProgressReports2021}.
 However, this work remained largely undocumented and was not brought to full completion. 
 In the context of this bachelor's thesis, this dataset will be revisited to explore possibilities to leverage \ac{DL} techniques for species detection in small mammal images.
@@ -40,9 +40,11 @@ The aim of this thesis is to develop a reproducible and effective workflow for t
 \begin{itemize}
     \item \textbf{Dataset Preparation:} Review and analyze the existing labeled dataset, including understanding the data structure and labeling conventions.
     
-    \item \textbf{Data Processing:} Develop a processing pipeline that includes identification of the \ac{ROI} in each image, selecting appropriate training samples and preparing the data for \ac{DL} model training.
+    \item \textbf{Animal Detection:} A way to scann the images for animals is needed to select suitable images and determine the \ac{ROI} for classification.
+
+    \item \textbf{Data Processing:} Develop a processing pipeline that transforms the selected \acp{ROI} to a format suitable for the training of a classification model.
     
-    \item \textbf{Model Selection:} Research and select suitable \ac{DL} architectures for the classification task, considering both performance and computational efficiency.
+    \item \textbf{Model Selection:} Select suitable \ac{DL} architectures for the classification task, considering both performance and computational efficiency.
     
     \item \textbf{Model Training:} Train the selected models on the prepared dataset using appropriate optimization strategies.
     
