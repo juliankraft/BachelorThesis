@@ -179,7 +179,7 @@ This leaves four categories for the classification task, which are summarized in
     \label{eq:sequence_matrix}
     \end{equation}
     of shape \((n, 4)\), where \(n\) is the number of images in the sequence and 4 is the number of classes.
-    Since the model outputs a normalized confidence value\todo{Sind es nicht eher log-probabilities? Am Ausgang nutzt du ja wahrscheinlich Cross-entropy oderso} over classes, the values in each row sum to one, i.e., \( \sum_{j=1}^{4} p_{i,j} = 1 \) for all \( i \in \{1, \ldots, n\} \).
+    Since the model outputs normalized confidence scores obtained by applying a \texttt{softmax} function to the logits, the values in each row sum to one, i.e., \( \sum_{j=1}^{4} p_{i,j} = 1 \) for all \( i \in \{1, \ldots, n\} \).
     Each row corresponds to an image in the sequence \(S\), and each column to one of the four classes.
     The scores \(s\) for each class in the sequence were calculated by summing the scores across all images in the sequence, resulting in a class score vector:
     \begin{equation}
@@ -235,7 +235,7 @@ This leaves four categories for the classification task, which are summarized in
 
     To assess the rank-based relationship between detection and classification confidence scores, Spearman's rank correlation coefficient was used.
     This analysis was performed separately for correctly classified and misclassified images.
-    The p-value was not reported, as it becomes uninformative with large sample sizes, where even negligible correlations tend to appear statistically significant.\todo{back up with a source}
+    The p-value was not reported, as it becomes uninformative with large sample sizes, where even negligible correlations tend to appear statistically significant \autocite{linResearchCommentaryToo2013}.
 
     \subsection{Hardware and Software}
     This project was processed on the \ac{IUNR} \ac{HPC} cluster using an HPE Apollo 6500 Gen10+ node operating on Rocky Linux 8.
