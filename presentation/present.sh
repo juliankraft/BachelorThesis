@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables
-TARGET_FOLDER=../out/
+TARGET_FOLDER=./out/
 SOURCE_IMAGES=./images
 LOGO_IMAGE=logo.jpg
 
