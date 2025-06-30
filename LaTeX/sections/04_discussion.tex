@@ -44,7 +44,7 @@ This calls for a more sophisticated approach to reduce missed detections while m
 \label{fig:false_class_snails}
 \end{figure}
 
-\subsection{Model Performance}
+\subsection{Classification Performance}
 All tested models achieved high performance in image classification tasks, demonstrating their suitability for automating small mammal identification.
 Pretrained models slightly outperformed those trained from scratch, highlighting the benefits of transfer learning.
 These include faster training, lower resource requirements, and often better accuracy.
@@ -58,7 +58,7 @@ Examining \autoref{fig:bal_acc_img} again, one could speculate about a trend for
 The observations from this study suggest that smaller, computationally efficient models are sufficient and therefore preferable for the classification tasks at hand.
 
 
-\subsection{Best Model Architecture}
+\subsection{Best-Performing Model Architecture}
 The pretrained EfficientNet-B0 emerged as the best-performing architecture, achieving the highest \ac{BA}.
 \autoref{fig:training_metrics_best_model} shows the validation metrics for each cross-validation fold across all epochs; note that accuracy is reported in the figure instead of \ac{BA}.
 For all folds, the best version, defined by the lowest validation loss, occurred within the first few epochs, while accuracy continued to improve.

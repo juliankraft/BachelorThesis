@@ -21,17 +21,26 @@ Having discussed the main findings, I now return to the initial problem statemen
 \begin{itemize}
     \item \textbf{Dataset Preparation:} Review and analyze the existing labeled dataset, including understanding the data structure and labeling conventions.\\
     $\rightarrow$ The existing labeled dataset was analyzed, revealing a structured collection of camera trap images, which were used to train and validate the deep learning models. Labeling conventions were understood and leveraged to ensure correct mapping between images and target classes.
-    \item \textbf{Data Processing:} Develop a processing pipeline that includes identification of the \ac{ROI} in each image, selecting appropriate training samples and preparing the data for \ac{DL} model training.\\
-    $\rightarrow$ A data processing pipeline was developed to identify \acp{ROI} and prepare training samples. The pipeline incorporated \ac{MD} for automated detection, though some manual preprocessing remained necessary.
-    \item \textbf{Model Selection:} Research and select suitable \ac{DL} architectures for the classification task, considering both performance and computational efficiency.\\
+
+    \item \textbf{Animal Detection:} Implement a method for scanning images to identify animals, enabling the selection of suitable images and the determination of a relevant \ac{ROI} for classification.\\
+    $\rightarrow$ The MegaDetector was employed to automatically identify animals in the images. This enabled the selection of suitable images and the definition of corresponding \acsp{ROI} for the subsequent classification step.
+
+    \item \textbf{Data Processing:} Develop a processing pipeline to transform the selected \acp{ROI} into a format suitable for training a classification model.\\
+    $\rightarrow$ A processing pipeline was developed to crop and normalize the detected \acsp{ROI}, ensuring consistent input dimensions and statistical properties for model training.
+
+    \item \textbf{Model Selection:} Select suitable \ac{DL} architectures for the classification task, considering both performance and computational efficiency.\\
     $\rightarrow$ EfficientNet-B0 was selected due to its strong performance and computational efficiency. It outperformed other candidates by achieving high classification accuracy and stable convergence.
+
     \item \textbf{Model Training:} Train the selected models on the prepared dataset using appropriate optimization strategies.\\
     $\rightarrow$ The selected model was trained on the prepared dataset using standard optimization strategies, including transfer learning and validation across multiple folds, ensuring robust learning.
+
     \item \textbf{Model Evaluation:} Assess and compare model performance using standard evaluation metrics and conduct a detailed analysis of the most promising architecture.\\
     $\rightarrow$ Model performance was evaluated using standard metrics, and EfficientNet-B0 was found to be the most promising. Its strengths were analyzed in contrast with limitations stemming from detection errors and non-target species.
+
     \item \textbf{Future pathways:} Discuss the potential for further development and integration of the model into the Wildlife@Campus project, including considerations for future data collection and model refinement.\\
     $\rightarrow$ Future development includes integrating the model into the Wildlife@Campus project, automating sequence extraction via OCR, expanding categories, and exploring sequence-based and temporally aware models to improve accuracy and practical usability.
 \end{itemize}
+
 
 \subsection{Outlook}
 Future enhancements should focus on addressing current limitations by introducing an explicit category for non-target species to improve classification accuracy and reduce false predictions with high confidence.
@@ -45,7 +54,7 @@ Further research could explore different options for sequence-based classificati
 As a first step, the model's output could be evaluated on the logits level to determine how this information could be utilized to improve classification performance.
 More sophisticated approaches could involve utilizing temporally aware models as demonstrated by \textcite{muhammadTemporalSwinFPNNetNovel2024}.
 Since the initial detection process using \ac{MD} could still be improved, utilizing sequence information for the detection process could be explored further.
-\textcite{zotinANIMALDETECTIONUSING2019} demonstrated a promising non-\ac{DL} approach for detecting animals in camera trap images using sequence information.
+\textcite{zotinAnimalDetectionUsing2019} demonstrated a promising non-\ac{DL} approach for detecting animals in camera trap images using sequence information.
 There is still a better approach needed to determine the sequence length than the method applied by the Wildlife@Campus team using the \ac{EXIF} timestamp.
 Better sequence information is available visually imprinted on top of the images, which could be extracted using an \ac{OCR} model---refer to \autoref{fig:ocr_sample}.
 Since the information is imprinted on the images with high contrast and no distortion, this should be a straightforward task for an \ac{OCR} model.
