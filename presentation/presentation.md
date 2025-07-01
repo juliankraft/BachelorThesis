@@ -117,16 +117,16 @@ This is what it turned into:
 
 <div style="display: flex; justify-content: space-between; align-items: center; gap: 40px;">
 
-  <!-- Table column -->
+  <!-- left column -->
   <div style="flex: 1; text-align: center;">
     <div style="font-size: 0.4em; margin-bottom: -15px;"><em>Table: BalAcc of all models – mean ± standard deviation; best values highlighted.</em></div>
     <img src="images/table_compare.png" style="width: 100%; max-width: 500px;">
   </div>
 
-  <!-- Bar chart column -->
+  <!-- right column -->
   <div style="flex: 1; text-align: center;">
     <img src="images/bal_acc_img.jpg" style="width: 100%; max-width: 500px; margin-bottom: -15px;">
-    <div style="font-size: 0.4em; margin-top: 0px;"><em>Figure: Author's own</em></div>
+    <div style="font-size: 0.4em; margin-top: 0px;"><em>Figure: BalAcc</em></div>
   </div>
 
 </div>
@@ -137,16 +137,16 @@ This is what it turned into:
 
 <div style="display: flex; justify-content: space-between; align-items: center; gap: 40px;">
 
-  <!-- Table column -->
+  <!-- left column -->
   <div style="flex: 1; text-align: center;">
     <div style="font-size: 0.4em; margin-bottom: -15px;"><em>Table: Class-wise precision, recall, F1-score, and support for the pretrained EfficientNet-B0.</em></div>
     <img src="images/table_best.png" style="width: 100%; max-width: 500px;">
   </div>
 
-  <!-- Bar chart column -->
+  <!-- right column -->
   <div style="flex: 1; text-align: center;">
     <img src="images/conf_matrix_best.jpg" style="width: 80%; max-width: 500px; margin-bottom: -15px;">
-    <div style="font-size: 0.4em; margin-top: 0px;"><em>Figure: Author's own</em></div>
+    <div style="font-size: 0.4em; margin-top: 0px;"><em>Figure: Confusion Matrix</em></div>
   </div>
 
 </div>
@@ -155,14 +155,30 @@ This is what it turned into:
 
 ### Stoats hard to detect - easy to classify
 
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 40px;">
+
+  <!-- Left column -->
+  <div style="flex: 1; text-align: center;">
+    <img src="images/mustela_special_nodetect.jpg" style="width: 100%; max-width: 500px; margin-bottom: 5px;">
+    <div style="font-size: 0.4em;"><em>Figure: Not detected Stoats</em></div>
+  </div>
+
+  <!-- Right column -->
+  <div style="flex: 1; text-align: center;">
+    <img src="images/conf_matrix_best.jpg" style="width: 80%; max-width: 500px; margin-bottom: 5px;">
+    <div style="font-size: 0.4em;"><em>Figure: Confusion Matrix</em></div>
+  </div>
+
+</div>
 
 ----
 
 ### Looking into some errors
 
-
-
-
+<div style="text-align: center;">
+  <img src="images/false_class_snails.jpg" style="width: 100%; max-width: 1000px; margin-bottom: 5px;">
+  <div style="font-size: 0.4em;"><em>Figure: Detected Snails – Classified as Mammals</em></div>
+</div>
 ---
 
 ## Discussion
