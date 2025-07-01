@@ -17,7 +17,7 @@ from IPython.display import display
 from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 from os import PathLike
-from typing import Dict, Any, Callable
+from typing import Tuple, Dict, Any, Callable
 
 from src.dataset import MammaliaDataImage
 from src.utils import BBox, load_path_yaml
@@ -293,6 +293,79 @@ def plot_series_of_images(
             annotation_type=annotation_type,
             offset_margin_conf_annotation=offset_margin_conf_annotation
             )
+
+    plt.tight_layout()
+
+    plt.close(fig)
+
+    return fig
+
+
+def create_presentation_view(
+            path_to_dataset: PathLike | str,
+            selected_idx: list[int],
+            df_pred: pd.DataFrame,
+            df_det: pd.DataFrame,
+            fig_size: Tuple[float, float] = (24, 12),
+            annotation_type: str = 'both',
+            offset_margin_conf_annotation: int = 1050,
+            ) -> Figure:
+
+    df_pred = df_pred[df_pred['idx'].isin(selected_idx)]
+    paths_to_filter = df_pred['file_path'].unique().tolist()
+
+    df_det = df_det[df_det['file_path'].isin(paths_to_filter)]
+
+    common_cols = set(df_det.columns).intersection(df_pred.columns) - {'file_path'}
+    df_pred = df_pred.drop(columns=common_cols)
+
+    df_joined = df_det.merge(
+        df_pred,
+        on='file_path',
+        suffixes=('_det', '_pred'),
+        how='outer'
+        )
+
+    pipeline = ImagePipeline(
+        path_to_dataset=Path(path_to_dataset),
+        pre_ops=[
+                ('to_rgb', {}),
+                ('crop_by_bb', {'crop_shape': 1.0})
+                ],
+        transform=None
+        )
+
+    images = process_image_series(
+            df_joined,
+            pipeline,
+            path_to_dataset=Path(path_to_dataset),
+            font_size=120,
+            line_width=10,
+            )
+
+    nrows = 2
+    ncols = len(images)
+
+    fig = plt.figure(figsize=fig_size)
+    gs = GridSpec(
+        nrows=nrows,
+        ncols=ncols,
+        figure=fig,
+        )
+
+    for i, image in enumerate(images):
+
+        ax = fig.add_subplot(gs[0, i])
+        draw_bbox_on_ax(
+                ax=ax,
+                sample=image,
+                annotation_type=annotation_type,
+                offset_margin_conf_annotation=offset_margin_conf_annotation,
+                )
+
+        ax = fig.add_subplot(gs[1, i])
+        ax.imshow(image['img_cropped'])
+        ax.axis('off')
 
     plt.tight_layout()
 
