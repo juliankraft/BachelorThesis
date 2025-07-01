@@ -344,16 +344,30 @@ def create_presentation_view(
             line_width=10,
             )
 
+    first_img = images[0]['img']
+    img_width, img_height = first_img.size
+    aspect_ratio = img_height / img_width
+
     n = len(images)
     if orientation == 'horizontal':
         nrows, ncols = 2, n
+        width_ratios = None
+        height_ratios = [aspect_ratio, 1]
     elif orientation == 'vertical':
         nrows, ncols = n, 2
+        width_ratios = [1, aspect_ratio]
+        height_ratios = None
     else:
         raise ValueError("orientation must be 'horizontal' or 'vertical'")
 
     fig = plt.figure(figsize=fig_size)
-    gs = GridSpec(nrows=nrows, ncols=ncols, figure=fig)
+    gs = GridSpec(
+        nrows=nrows,
+        ncols=ncols,
+        figure=fig,
+        width_ratios=width_ratios,
+        height_ratios=height_ratios
+        )
 
     for i, image in enumerate(images):
         if orientation == 'horizontal':
@@ -368,7 +382,7 @@ def create_presentation_view(
             sample=image,
             annotation_type=annotation_type,
             offset_margin_conf_annotation=offset_margin_conf_annotation,
-        )
+            )
 
         ax_bottom.imshow(image['img_cropped'])
         ax_bottom.axis('off')
