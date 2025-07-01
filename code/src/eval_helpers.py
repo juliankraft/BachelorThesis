@@ -302,14 +302,15 @@ def plot_series_of_images(
 
 
 def create_presentation_view(
-            path_to_dataset: PathLike | str,
-            selected_idx: list[int],
-            df_pred: pd.DataFrame,
-            df_det: pd.DataFrame,
-            fig_size: Tuple[float, float] = (24, 12),
-            annotation_type: str = 'both',
-            offset_margin_conf_annotation: int = 1050,
-            ) -> Figure:
+        path_to_dataset: PathLike | str,
+        selected_idx: list[int],
+        df_pred: pd.DataFrame,
+        df_det: pd.DataFrame,
+        orientation: str = 'horizontal',  # 'horizontal' or 'vertical'
+        fig_size: Tuple[float, float] = (24, 12),
+        annotation_type: str = 'both',
+        offset_margin_conf_annotation: int = 1050,
+        ) -> Figure:
 
     df_pred = df_pred[df_pred['idx'].isin(selected_idx)]
     paths_to_filter = df_pred['file_path'].unique().tolist()
@@ -343,34 +344,37 @@ def create_presentation_view(
             line_width=10,
             )
 
-    nrows = 2
-    ncols = len(images)
+    n = len(images)
+    if orientation == 'horizontal':
+        nrows, ncols = 2, n
+    elif orientation == 'vertical':
+        nrows, ncols = n, 2
+    else:
+        raise ValueError("orientation must be 'horizontal' or 'vertical'")
 
     fig = plt.figure(figsize=fig_size)
-    gs = GridSpec(
-        nrows=nrows,
-        ncols=ncols,
-        figure=fig,
-        )
+    gs = GridSpec(nrows=nrows, ncols=ncols, figure=fig)
 
     for i, image in enumerate(images):
+        if orientation == 'horizontal':
+            ax_top = fig.add_subplot(gs[0, i])
+            ax_bottom = fig.add_subplot(gs[1, i])
+        else:  # vertical
+            ax_top = fig.add_subplot(gs[i, 0])
+            ax_bottom = fig.add_subplot(gs[i, 1])
 
-        ax = fig.add_subplot(gs[0, i])
         draw_bbox_on_ax(
-                ax=ax,
-                sample=image,
-                annotation_type=annotation_type,
-                offset_margin_conf_annotation=offset_margin_conf_annotation,
-                )
+            ax=ax_top,
+            sample=image,
+            annotation_type=annotation_type,
+            offset_margin_conf_annotation=offset_margin_conf_annotation,
+        )
 
-        ax = fig.add_subplot(gs[1, i])
-        ax.imshow(image['img_cropped'])
-        ax.axis('off')
+        ax_bottom.imshow(image['img_cropped'])
+        ax_bottom.axis('off')
 
     plt.tight_layout()
-
     plt.close(fig)
-
     return fig
 
 
