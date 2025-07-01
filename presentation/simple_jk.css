@@ -400,3 +400,50 @@ section.has-dark-background, section.has-dark-background h1, section.has-dark-ba
   z-index: 1000;
   pointer-events: none;
 }
+
+/*********************************************
+ * FIGURE AND TABLE IMAGE STYLES
+ *********************************************/
+
+/* Shared styles */
+.image-block {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.image-block img {
+  width: 100%;
+  max-width: 1000px;
+}
+
+/* Caption below (for figures) */
+.figure-caption {
+  font-size: 0.4em;
+  font-style: italic;
+  margin-top: -20px;
+}
+
+/* Caption above (for tables) */
+.table-caption {
+  font-size: 0.4em;
+  font-style: italic;
+  margin-bottom: -10px;
+}
+
+/* Two-column layout */
+.image-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+}
+
+.image-col {
+  flex: 1;
+  text-align: center;
+}
+
+.image-col img {
+  width: 100%;
+  max-width: 500px;
+}

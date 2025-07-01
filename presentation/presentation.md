@@ -6,19 +6,21 @@ slideNumber: false
 title: "Presentation Bachelor's Thesis"
 ---
 
-## Presentation of my Bachelor's Thesis
+# Presentation Bachelor's Thesis
 
 ---
 
 ## Contents
 
-* Presentation
-    - Topic
-    - Objectives
-    - Methodology
-    - Results
-    - Outlook / Future Work
-* Discussion
+----
+
+* Presentation  
+    - Topic  
+    - Objectives  
+    - Methodology  
+    - Results  
+    - Outlook 
+* Discussion  
 * Wrap up and Feedback
 
 Note:
@@ -30,22 +32,21 @@ Present the structure of the 30-minute talk.
 
 ----
 
-This is what I signed up for:
-
-<img src="images/fotofalle_rehwild.jpg" style="width: 50%; margin-bottom: -30px;"><br>
-<span style="font-size: 0.4em;">*Image: Bavarian State Institute of Forestry (LWF)*</span>
-
+### What I signed up for
 "Tiere in Fotofallendataset mit KI autmatisch erkennen"
+<div class="image-block">
+  <img src="images/fotofalle_rehwild.jpg" style="width: 50%;">
+  <div class="figure-caption">Image: Bavarian State Institute of Forestry (LWF)</div>
+</div>
 
 ----
 
-This is what it turned into:
-
-
-<img src="images/example_topic_images.jpg" style="width: 90%; margin-bottom: -40px;"><br>
-<span style="font-size: 0.4em;">*Image: Author's own*</span>
-
+### What it turned into
 "Deep Learning for Biodiversity Monitoring: Automated Classification of Small Mammals Captured in Foto Trap Boxes"
+<div class="image-block">
+  <img src="images/example_topic_images.jpg" style="width: 90%;">
+  <div class="figure-caption">Image: Author's own</div>
+</div>
 
 ---
 
@@ -68,25 +69,35 @@ This is what it turned into:
 ### Processing of a Sequence
 
 ----
-<img src="images/flow_chart.png" style="width: 48%; margin-bottom: -30px;"><br>
-<span style="font-size: 0.4em;">*Figure: Author's own*</span>
-----
-<div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; height: 100%;">
 
-<div style="flex: 1;">
-<h3>Selecting</h3>
-<img src="images/discarded_img_by_conf.jpg" style="width: 100%; max-width: 500px; margin-bottom: -30px;"><br>
-<span style="font-size: 0.4em;"><em>Figure: Author's own</em></span>
+<div class="image-block">
+  <img src="images/flow_chart.png" style="width: 48%;">
+  <div class="figure-caption">Figure: Author's own</div>
 </div>
 
-  <div style="flex: 1; text-align: right;">
-    <img src="images/flow_chart.png" style="width: 80%; max-width: 500px;" />
+----
+
+<div class="image-row">
+
+  <div class="image-col">
+    <img src="images/discarded_img_by_conf.jpg">
+    <div class="figure-caption">Figure: Author's own</div>
+  </div>
+
+  <div class="image-col">
+    <img src="images/flow_chart.png" style="width: 80%;">
+    <div class="figure-caption">Figure: Author's own</div>
   </div>
 
 </div>
+
 ----
-<img src="images/flow_chart.png" style="width: 48%; margin-bottom: -30px;"><br>
-<span style="font-size: 0.4em;">*Figure: Author's own*</span>
+
+<div class="image-block">
+  <img src="images/flow_chart.png" style="width: 48%;">
+  <div class="figure-caption">Figure: Author's own</div>
+</div>
+
 ---
 
 ## Methodology
@@ -95,7 +106,7 @@ This is what it turned into:
 
 ----
 
-!!!! slides missing !!!!
+_**Slides missing – Add content here.**_
 
 ---
 
@@ -105,7 +116,7 @@ This is what it turned into:
 
 ----
 
-!!!! slides missing !!!!
+_**Slides missing – Add content here.**_
 
 ---
 
@@ -115,18 +126,16 @@ This is what it turned into:
 
 ### Comparing Different Model Architectures
 
-<div style="display: flex; justify-content: space-between; align-items: center; gap: 40px;">
+<div class="image-row">
 
-  <!-- left column -->
-  <div style="flex: 1; text-align: center;">
-    <div style="font-size: 0.4em; margin-bottom: -15px;"><em>Table: BalAcc of all models – mean ± standard deviation; best values highlighted.</em></div>
-    <img src="images/table_compare.png" style="width: 100%; max-width: 500px;">
+  <div class="image-col">
+    <div class="table-caption">Table: BalAcc of all models – mean ± standard deviation; best values highlighted.</div>
+    <img src="images/table_compare.png">
   </div>
 
-  <!-- right column -->
-  <div style="flex: 1; text-align: center;">
-    <img src="images/bal_acc_img.jpg" style="width: 100%; max-width: 500px; margin-bottom: -15px;">
-    <div style="font-size: 0.4em; margin-top: 0px;"><em>Figure: BalAcc</em></div>
+  <div class="image-col">
+    <img src="images/bal_acc_img.jpg">
+    <div class="figure-caption">Figure: BalAcc</div>
   </div>
 
 </div>
@@ -135,56 +144,67 @@ This is what it turned into:
 
 ### Pretrained EfficientNet-B0
 
-<div style="display: flex; justify-content: space-between; align-items: center; gap: 40px;">
+<div class="image-row">
 
-  <!-- left column -->
-  <div style="flex: 1; text-align: center;">
-    <div style="font-size: 0.4em; margin-bottom: -15px;"><em>Table: Class-wise precision, recall, F1-score, and support for the pretrained EfficientNet-B0.</em></div>
-    <img src="images/table_best.png" style="width: 100%; max-width: 500px;">
+  <div class="image-col">
+    <div class="table-caption">Table: Class-wise precision, recall, F1-score, and support for the pretrained EfficientNet-B0.</div>
+    <img src="images/table_best.png">
   </div>
 
-  <!-- right column -->
-  <div style="flex: 1; text-align: center;">
-    <img src="images/conf_matrix_best.jpg" style="width: 80%; max-width: 500px; margin-bottom: -15px;">
-    <div style="font-size: 0.4em; margin-top: 0px;"><em>Figure: Confusion Matrix</em></div>
+  <div class="image-col">
+    <img src="images/conf_matrix_best.jpg" style="width: 80%;">
+    <div class="figure-caption">Figure: Confusion Matrix</div>
   </div>
 
 </div>
 
 ----
 
-### Stoats hard to detect - easy to classify
+### Stoats hard to detect – easy to classify
 
-<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 40px;">
+<div class="image-block">
+  <img src="images/mustela_hard_detect.jpg" style="max-width: 1000px;">
+  <div class="figure-caption">Figure: Not detected Stoats</div>
+</div>
 
-  <!-- Left column -->
-  <div style="flex: 1; text-align: center;">
-    <img src="images/mustela_special_nodetect.jpg" style="width: 100%; max-width: 500px; margin-bottom: 5px;">
-    <div style="font-size: 0.4em;"><em>Figure: Not detected Stoats</em></div>
-  </div>
+----
 
-  <!-- Right column -->
-  <div style="flex: 1; text-align: center;">
-    <img src="images/conf_matrix_best.jpg" style="width: 80%; max-width: 500px; margin-bottom: 5px;">
-    <div style="font-size: 0.4em;"><em>Figure: Confusion Matrix</em></div>
-  </div>
+### Stoats hard to detect – easy to classify
 
+<div class="image-block">
+  <img src="images/mustela_easy_classify.jpg" style="max-width: 1000px;">
+  <div class="figure-caption">Figure: Stoats - Easy to classify</div>
 </div>
 
 ----
 
 ### Looking into some errors
 
-<div style="text-align: center;">
-  <img src="images/false_class_snails.jpg" style="width: 100%; max-width: 1000px; margin-bottom: 5px;">
-  <div style="font-size: 0.4em;"><em>Figure: Detected Snails – Classified as Mammals</em></div>
+<div class="image-block">
+  <img src="images/false_class_snails.jpg" style="max-width: 1000px;">
+  <div class="figure-caption">Figure: Detected Snails – Classified as Mammals</div>
 </div>
+
+---
+
+## Outlook
+
+----
+
+_**Slides missing – Add content here.**_
+
 ---
 
 ## Discussion
 
 ----
 
+_Add your discussion points here._
+
 ---
 
 ## Wrap up and Feedback
+
+----
+
+_Add your Wrap Up._
