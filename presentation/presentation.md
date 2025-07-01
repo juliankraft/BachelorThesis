@@ -115,7 +115,7 @@ This is what it turned into:
 
 ### Comparing Different Model Architectures
 
-<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 40px;">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 40px;">
 
   <!-- Table column -->
   <div style="flex: 1; text-align: center;">
@@ -135,11 +135,40 @@ This is what it turned into:
 
 ### Pretrained EfficientNet-B0
 
-<span style="font-size: 0.4em;">*Table: Class-wise precision, recall, F1-score, and support for the pretrained EfficientNet-B0.*</span>
-<img src="images/table_best.png" style="width: 60%; margin-top: 0px;">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 40px;">
+
+  <!-- Table column -->
+  <div style="flex: 1; text-align: center;">
+    <div style="font-size: 0.4em; margin-bottom: -15px;"><em>Table: Class-wise precision, recall, F1-score, and support for the pretrained EfficientNet-B0.</em></div>
+    <img src="images/table_best.png" style="width: 100%; max-width: 500px;">
+  </div>
+
+  <!-- Bar chart column -->
+  <div style="flex: 1; text-align: center;">
+    <img src="images/conf_matrix_best.jpg" style="width: 80%; max-width: 500px; margin-bottom: -15px;">
+    <div style="font-size: 0.4em; margin-top: 0px;"><em>Figure: Author's own</em></div>
+  </div>
+
+</div>
+
+----
+
+### Stoats hard to detect - easy to classify
+
+
+----
+
+### Looking into some errors
+
+
+
 
 ---
 
 ## Discussion
 
 ----
+
+---
+
+## Wrap up and Feedback
