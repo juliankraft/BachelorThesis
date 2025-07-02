@@ -40,7 +40,7 @@ Present the structure of the 30-minute talk.
 "Deep Learning for Biodiversity Monitoring: Automated Classification of Small Mammals Captured in Foto Trap Boxes"
 <div class="image-block">
   <img src="images/example_topic_images.jpg" style="width: 90%;">
-  <div class="figure-caption">Image: Author's own</div>
+  <div class="figure-caption">Figure: Authors own Example</div>
 </div>
 
 ---
@@ -58,12 +58,9 @@ Present the structure of the 30-minute talk.
 ---
 ## Methodology
 
-### Processing of a Sequence
-
 ----
 <div class="image-block">
-  <img src="images/flow_chart.png" style="width: 48%;">
-  <div class="figure-caption">Figure: Author's own</div>
+  <img src="images/flow_chart.svg" style="width: 48%;">
 </div>
 
 ----
@@ -71,26 +68,19 @@ Present the structure of the 30-minute talk.
 
   <div class="image-col">
     <img src="images/discarded_img_by_conf.jpg">
-    <div class="figure-caption">Figure: Author's own</div>
+    <div class="figure-caption">Figure: Percentage of Images Discarded</div>
   </div>
 
   <div class="image-col">
-    <img src="images/flow_chart.png" style="width: 80%;">
-    <div class="figure-caption">Figure: Author's own</div>
+    <img src="images/flow_chart.svg" style="width: 80%;">
   </div>
 
 </div>
 
 ----
 <div class="image-block">
-  <img src="images/flow_chart.png" style="width: 48%;">
-  <div class="figure-caption">Figure: Author's own</div>
+  <img src="images/flow_chart.svg" style="width: 48%;">
 </div>
-
----
-## Methodology
-
-### Training
 
 ----
 ### Tested Architectures
@@ -131,16 +121,14 @@ Note:
 ----
 ### Cross Validation
 
----
-## Methodology
-
-### Evaluation
+<img src="images/k-fold.svg" style="width: 40%; margin-bottom: -50px;">
 
 ----
-_**Slides missing – Add content here.**_
+### Evaluation
+
+<img src="images/eval.svg" style="width: 100%; margin-bottom: -50px;">
 
 ---
-
 ## Results
 
 ----
@@ -178,7 +166,7 @@ _**Slides missing – Add content here.**_
 </div>
 
 ----
-### Stoats hard to detect – easy to classify
+### Stoats: hard to detect – easy to classify
 
 <div class="image-block">
   <img src="images/mustela_hard_detect.jpg" style="max-width: 1000px;">
@@ -186,7 +174,7 @@ _**Slides missing – Add content here.**_
 </div>
 
 ----
-### Stoats hard to detect – easy to classify
+### Stoats: hard to detect – easy to classify
 
 <div class="image-block">
   <img src="images/mustela_easy_classify.jpg" style="max-width: 1000px;">
@@ -209,20 +197,61 @@ _**Slides missing – Add content here.**_
   <div class="figure-caption">Figure: Missdetections</div>
 </div>
 
+----
+### Correlation?
+
+<div style="margin-top: 0em; margin-bottom: -1em;font-size: 0.8em;">
+  <p>
+    Spearman’s rank correlation:
+  </p>
+  <ul style="list-style-type: none; padding-left: 0;">
+    <li><em>Correctly classified samples</em>: <strong>ρ = 0.092</strong></li>
+    <li><em>Incorrectly classified samples</em>: <strong>ρ = 0.276</strong></li>
+  </ul>
+</div>
+
+<div class="image-block">
+  <img src="images/pred_conf_hexbin.jpg" style="max-width: 600px;">
+  <div class="figure-caption">Figure: Correlation of Detection and Classification Confidence</div>
+</div>
+
 ---
 ## Outlook
 
 ----
-_**Slides missing – Add content here.**_
+### Directions for Improvements
+
+- Introduce a non-target class for OOD detection  
+- Add additional species, e.g. _Glis glis_
+- Improve detection quality, e.g. via fine-tuning
+- Explore sequence-aware or temporally informed classification approaches
+
+----
+### Automated Sequence Detection
+
+<br><br>
+Utilizing OCR for sequence detection:
+
+<div class="image-block">
+  <img src="images/ocr_example.jpg" style="max-width: 1000px;">
+  <div class="figure-caption">Figure: Top Strip of a Random Sample</div>
+</div>
+
+Output string was:
+
+_2019-09-04 1:02:09 AM M 1/3 #9 10°C_
+
+----
+### Interface
+
+<div class="image-block">
+  <img src="images/illustration_software.png" style="max-width: 600px;">
+  <div class="figure-caption">Figure: Illustration by ChatGPT 4o</div>
+</div>
 
 ---
 ## Discussion
 
-----
-_Add your discussion points here._
-
 ---
 ## Wrap up and Feedback
 
-----
-_Add your Wrap Up._
