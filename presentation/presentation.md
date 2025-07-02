@@ -13,11 +13,11 @@ title: "Presentation Bachelor's Thesis"
 
 ----
 * Presentation  
-    - Topic  
-    - Objectives  
-    - Methodology  
-    - Results  
-    - Outlook 
+  - Topic  
+  - Objectives  
+  - Methodology  
+  - Results  
+  - Outlook 
 * Discussion  
 * Wrap-up and Feedback
 
