@@ -4,16 +4,14 @@ transition: "slide"
 highlightTheme: "github"
 slideNumber: false
 title: "Presentation Bachelor's Thesis"
----
 
+---
 # Presentation Bachelor's Thesis
 
 ---
-
 ## Contents
 
 ----
-
 * Presentation  
     - Topic  
     - Objectives  
@@ -27,11 +25,9 @@ Note:
 Present the structure of the 30-minute talk.
 
 ---
-
 ## Topic
 
 ----
-
 ### What I signed up for
 "Tiere in Fotofallendataset mit KI autmatisch erkennen"
 <div class="image-block">
@@ -40,7 +36,6 @@ Present the structure of the 30-minute talk.
 </div>
 
 ----
-
 ### What it turned into
 "Deep Learning for Biodiversity Monitoring: Automated Classification of Small Mammals Captured in Foto Trap Boxes"
 <div class="image-block">
@@ -49,11 +44,9 @@ Present the structure of the 30-minute talk.
 </div>
 
 ---
-
 ## Objectives
 
 ----
-
 ### These were the core objectives:
 
 - Detect animals in camera trap images  
@@ -63,20 +56,17 @@ Present the structure of the 30-minute talk.
 - Evaluate model performance
 
 ---
-
 ## Methodology
 
 ### Processing of a Sequence
 
 ----
-
 <div class="image-block">
   <img src="images/flow_chart.png" style="width: 48%;">
   <div class="figure-caption">Figure: Author's own</div>
 </div>
 
 ----
-
 <div class="image-row">
 
   <div class="image-col">
@@ -92,30 +82,61 @@ Present the structure of the 30-minute talk.
 </div>
 
 ----
-
 <div class="image-block">
   <img src="images/flow_chart.png" style="width: 48%;">
   <div class="figure-caption">Figure: Author's own</div>
 </div>
 
 ---
-
 ## Methodology
 
 ### Training
 
 ----
+### Tested Architectures
+<div class="tabular-container">
 
-_**Slides missing – Add content here.**_
+  <div class="tabular-row">
+    <div class="model-name">EffNet-B0</div>
+    <div class="model-param">4M</div>
+    <div class="model-desc">Scaled CNN baseline</div>
+  </div>
+
+  <div class="tabular-row">
+    <div class="model-name">DenseNet-169</div>
+    <div class="model-param">12M</div>
+    <div class="model-desc">Dense CNN, feature reuse</div>
+  </div>
+
+  <div class="tabular-row">
+    <div class="model-name">ResNet-50</div>
+    <div class="model-param">23M</div>
+    <div class="model-desc">Residual blocks, deep</div>
+  </div>
+
+  <div class="tabular-row">
+    <div class="model-name">ViT-B/16</div>
+    <div class="model-param">85M</div>
+    <div class="model-desc">Transformer, patch-wise</div>
+  </div>
+
+</div>
+
+Note:
+- Scaled CNN baseline = Efficient scaling across dimensions
+- Dense CNN = Feature reuse via dense connections
+- Residual blocks = Deep training with residual connections
+- Patch-wise transformer = Transformer input via image patches
+
+----
+### Cross Validation
 
 ---
-
 ## Methodology
 
 ### Evaluation
 
 ----
-
 _**Slides missing – Add content here.**_
 
 ---
@@ -123,7 +144,6 @@ _**Slides missing – Add content here.**_
 ## Results
 
 ----
-
 ### Comparing Different Model Architectures
 
 <div class="image-row">
@@ -141,7 +161,6 @@ _**Slides missing – Add content here.**_
 </div>
 
 ----
-
 ### Pretrained EfficientNet-B0
 
 <div class="image-row">
@@ -159,7 +178,6 @@ _**Slides missing – Add content here.**_
 </div>
 
 ----
-
 ### Stoats hard to detect – easy to classify
 
 <div class="image-block">
@@ -168,16 +186,14 @@ _**Slides missing – Add content here.**_
 </div>
 
 ----
-
 ### Stoats hard to detect – easy to classify
 
 <div class="image-block">
   <img src="images/mustela_easy_classify.jpg" style="max-width: 1000px;">
-  <div class="figure-caption">Figure: Stoats - Easy to classify</div>
+  <div class="figure-caption">Figure: Classification examples</div>
 </div>
 
 ----
-
 ### Looking into some errors
 
 <div class="image-block">
@@ -185,26 +201,28 @@ _**Slides missing – Add content here.**_
   <div class="figure-caption">Figure: Detected Snails – Classified as Mammals</div>
 </div>
 
----
+----
+### Looking into some errors
 
+<div class="image-block">
+  <img src="images/no_detect_error.jpg" style="max-width: 1000px;">
+  <div class="figure-caption">Figure: Missdetections</div>
+</div>
+
+---
 ## Outlook
 
 ----
-
 _**Slides missing – Add content here.**_
 
 ---
-
 ## Discussion
 
 ----
-
 _Add your discussion points here._
 
 ---
-
 ## Wrap up and Feedback
 
 ----
-
 _Add your Wrap Up._

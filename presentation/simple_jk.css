@@ -447,3 +447,40 @@ section.has-dark-background, section.has-dark-background h1, section.has-dark-ba
   width: 100%;
   max-width: 500px;
 }
+
+/*********************************************
+ * Tabular Block for Model Overview (Updated)
+ *********************************************/
+
+.tabular-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.8em; /* Reduce text size slightly */
+  margin: 2em auto;
+  width: 80%;
+}
+
+.tabular-row {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  margin: 0.2em 0;
+}
+
+.model-name {
+  flex: 1.2;
+  text-align: left;
+  font-weight: bold;
+}
+
+.model-param {
+  flex: 0.5;
+  text-align: right;
+  padding-right: 1em;
+}
+
+.model-desc {
+  flex: 2;
+  text-align: left;
+}
