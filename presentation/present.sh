@@ -1,9 +1,10 @@
 #!/bin/bash
 
+cd "$(dirname "$0")" 
+
 # Variables
 TARGET_FOLDER=./out/
 SOURCE_IMAGES=./images
-LOGO_IMAGE=logo.jpg
 
 # Clear the target folder if it exists
 if [ -d "$TARGET_FOLDER" ]; then

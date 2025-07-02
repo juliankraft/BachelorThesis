@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "$0")"
+
 # Configuration
 LOCAL_DIR="./out/"
 REMOTE="myserver"
