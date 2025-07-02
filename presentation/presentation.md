@@ -68,7 +68,7 @@ Present the structure of the 30-minute talk.
 
   <div class="image-col">
     <img src="images/discarded_img_by_conf.jpg">
-    <div class="figure-caption">Figure: Percentage of Images Discarded</div>
+    <div class="figure-caption">Figure: Percentage of images discarded</div>
   </div>
 
   <div class="image-col">
@@ -137,13 +137,13 @@ Note:
 <div class="image-row">
 
   <div class="image-col">
-    <div class="table-caption">Table: BalAcc of all models – mean ± standard deviation; best values highlighted.</div>
+    <div class="table-caption">Table: Balanced accuracy of all models – mean ± standard deviation; best values highlighted</div>
     <img src="images/table_compare.png">
   </div>
 
   <div class="image-col">
     <img src="images/bal_acc_img.jpg">
-    <div class="figure-caption">Figure: BalAcc</div>
+    <div class="figure-caption">Figure: Balanced accuracy across folds</div>
   </div>
 
 </div>
@@ -154,13 +154,13 @@ Note:
 <div class="image-row">
 
   <div class="image-col">
-    <div class="table-caption">Table: Class-wise precision, recall, F1-score, and support for the pretrained EfficientNet-B0.</div>
+    <div class="table-caption">Table: Class-wise precision, recall, F1-score, and support for the pretrained EfficientNet-B0</div>
     <img src="images/table_best.png">
   </div>
 
   <div class="image-col">
     <img src="images/conf_matrix_best.jpg" style="width: 80%;">
-    <div class="figure-caption">Figure: Confusion Matrix</div>
+    <div class="figure-caption">Figure: Confusion matrix EfficientNet-B0</div>
   </div>
 
 </div>
@@ -170,7 +170,7 @@ Note:
 
 <div class="image-block">
   <img src="images/mustela_hard_detect.jpg" style="max-width: 1000px;">
-  <div class="figure-caption">Figure: Not detected Stoats</div>
+  <div class="figure-caption">Figure: Not detected stoats</div>
 </div>
 
 ----
@@ -178,7 +178,7 @@ Note:
 
 <div class="image-block">
   <img src="images/mustela_easy_classify.jpg" style="max-width: 1000px;">
-  <div class="figure-caption">Figure: Classification Examples</div>
+  <div class="figure-caption">Figure: Classification examples</div>
 </div>
 
 ----
@@ -186,7 +186,7 @@ Note:
 
 <div class="image-block">
   <img src="images/false_class_snails.jpg" style="max-width: 1000px;">
-  <div class="figure-caption">Figure: Detected Snails – Classified as Mammals</div>
+  <div class="figure-caption">Figure: Detected snails – classified as mammals</div>
 </div>
 
 ----
@@ -194,7 +194,7 @@ Note:
 
 <div class="image-block">
   <img src="images/no_detect_error.jpg" style="max-width: 1000px;">
-  <div class="figure-caption">Figure: Missed Detections</div>
+  <div class="figure-caption">Figure: Missed detections</div>
 </div>
 
 ----
@@ -212,7 +212,7 @@ Note:
 
 <div class="image-block">
   <img src="images/pred_conf_hexbin.jpg" style="max-width: 600px;">
-  <div class="figure-caption">Figure: Correlation of Detection and Classification Confidence</div>
+  <div class="figure-caption">Figure: Correlation of detection and classification confidence</div>
 </div>
 
 ---
@@ -234,7 +234,7 @@ Utilizing OCR for sequence detection:
 
 <div class="image-block">
   <img src="images/ocr_example.jpg" style="max-width: 1000px;">
-  <div class="figure-caption">Figure: Top Strip of a Random Sample</div>
+  <div class="figure-caption">Figure: Top strip of a random sample</div>
 </div>
 
 Output string was:
