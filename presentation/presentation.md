@@ -19,7 +19,7 @@ title: "Presentation Bachelor's Thesis"
     - Results  
     - Outlook 
 * Discussion  
-* Wrap up and Feedback
+* Wrap-up and Feedback
 
 Note:
 Present the structure of the 30-minute talk.
@@ -29,7 +29,7 @@ Present the structure of the 30-minute talk.
 
 ----
 ### What I signed up for
-"Tiere in Fotofallendataset mit KI autmatisch erkennen"
+"Tiere in Fotofallendataset mit KI automatisch erkennen"
 <div class="image-block">
   <img src="images/fotofalle_rehwild.jpg" style="width: 50%;">
   <div class="figure-caption">Image: Bavarian State Institute of Forestry (LWF)</div>
@@ -40,7 +40,7 @@ Present the structure of the 30-minute talk.
 "Deep Learning for Biodiversity Monitoring: Automated Classification of Small Mammals Captured in Foto Trap Boxes"
 <div class="image-block">
   <img src="images/example_topic_images.jpg" style="width: 90%;">
-  <div class="figure-caption">Figure: Authors own Example</div>
+  <div class="figure-caption">Figure: Author's own example</div>
 </div>
 
 ---
@@ -87,7 +87,7 @@ Present the structure of the 30-minute talk.
 <div class="tabular-container">
 
   <div class="tabular-row">
-    <div class="model-name">EffNet-B0</div>
+    <div class="model-name">EfficientNet-B0</div>
     <div class="model-param">4M</div>
     <div class="model-desc">Scaled CNN baseline</div>
   </div>
@@ -178,7 +178,7 @@ Note:
 
 <div class="image-block">
   <img src="images/mustela_easy_classify.jpg" style="max-width: 1000px;">
-  <div class="figure-caption">Figure: Classification examples</div>
+  <div class="figure-caption">Figure: Classification Examples</div>
 </div>
 
 ----
@@ -194,7 +194,7 @@ Note:
 
 <div class="image-block">
   <img src="images/no_detect_error.jpg" style="max-width: 1000px;">
-  <div class="figure-caption">Figure: Missdetections</div>
+  <div class="figure-caption">Figure: Missed Detections</div>
 </div>
 
 ----
@@ -222,8 +222,8 @@ Note:
 ### Directions for Improvements
 
 - Introduce a non-target class for OOD detection  
-- Add additional species, e.g. _Glis glis_
-- Improve detection quality, e.g. via fine-tuning
+- Add additional species, e.g. _Glis glis_  
+- Improve detection quality, e.g. via fine-tuning  
 - Explore sequence-aware or temporally informed classification approaches
 
 ----
@@ -253,5 +253,4 @@ _2019-09-04 1:02:09 AM M 1/3 #9 10°C_
 ## Discussion
 
 ---
-## Wrap up and Feedback
-
+## Wrap-up and Feedback
