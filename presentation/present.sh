@@ -14,6 +14,8 @@ else
     echo "Target folder does not exist. No need to clear."
 fi
 
+mkdir -p "$TARGET_FOLDER/images"
+
 # Export the presentation
 reveal-md presentation.md --css simple_jk.css --static "$TARGET_FOLDER"
 if [ $? -eq 0 ]; then
@@ -22,9 +24,6 @@ else
     echo "Error: Failed to export presentation." >&2
     exit 1
 fi
-
-# Create images folder if it doesn't exist
-mkdir -p "$TARGET_FOLDER/images"
 
 # Copy all images to the static folder
 if [ -d "$SOURCE_IMAGES" ]; then
