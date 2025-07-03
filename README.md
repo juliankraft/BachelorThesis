@@ -30,7 +30,7 @@ This work lays the foundation for integrating DL into the camera trap approach o
 This repository contains all relevant code, the LaTeX source and all visualizations created during the thesis.
 
 **Thesis:** [main.pdf](./LaTeX/main.pdf)<br>
-**Visualizations:** [visualizations.ipynb](./visualizations.ipynb)
+**Visualizations:** [visualizations.ipynb](./visualizations.ipynb)<br>
 **Presentation:** [link](https://juliankraft.ch/presentation_BA/)
 
 ### Repository Structure
