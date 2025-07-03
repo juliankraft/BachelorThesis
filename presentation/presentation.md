@@ -50,10 +50,15 @@ Present the structure of the 30-minute talk.
 ----
 ### These were the core objectives:
 
-- Detect animals in camera trap images  
-- Build a preprocessing pipeline  
-- Select suitable model architectures  
-- Train the classification models  
+  <div class="image-col">
+    <img src="images/objectives.svg" style="width: 1000%;">
+  </div>
+
+Note:
+- Detect animals in camera trap images
+- Build a preprocessing pipeline
+- Select suitable model architectures
+- Train the classification models
 - Evaluate model performance
 
 ---
@@ -223,11 +228,10 @@ Note:
 ### Directions for Improvements
 
   <div class="image-col">
-    <img src="images/improvements.svg" style="width: 80%;">
+    <img src="images/improvements.svg" style="width: 1000%;">
   </div>
 
-----
-
+Notes:
 - Introduce a non-target class for OOD detection  
 - Add additional species, e.g. _Glis glis_  
 - Improve detection quality, e.g. via fine-tuning  
@@ -248,13 +252,13 @@ Output string was:
 
 _2019-09-04 1:02:09 AM M 1/3 #9 10°C_
 
-----
+<!-- ----
 ### Interface
 
 <div class="image-block">
   <img src="images/illustration_software.png" style="max-width: 600px;">
   <div class="figure-caption">Figure: Illustration by ChatGPT 4o</div>
-</div>
+</div> -->
 
 ---
 ## Discussion
