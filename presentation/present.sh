@@ -1,6 +1,7 @@
 #!/bin/bash
 
-cd "$(dirname "$0")" 
+cd "$(dirname "$0")"
+export PATH="/opt/homebrew/bin:$PATH"
 
 # Variables
 TARGET_FOLDER=./out/
