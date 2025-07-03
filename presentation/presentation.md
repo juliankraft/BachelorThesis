@@ -26,7 +26,7 @@ Present the structure of the 30-minute talk.
   - Results  
   - Outlook 
 * Discussion  
-* Wrap-up and Feedback
+* Feedback
 
 ---
 ## Topic
@@ -277,4 +277,4 @@ _2019-09-04 1:02:09 AM M 1/3 #9 10°C_
 </iframe>
 
 ---
-## Wrap-up and Feedback
+## Feedback
