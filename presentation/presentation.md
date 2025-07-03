@@ -6,8 +6,10 @@ slideNumber: false
 title: "Presentation Bachelor's Thesis"
 
 ---
-# Presentation Bachelor's Thesis
+# Deep Learning for Biodiversity Monitoring
 
+Note:
+Titel der Arbeit
 
 ---
 ## Outline
@@ -47,6 +49,13 @@ Present the structure of the 30-minute talk.
   <div class="figure-caption">Figure: Author's own example</div>
 </div>
 
+Note:
+Introduce Campus@Wildlife
+
+----
+### Relevanz
+Deep learning, Small Mammals
+
 ---
 ## Objectives
 
@@ -56,6 +65,8 @@ Present the structure of the 30-minute talk.
   <div class="image-col">
     <img src="images/objectives.svg" style="width: 1000%;">
   </div>
+
+<!-- mehr zusammenfassen -->
 
 Note:
 - Detect animals in camera trap images
@@ -85,6 +96,8 @@ Note:
   </div>
 
 </div>
+
+Note: Explain fig well
 
 ----
 <div class="image-block">
@@ -121,6 +134,9 @@ Note:
 
 </div>
 
+<!-- Get more detail about this -->
+<!-- mention pretraining -->
+
 Note:
 - Scaled CNN baseline = Efficient scaling across dimensions
 - Dense CNN = Feature reuse via dense connections
@@ -130,12 +146,16 @@ Note:
 ----
 ### Cross Validation
 
-<img src="images/k-fold.svg" style="width: 40%; margin-bottom: -50px;">
+<img src="images/k-fold.svg" style="width: 60%; margin-bottom: -50px;">
 
 ----
 ### Evaluation
 
 <img src="images/eval.svg" style="width: 100%; margin-bottom: -50px;">
+
+<!-- know the metrics -->
+Note:
+Why different aggregation approaches
 
 ---
 ## Results
@@ -268,7 +288,7 @@ _2019-09-04 1:02:09 AM M 1/3 #9 10°C_
 
 ----
 <iframe 
-  width="100%" 
+  width="90%" 
   height="600" 
   src="https://miro.com/app/live-embed/uXjVIhkMbMs=/?focusWidget=3458764633579243550&embedMode=view_only_without_ui&embedId=494225355739" 
   frameborder="0" 
@@ -278,3 +298,5 @@ _2019-09-04 1:02:09 AM M 1/3 #9 10°C_
 
 ---
 ## Feedback
+
+Note: 
