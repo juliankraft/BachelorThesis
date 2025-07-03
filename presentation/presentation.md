@@ -6,7 +6,7 @@ slideNumber: false
 title: "Presentation Bachelor's Thesis"
 
 ---
-# Deep Learning for Biodiversity Monitoring
+## Deep Learning for Biodiversity Monitoring
 
 Note:
 Titel der Arbeit
@@ -50,11 +50,57 @@ Present the structure of the 30-minute talk.
 </div>
 
 Note:
-Introduce Campus@Wildlife
+already way in the core of the topic
 
 ----
-### Relevanz
-Deep learning, Small Mammals
+### Biodiversity
+
+<div class="image-block">
+  <img src="images/biodiversity_loss.png" style="max-width: 500px;">
+  <div class="figure-caption">
+    Figure: Global trends in biodiversity loss (Brondízio et al., 2019, IPBES)
+  </div>
+</div>
+
+<div style="max-width: 80%; margin: 40px auto 0; font-size: 0.3em;">
+  Source: Brondízio, E. S., Settele, J., Díaz, S., & Ngo, H. T. (Eds.). 
+  (2019). 
+  <i>The Global Assessment Report of the Intergovernmental Science-Policy Platform on Biodiversity and Ecosystem Services</i>. 
+  IPBES, Bonn.
+</div>
+
+Note:
+This figure illustrates long-term declines across vertebrate groups.
+
+----
+### Small Mammals
+
+ecologically important and often overlooked
+<div class="image-block">
+  <img src="images/example_mammal.jpg" style="max-width: 500px;">
+  <div class="figure-caption">Image: From the Mammalia Dataset</div>
+</div>
+
+----
+### Wildlife@Campus Project
+
+<div class="image-block">
+  <img src="images/campus.svg" style="max-width: 500px;">
+  <div class="figure-caption">Figure: Author's own</div>
+</div>
+
+
+----
+### Why Automation Matters
+
+📷 **Millions of Images**
+
+⚙️ **Automation is Key**  
+
+<div class="image-block">
+  <img src="images/illustration_software.png" style="max-width: 500px;">
+  <div class="figure-caption">Image: Illustration by ChatGPT 4o</div>
+</div>
 
 ---
 ## Objectives
@@ -65,15 +111,6 @@ Deep learning, Small Mammals
   <div class="image-col">
     <img src="images/objectives.svg" style="width: 1000%;">
   </div>
-
-<!-- mehr zusammenfassen -->
-
-Note:
-- Detect animals in camera trap images
-- Build a preprocessing pipeline
-- Select suitable model architectures
-- Train the classification models
-- Evaluate model performance
 
 ---
 ## Methodology
@@ -134,14 +171,21 @@ Note: Explain fig well
 
 </div>
 
-<!-- Get more detail about this -->
-<!-- mention pretraining -->
+pretrained and from scratch
 
 Note:
-- Scaled CNN baseline = Efficient scaling across dimensions
-- Dense CNN = Feature reuse via dense connections
-- Residual blocks = Deep training with residual connections
-- Patch-wise transformer = Transformer input via image patches
+**EfficientNet-B0**<br>
+Scales depth, width, and resolution in a balanced way<br>
+Lightweight baseline with ~4 million parameters<br>
+**DenseNet-169**<br>
+Uses dense connections between layers (each layer receives input from all previous layers)<br>
+Enables feature reuse and efficient gradient flow, ~12 million parameters<br>
+**ResNet-50**<br>
+Deep architecture with residual (skip) connections<br>
+Robust performance, ~23 million parameters<br>
+**ViT-B/16**<br>
+Vision Transformer using 16×16 image patches<br>
+Uses self-attention (each patch attends to all others, capturing global context), ~85 million parameters
 
 ----
 ### Cross Validation
@@ -153,9 +197,14 @@ Note:
 
 <img src="images/eval.svg" style="width: 100%; margin-bottom: -50px;">
 
-<!-- know the metrics -->
-Note:
-Why different aggregation approaches
+Note:  
+Why different aggregation approaches — to retain information about distribution of fold performance.
+
+**Balanced Accuracy**: Average of recall scores across classes. Useful for imbalanced datasets.  
+**Accuracy**: Overall proportion of correctly classified samples. Can be misleading if classes are imbalanced.  
+**Recall**: True positives / (true positives + false negatives). Measures how well a class is detected (sensitivity).  
+**F1 Score**: Harmonic mean of precision and recall. Balances false positives and false negatives.  
+**Support**: Number of ground truth samples per class. Indicates class distribution in the test set.
 
 ---
 ## Results
@@ -275,14 +324,6 @@ Output string was:
 
 _2019-09-04 1:02:09 AM M 1/3 #9 10°C_
 
-<!-- ----
-### Interface
-
-<div class="image-block">
-  <img src="images/illustration_software.png" style="max-width: 600px;">
-  <div class="figure-caption">Figure: Illustration by ChatGPT 4o</div>
-</div> -->
-
 ---
 ## Discussion
 
@@ -299,4 +340,8 @@ _2019-09-04 1:02:09 AM M 1/3 #9 10°C_
 ---
 ## Feedback
 
-Note: 
+Note:
+
+- Fedback to my supervisors
+- thank the audience
+- feedback to me
