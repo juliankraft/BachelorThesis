@@ -10,9 +10,15 @@ title: "Presentation Bachelor's Thesis"
 
 
 ---
-## Contents
+## Outline
 
 ----
+  <div class="image-col">
+    <img src="images/outline.svg" style="width: 1000%;">
+  </div>
+
+Note:
+Present the structure of the 30-minute talk.
 * Presentation  
   - Topic  
   - Objectives  
@@ -21,9 +27,6 @@ title: "Presentation Bachelor's Thesis"
   - Outlook 
 * Discussion  
 * Wrap-up and Feedback
-
-Note:
-Present the structure of the 30-minute talk.
 
 ---
 ## Topic
