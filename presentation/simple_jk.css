@@ -19,6 +19,40 @@ section.has-dark-background, section.has-dark-background h1, section.has-dark-ba
   color: #fff;
 }
 
+
+/*********************************************
+ * GLOBAL LOGO STYLES
+ *********************************************/
+ .reveal::before {
+  content: "";
+  position: fixed; /* Fixed position relative to the viewport */
+  top: 10px;       /* Distance from the top */
+  left: 10px;      /* Distance from the left */
+  width: clamp(150px, 20.8vw, 400px);
+  height: clamp(150px, 20.8vw, 400px);
+  background-image: url('../images/logo.png'); /* Path to your logo */
+  background-size: contain; /* Scale the logo to fit */
+  background-repeat: no-repeat; /* No repeating */
+  z-index: 1000; /* Place it above all content */
+  pointer-events: none; /* Prevent the logo from interfering with clicks */
+}
+
+.reveal::after {
+  content: "Julian Kraft UI22\A Bachelor's Thesis\A 4.7.2025";
+  white-space: pre;
+  position: fixed;
+  top: 0px;
+  right: 10px;
+  text-align: right;
+  font-size: clamp(12px, 2.6vw, 34px); /* increased all values */
+  line-height: 1.1; /* compact line spacing */
+  background: rgba(255, 255, 255, 0.8);
+  padding: clamp(8px, 1.2vw, 16px); /* slightly more padding */
+  border-radius: 5px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
 /*********************************************
  * GLOBAL STYLES
  *********************************************/
@@ -367,38 +401,6 @@ section.has-dark-background, section.has-dark-background h1, section.has-dark-ba
   .backgrounds {
     background-color: var(--r-background-color);
   }
-}
-
-/*********************************************
- * GLOBAL LOGO STYLES
- *********************************************/
- .reveal::before {
-  content: "";
-  position: fixed; /* Fixed position relative to the viewport */
-  top: 10px;       /* Distance from the top */
-  left: 10px;      /* Distance from the left */
-  width: 400px;    /* Adjust logo width */
-  height: 400px;   /* Adjust logo height */
-  background-image: url('../images/logo.jpg'); /* Path to your logo */
-  background-size: contain; /* Scale the logo to fit */
-  background-repeat: no-repeat; /* No repeating */
-  z-index: 1000; /* Place it above all content */
-  pointer-events: none; /* Prevent the logo from interfering with clicks */
-}
-
-.reveal::after {
-  content:  "Julian Kraft UI22\A Bachelor's Thesis\A 4.7.2025";
-  white-space: pre; /* Preserve newlines */
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  text-align: right;
-  font-size: 0.8em;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 5px;
-  border-radius: 5px;
-  z-index: 1000;
-  pointer-events: none;
 }
 
 /*********************************************
