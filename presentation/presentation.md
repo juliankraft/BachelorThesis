@@ -253,5 +253,14 @@ _2019-09-04 1:02:09 AM M 1/3 #9 10°C_
 ---
 ## Discussion
 
+<iframe
+  src="https://miro.com/app/live-embed/uXjVIhkMbMs=/?autoplay=true"
+  width="100%"
+  height="600px"
+  frameborder="0"
+  scrolling="no"
+  allowfullscreen
+></iframe>
+
 ---
 ## Wrap-up and Feedback
