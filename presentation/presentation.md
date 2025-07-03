@@ -222,6 +222,12 @@ Note:
 ----
 ### Directions for Improvements
 
+  <div class="image-col">
+    <img src="images/improvements.svg" style="width: 80%;">
+  </div>
+
+----
+
 - Introduce a non-target class for OOD detection  
 - Add additional species, e.g. _Glis glis_  
 - Improve detection quality, e.g. via fine-tuning  
