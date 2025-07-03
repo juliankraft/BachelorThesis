@@ -31,11 +31,13 @@ This repository contains all relevant code, the LaTeX source and all visualizati
 
 **Thesis:** [main.pdf](./LaTeX/main.pdf)<br>
 **Visualizations:** [visualizations.ipynb](./visualizations.ipynb)
+**Presentation:** [link](https://juliankraft.ch/presentation_BA/)
 
 ### Repository Structure
 
 - `LaTeX/`: LaTeX source code of the thesis  
-- `code/`: All Python code developed for this project  
+- `code/`: All Python code developed for this project
+- `presentation/`: Source code for creating the presentation 
 - `run/`: Files used to run the experiments
 
 ### Environment
