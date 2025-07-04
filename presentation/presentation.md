@@ -275,7 +275,7 @@ Why different aggregation approaches — to retain information about distributio
   <div class="figure-caption">Figure: Missed detections</div>
 </div>
 
-----
+<!-- ----
 ### Correlation?
 
 <div style="margin-top: 0em; margin-bottom: -1em;font-size: 0.8em;">
@@ -291,7 +291,7 @@ Why different aggregation approaches — to retain information about distributio
 <div class="image-block">
   <img src="images/pred_conf_hexbin.jpg" style="max-width: 600px;">
   <div class="figure-caption">Figure: Correlation of detection and classification confidence</div>
-</div>
+</div> -->
 
 ---
 ## Outlook
@@ -328,14 +328,7 @@ _2019-09-04 1:02:09 AM M 1/3 #9 10°C_
 ## Discussion
 
 ----
-<iframe 
-  width="90%" 
-  height="600" 
-  src="https://miro.com/app/live-embed/uXjVIhkMbMs=/?focusWidget=3458764633579243550&embedMode=view_only_without_ui&embedId=494225355739" 
-  frameborder="0" 
-  scrolling="no" 
-  allow="fullscreen; clipboard-read; clipboard-write" allowfullscreen>
-</iframe>
+<img src="images/miro.png" style="width: 100%">
 
 ---
 ## Feedback
